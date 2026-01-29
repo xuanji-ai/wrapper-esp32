@@ -1,0 +1,3 @@
+dependencies:
+  nix-wrapper-esp32:
+    path: ../..

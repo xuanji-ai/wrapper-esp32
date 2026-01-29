@@ -1,0 +1,18 @@
+dependencies:
+  idf:
+    source:
+      type: idf
+    version: 5.5.1
+  nix-wrapper-esp32:
+    dependencies:
+    - name: idf
+      version: '>=5.5.1'
+    source:
+      path: /home/nixy/ws/nix-wrapper-esp32
+      type: local
+    version: 0.1.0
+direct_dependencies:
+- nix-wrapper-esp32
+manifest_hash: f7e3471057cddfaae85241af5cc3762d6e7456086c9803186653fec4f293cdaa
+target: esp32
+version: 2.0.0

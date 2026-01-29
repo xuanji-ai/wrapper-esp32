@@ -1,0 +1,6 @@
+description: "nix-wrapper-esp32 component"
+version: "0.1.0"
+dependencies:
+  idf: ">=5.5.1"
+repository: https://github.com/Nixy4/nix-wrapper-esp32
+url: https://github.com/Nixy4/nix-wrapper-esp32
