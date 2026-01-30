@@ -1,57 +1,73 @@
 #include "nlogger.hpp"
 
-NLogger::NLogger() : separator_(": "), suffix_("\n") {
+using namespace nix;
+
+Logger::Logger() {
 }
 
-NLogger::NLogger(const std::string& prefix) : prefix_(prefix), separator_(": "), suffix_("\n") {
+Logger::Logger(const std::string& tags) {
+    tags_list_.push_back(tags);
+    RebuildTags();
 }
 
-NLogger::~NLogger() {
+Logger::~Logger() {
 }
 
-void NLogger::SetPrefix(const std::string& prefix) {
+void Logger::SetPrefix(const std::string& prefix) {
     prefix_ = prefix;
 }
 
-void NLogger::SetSeparator(const std::string& separator) {
+void Logger::SetSeparator(const std::string& separator) {
     separator_ = separator;
 }
 
-void NLogger::SetSuffix(const std::string& suffix) {
+void Logger::SetSuffix(const std::string& suffix) {
     suffix_ = suffix;
 }
 
-void NLogger::SetTags(const std::string& tags) {
-    tags_ = tags;
-    tags_list_.clear();
-    tags_list_.push_back(tags);
-}
-
-void NLogger::SetTags(const std::vector<std::string>& tags) {
+void Logger::SetTags(const std::vector<std::string>& tags) {
     tags_list_ = tags;
     RebuildTags();
 }
 
-void NLogger::SetTags(const std::initializer_list<std::string>& tags) {
+void Logger::SetTags(const std::initializer_list<std::string>& tags) {
     tags_list_ = tags;
     RebuildTags();
 }
 
-void NLogger::SetTag(int index, const std::string& tag) {
+void Logger::SetTag(int index, const std::string& tag) {
     if (index >= 0 && index < static_cast<int>(tags_list_.size())) {
         tags_list_[index] = tag;
         RebuildTags();
     }
 }
 
-void NLogger::ClearTags() {
+void Logger::ClearTags() {
     tags_list_.clear();
     tags_.clear();
 }
 
-void NLogger::RebuildTags() {
+void Logger::RebuildTags() {
     tags_.clear();
-    for (const auto& tag : tags_list_) {
-        tags_ += tag;
+    
+    // Pre-calculate required capacity to avoid multiple reallocations
+    size_t capacity = prefix_.size() + suffix_.size();
+    if (!tags_list_.empty()) {
+        for (const auto& tag : tags_list_) {
+            capacity += tag.size();
+        }
+        capacity += separator_.size() * (tags_list_.size() - 1);
     }
+    tags_.reserve(capacity);
+    
+    // Build the string efficiently
+    tags_ += prefix_;
+    if (!tags_list_.empty()) {
+        tags_ += tags_list_[0];
+        for (size_t i = 1; i < tags_list_.size(); ++i) {
+            tags_ += separator_;
+            tags_ += tags_list_[i];
+        }
+    }
+    tags_ += suffix_;
 }

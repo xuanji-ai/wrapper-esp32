@@ -1,6 +1,35 @@
-description: "nix-wrapper-esp32 component"
-version: "0.1.0"
 dependencies:
   idf: ">=5.5.1"
+  esp32-camera:
+    public: true
+    version: ^2.0.11
+  esp_codec_dev:
+    public: true
+    version: ~1.5
+  esp_lcd_ili9341: 
+    public: true
+    version: ^2.0.1
+  esp_lcd_touch_ft5x06: 
+    public: true
+    version: ^1
+  espressif/esp_lvgl_port:
+    public: true
+    version: ^2
+  espressif/m5stack_core_s3: 
+    version: "^3.0.2"
+    public: true
+    rules:
+      - if: "target == esp32s3"
+  espressif/m5stack_tab5: 
+    version: "^1.0.0"
+    public: true
+    rules:
+      - if: "target == esp32p4"
+
 repository: https://github.com/Nixy4/nix-wrapper-esp32
 url: https://github.com/Nixy4/nix-wrapper-esp32
+description: "nix-wrapper-esp32 component"
+version: "0.1.0"
+targets:
+  - esp32s3
+  - esp32p4

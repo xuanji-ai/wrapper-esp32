@@ -1,8 +1,8 @@
-I will implement `NSpiMasterLcd` in `nspi_master.hpp` and `nspi_master.cpp`, following the pattern of `NI2CMasterLcd`.
+I will implement `NSpiMasterLcd` in `nspi.hpp` and `nspi_master.cpp`, following the pattern of `I2cMasterLcd`.
 
 **Plan:**
 
-1.  **Modify `nspi_master.hpp`**:
+1.  **Modify `nspi.hpp`**:
     *   Add necessary includes: `esp_lcd_panel_io.h`, `esp_lcd_panel_ops.h`, `esp_lcd_panel_dev.h`, `functional`.
     *   Define `NSpiMasterLcdNewPanelFunc` type alias.
     *   Define `NSpiMasterLcdConfig` struct:
