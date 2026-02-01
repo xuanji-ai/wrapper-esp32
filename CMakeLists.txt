@@ -1,7 +1,7 @@
-set(SRC_DIRS "src/wrapper" "src/device")
+set(SRC_DIRS "src/wrapper" "src/device" "src/app")
 set(INCLUDE_DIRS "src")
 
-set(REQUIRES_ESP_IDF "log" "driver" "esp_lcd")
+set(REQUIRES_ESP_IDF "log" "nvs_flash" "driver" "esp_lcd" "esp_wifi" "esp_event" "wifi_provisioning")
 set(REQUIRES_ESP_REGISTRY "")
 set(REQUIRES_PROJECT "")
 

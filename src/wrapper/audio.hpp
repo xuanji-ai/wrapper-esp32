@@ -20,10 +20,12 @@ namespace wrapper
     const audio_codec_ctrl_if_t *m_spk_audio_codec_ctrl_if = nullptr;
     const audio_codec_if_t *m_spk_audio_codec_if = nullptr;
     esp_codec_dev_handle_t m_spk_codec_dev_handle = nullptr;
+    bool m_spk_enabled = false;
     //microphone
     const audio_codec_ctrl_if_t *m_mic_audio_codec_ctrl_if = nullptr;
     const audio_codec_if_t *m_mic_audio_codec_if = nullptr;
     esp_codec_dev_handle_t m_mic_codec_dev_handle = nullptr;  
+    bool m_mic_enabled = false;
 
   public:
     AudioCodec(Logger &logger);
@@ -47,16 +49,40 @@ namespace wrapper
 
     esp_err_t SetSpeakerVolume(int vol);
     esp_err_t GetSpeakerVolume(int &vol);
+
     esp_err_t SetSpeakerMute(bool mute);
     esp_err_t IsSpeakerMuted(bool &mute);
 
     esp_err_t SetMicrophoneGain(float gain);
     esp_err_t GetMicrophoneGain(float &gain);
+
     esp_err_t SetMicrophoneMute(bool mute);
     esp_err_t IsMicrophoneMuted(bool &mute);
 
-    esp_err_t TestSpeaker();//生成1秒正弦波音频播放
-    esp_err_t TestMicrophone();//录制3秒音频并播放
+    esp_err_t EnableSpeaker(bool enable);
+    esp_err_t IsSpeakerEnabled(bool &enable);
+
+    esp_err_t EnableMicrophone(bool enable);
+    esp_err_t IsMicrophoneEnabled(bool &enable);
+
+    esp_err_t Write(const void *data, size_t size);
+    esp_err_t Read(void *data, size_t size);
+
+    template<typename T>
+    esp_err_t Write(const std::vector<T>& data)
+    {
+        return Write(data.data(), data.size() * sizeof(T));
+    }
+
+    template<typename T>
+    esp_err_t Read(std::vector<T>& data, size_t count)
+    {
+        data.resize(count);
+        return Read(data.data(), count * sizeof(T));
+    }
+    
+    esp_err_t TestSpeaker();
+    esp_err_t TestMicrophone();
   };
 
 } // namespace wrapper

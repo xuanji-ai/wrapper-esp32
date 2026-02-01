@@ -93,62 +93,41 @@ esp_err_t AudioCodec::AddMicrophone(I2cBus& i2c_bus, uint8_t addr, std::function
 
 esp_err_t AudioCodec::SetSpeakerVolume(int vol)
 {
-    if (m_spk_codec_dev_handle == nullptr) {
-        return ESP_ERR_INVALID_STATE;
-    }
     return esp_codec_dev_set_out_vol(m_spk_codec_dev_handle, vol);
 }
 
 esp_err_t AudioCodec::GetSpeakerVolume(int &vol)
 {
-    if (m_spk_codec_dev_handle == nullptr) {
-        return ESP_ERR_INVALID_STATE;
-    }
     return esp_codec_dev_get_out_vol(m_spk_codec_dev_handle, &vol);
 }
 
 esp_err_t AudioCodec::SetSpeakerMute(bool mute)
 {
-    if (m_spk_codec_dev_handle == nullptr) {
-        return ESP_ERR_INVALID_STATE;
-    }
     return esp_codec_dev_set_out_mute(m_spk_codec_dev_handle, mute);
 }
 
 esp_err_t AudioCodec::IsSpeakerMuted(bool &mute)
 {
-    if (m_spk_codec_dev_handle == nullptr) {
-        return ESP_ERR_INVALID_STATE;
-    }
     return esp_codec_dev_get_out_mute(m_spk_codec_dev_handle, &mute);
 }
 
 esp_err_t AudioCodec::SetMicrophoneGain(float gain)
 {
-    if (m_mic_codec_dev_handle == nullptr) {
-        return ESP_ERR_INVALID_STATE;
-    }
     return esp_codec_dev_set_in_gain(m_mic_codec_dev_handle, gain);
 }
 
 esp_err_t AudioCodec::GetMicrophoneGain(float &gain)
 {
-    if (m_mic_codec_dev_handle == nullptr) {
-        return ESP_ERR_INVALID_STATE;
-    }
     return esp_codec_dev_get_in_gain(m_mic_codec_dev_handle, &gain);
 }
 
 esp_err_t AudioCodec::SetMicrophoneMute(bool mute)
 {
-    return ESP_ERR_NOT_SUPPORTED;
+    return esp_codec_dev_set_in_mute(m_mic_codec_dev_handle, mute);
 }
 
 esp_err_t AudioCodec::TestSpeaker()
 {
-    if (m_spk_codec_dev_handle == nullptr) {
-        return ESP_ERR_INVALID_STATE;
-    }
     if (m_i2s_bus == nullptr) {
         m_logger.Error("I2S bus not initialized");
         return ESP_ERR_INVALID_STATE;
@@ -199,10 +178,6 @@ esp_err_t AudioCodec::TestSpeaker()
 
 esp_err_t AudioCodec::TestMicrophone()
 {
-    if (m_mic_codec_dev_handle == nullptr || m_spk_codec_dev_handle == nullptr) {
-        m_logger.Error("Both microphone and speaker must be initialized for this test");
-        return ESP_ERR_INVALID_STATE;
-    }
     if (m_i2s_bus == nullptr) {
         m_logger.Error("I2S bus not initialized");
         return ESP_ERR_INVALID_STATE;
@@ -256,5 +231,85 @@ esp_err_t AudioCodec::TestMicrophone()
 
 esp_err_t AudioCodec::IsMicrophoneMuted(bool &mute)
 {
-    return ESP_ERR_NOT_SUPPORTED;
+    return esp_codec_dev_get_in_mute(m_mic_codec_dev_handle, &mute);
+}
+
+esp_err_t AudioCodec::EnableSpeaker(bool enable)
+{
+    if (m_spk_enabled == enable) {
+        return ESP_OK;
+    }
+    
+    esp_err_t ret = ESP_OK;
+    if (enable) {
+        if (m_i2s_bus == nullptr) {
+            return ESP_ERR_INVALID_STATE;
+        }
+        esp_codec_dev_sample_info_t fs = {
+            .bits_per_sample = 16,
+            .channel = 2,
+            .channel_mask = 0,
+            .sample_rate = m_i2s_bus->GetTxSampleRate(),
+            .mclk_multiple = 0,
+        };
+        ret = esp_codec_dev_open(m_spk_codec_dev_handle, &fs);
+    } else {
+        ret = esp_codec_dev_close(m_spk_codec_dev_handle);
+    }
+    
+    if (ret == ESP_OK) {
+        m_spk_enabled = enable;
+    }
+    return ret;
+}
+
+esp_err_t AudioCodec::IsSpeakerEnabled(bool &enable)
+{
+    enable = m_spk_enabled;
+    return ESP_OK;
+}
+
+esp_err_t AudioCodec::EnableMicrophone(bool enable)
+{
+    if (m_mic_enabled == enable) {
+        return ESP_OK;
+    }
+
+    esp_err_t ret = ESP_OK;
+    if (enable) {
+        if (m_i2s_bus == nullptr) {
+            return ESP_ERR_INVALID_STATE;
+        }
+        esp_codec_dev_sample_info_t fs = {
+            .bits_per_sample = 16,
+            .channel = 2,
+            .channel_mask = 0,
+            .sample_rate = m_i2s_bus->GetRxSampleRate(),
+            .mclk_multiple = 0,
+        };
+        ret = esp_codec_dev_open(m_mic_codec_dev_handle, &fs);
+    } else {
+        ret = esp_codec_dev_close(m_mic_codec_dev_handle);
+    }
+
+    if (ret == ESP_OK) {
+        m_mic_enabled = enable;
+    }
+    return ret;
+}
+
+esp_err_t AudioCodec::IsMicrophoneEnabled(bool &enable)
+{
+    enable = m_mic_enabled;
+    return ESP_OK;
+}
+
+esp_err_t AudioCodec::Write(const void *data, size_t size)
+{
+    return esp_codec_dev_write(m_spk_codec_dev_handle, (void*)data, size);
+}
+
+esp_err_t AudioCodec::Read(void *data, size_t size)
+{
+    return esp_codec_dev_read(m_mic_codec_dev_handle, data, size);
 }

@@ -18,5 +18,9 @@ public:
     static M5StackCoreS3 instance;
     return instance;
   }
-  void Init();
+  bool InitSocAbility(bool nvs);
+  bool InitBus(bool i2c, bool spi, bool i2s);
+  bool InitDevice(bool power, bool audio, bool display, bool touch);
+  bool InitMiddleware(bool lvgl);
+  bool Init();
 };

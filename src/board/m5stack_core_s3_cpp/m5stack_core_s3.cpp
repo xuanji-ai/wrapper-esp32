@@ -4,6 +4,8 @@
 #include "esp_lcd_touch_ft5x06.h"
 
 #include "wrapper/logger.hpp"
+#include "wrapper/soc.hpp"
+#include "wrapper/nvs.hpp"
 #include "wrapper/i2c.hpp"
 #include "wrapper/spi.hpp"
 #include "wrapper/i2s.hpp"
@@ -149,6 +151,7 @@ LvglDisplayConfig lvgl_display_config(
 
 LvglTouchConfig lvgl_touch_config(0.0f, 0.0f);
 
+Logger logger_nvs_ability("M5StackCoreS3", "nvs");
 Logger logger_i2c_bus("M5StackCoreS3", "i2c", "bus");
 Logger logger_spi_bus("M5StackCoreS3", "spi", "bus");
 Logger logger_i2s_bus("M5StackCoreS3", "i2s", "bus");
@@ -160,6 +163,7 @@ Logger logger_ili9341("M5StackCoreS3", "spi", "ili9341");
 Logger logger_lvgl("M5StackCoreS3", "lvgl", "port");
 Logger logger_audio_codec("M5StackCoreS3", "audio", "codec");
 
+Nvs nvs_ability(logger_nvs_ability);
 I2cBus i2c_bus(logger_i2c_bus);
 SpiBus spi_bus(logger_spi_bus);
 I2sBus i2s_bus(logger_i2s_bus);
@@ -233,141 +237,150 @@ std::function<esp_err_t()> mic_codec_new_func = []() -> esp_err_t
   return ESP_OK;
 };
 
-void M5StackCoreS3::Init()
+bool M5StackCoreS3::InitSocAbility(bool nvs)
+{
+    esp_err_t err = ESP_OK;
+    if (nvs) {
+      err = nvs_ability.Init();
+      if (err != ESP_OK) return false;
+    }
+    return true;
+}
+
+bool M5StackCoreS3::InitBus(bool i2c, bool spi, bool i2s)
 {
   esp_err_t err = ESP_OK;
-  //! bus--------------------------------------------------------------------------
-  err = i2c_bus.Init(i2c_bus_config);
-  if (err != ESP_OK)
-  {
-    return;
+  if (i2c) {
+      err = i2c_bus.Init(i2c_bus_config);
+      if (err != ESP_OK) return false;
   }
-  err = spi_bus.Init(spi_bus_config);
-  if (err != ESP_OK)
-  {
-    return;
+  
+  if (spi) {
+      err = spi_bus.Init(spi_bus_config);
+      if (err != ESP_OK) return false;
   }
-  err = i2s_bus.Init(bus_config);
-  if (err != ESP_OK)
-  {
-    return;
+  
+  if (i2s) {
+      err = i2s_bus.Init(bus_config);
+      if (err != ESP_OK) return false;
+      err = i2s_bus.ConfigureTxChannel(tx_config);
+      if (err != ESP_OK) return false;
+      err = i2s_bus.ConfigureRxChannel(rx_config);
+      if (err != ESP_OK) return false;
   }
-  err = i2s_bus.ConfigureTxChannel(tx_config);
-  if (err != ESP_OK)
-  {
-    return;
+  return true;
+}
+
+bool M5StackCoreS3::InitDevice(bool power, bool audio, bool display, bool touch)
+{
+  esp_err_t err = ESP_OK;
+  
+  if (power) {
+      // AXP2101
+      err = axp2101.Init(i2c_bus, axp2101_config);
+      if (err != ESP_OK) return false;
+      
+      uint8_t data = 0x00;
+      err = axp2101.ReadReg8(0x90, data, -1);
+      if (err != ESP_OK) return false;
+      data |= 0b10110100;
+      std::tuple<uint8_t, uint8_t> axp_cmds[] = {
+          {0x90, data},
+          {0x99, (uint8_t)(0b11110 - 5)},
+          {0x97, (uint8_t)(0b11110 - 2)},
+          {0x69, 0b00110101},
+          {0x30, 0b111111},
+          {0x90, 0xBF},
+          {0x94, 33 - 5},
+          {0x95, 33 - 5},
+      };
+      for (const auto &[reg, value] : axp_cmds)
+      {
+        err = axp2101.WriteReg8(reg, value, -1);
+        if (err != ESP_OK) return false;
+      }
+      axp2101.GetLogger().Info("Configured successfully");
+
+      // AW9523
+      err = aw9523.Init(i2c_bus, aw9523_config);
+      if (err != ESP_OK) return false;
+      
+      std::tuple<uint8_t, uint8_t> aw_cmds[] = {
+          {0x02, 0b00000111},
+          {0x03, 0b10001111},
+          {0x04, 0b00011000},
+          {0x05, 0b00001100},
+          {0x11, 0b00010000},
+          {0x12, 0b11111111},
+          {0x13, 0b11111111},
+      };
+      for (const auto &[reg, value] : aw_cmds)
+      {
+        err = aw9523.WriteReg8(reg, value, -1);
+        if (err != ESP_OK)
+        {
+          aw9523.GetLogger().Error("Failed to write register 0x%02X: %s", reg, esp_err_to_name(err));
+          return false;
+        }
+      }
+      aw9523.GetLogger().Info("Configured successfully");
   }
-  err = i2s_bus.ConfigureRxChannel(rx_config);
-  if (err != ESP_OK)
-  {
-    return;
+
+  if (touch) {
+      err = ft5x06.Init(i2c_bus, ft5x06_config, esp_lcd_touch_new_i2c_ft5x06);
+      if (err != ESP_OK) return false;
   }
-  //! device--------------------------------------------------------------------------
-  err = axp2101.Init(i2c_bus, axp2101_config);
-  if (err != ESP_OK)
-  {
-    return;
+
+  if (display) {
+      err = ili9341.Init(spi_bus, spi_lcd_config, esp_lcd_new_panel_ili9341);
+      if (err != ESP_OK) return false;
   }
-  else
-  {
-    uint8_t data = 0x00;
-    err = axp2101.ReadReg8(0x90, data, -1);
-    if (err != ESP_OK)
-    {
-      return;
-    }
-    data |= 0b10110100;
-    std::tuple<uint8_t, uint8_t> cmds[] = {
-        {0x90, data},
-        {0x99, (uint8_t)(0b11110 - 5)},
-        {0x97, (uint8_t)(0b11110 - 2)},
-        {0x69, 0b00110101},
-        {0x30, 0b111111},
-        {0x90, 0xBF},
-        {0x94, 33 - 5},
-        {0x95, 33 - 5},
-    };
-    for (const auto &[reg, value] : cmds)
-    {
-      err = axp2101.WriteReg8(reg, value, -1);
+
+  if (audio) {
+      audio_codec.Init(i2s_bus);
+      // speaker
+      err = audio_codec.AddSpeaker(i2c_bus, AW88298_CODEC_DEFAULT_ADDR, spk_codec_new_func);
       if (err != ESP_OK)
       {
-        return;
+        audio_codec.GetLogger().Error("Failed to add speaker: %s", esp_err_to_name(err));
+        return false;
       }
-    }
-    axp2101.GetLogger().Info("Configured successfully");
-  }
-  err = aw9523.Init(i2c_bus, aw9523_config);
-  if (err != ESP_OK)
-  {
-    return;
-  }
-  else
-  {
-    std::tuple<uint8_t, uint8_t> cmds[] = {
-        {0x02, 0b00000111},
-        {0x03, 0b10001111},
-        {0x04, 0b00011000},
-        {0x05, 0b00001100},
-        {0x11, 0b00010000},
-        {0x12, 0b11111111},
-        {0x13, 0b11111111},
-    };
-    for (const auto &[reg, value] : cmds)
-    {
-      err = aw9523.WriteReg8(reg, value, -1);
+      // microphone
+      err = audio_codec.AddMicrophone(i2c_bus, ES7210_CODEC_DEFAULT_ADDR, mic_codec_new_func);
       if (err != ESP_OK)
       {
-        aw9523.GetLogger().Error("Failed to write register 0x%02X: %s", reg, esp_err_to_name(err));
-        return;
+        audio_codec.GetLogger().Error("Failed to add microphone: %s", esp_err_to_name(err));
+        return false;
       }
+  }
+  
+  return true;
+}
+
+bool M5StackCoreS3::InitMiddleware(bool lvgl)
+{
+    esp_err_t err = ESP_OK;
+    if (lvgl) {
+      err = lvgl_port.Init(lvgl_port_config);
+      if (err != ESP_OK) return false;
+      
+      err = lvgl_port.AddDisplay(ili9341, lvgl_display_config);
+      if (err != ESP_OK) return false;
+      
+      err = lvgl_port.AddTouch(ft5x06, lvgl_touch_config);
+      if (err != ESP_OK) return false;
     }
-    aw9523.GetLogger().Info("Configured successfully");
-  }
-  err = ft5x06.Init(i2c_bus, ft5x06_config, esp_lcd_touch_new_i2c_ft5x06);
-  if (err != ESP_OK)
-  {
-    return;
-  }
-  err = ili9341.Init(spi_bus, spi_lcd_config, esp_lcd_new_panel_ili9341);
-  if (err != ESP_OK)
-  {
-    return;
-  }
-  audio_codec.Init(i2s_bus);
-  {
-    // speaker
-    err = audio_codec.AddSpeaker(i2c_bus, AW88298_CODEC_DEFAULT_ADDR, spk_codec_new_func);
-    if (err != ESP_OK)
-    {
-      audio_codec.GetLogger().Error("Failed to add speaker: %s", esp_err_to_name(err));
-      return;
-    }
-    // microphone
-    err = audio_codec.AddMicrophone(i2c_bus, ES7210_CODEC_DEFAULT_ADDR, mic_codec_new_func);
-    if (err != ESP_OK)
-    {
-      audio_codec.GetLogger().Error("Failed to add microphone: %s", esp_err_to_name(err));
-      return;
-    }
-  }
-  //! middleware--------------------------------------------------------------------------
-  err = lvgl_port.Init(lvgl_port_config);
-  if (err != ESP_OK)
-  {
-    return;
-  }
-  err = lvgl_port.AddDisplay(ili9341, lvgl_display_config);
-  if (err != ESP_OK)
-  {
-    return;
-  }
-  err = lvgl_port.AddTouch(ft5x06, lvgl_touch_config);
-  if (err != ESP_OK)
-  {
-    return;
-  }
-  //! finished--------------------------------------------------------------------------
-  initialized_ = true;
-  return;
+    return true;
+}
+
+bool M5StackCoreS3::Init()
+{
+    if (initialized_) return true;
+    if (!InitSocAbility(true)) return false;
+    if (!InitBus(true, true, true)) return false;
+    if (!InitDevice(true, true, true, true)) return false;
+    if (!InitMiddleware(true)) return false;
+    
+    initialized_ = true;
+    return true;
 }

@@ -1,4 +1,14 @@
 dependencies:
+  78/esp-wifi-connect:
+    component_hash: bf996fc603af1ff529668c788c7b38a8d94b1d43455af56d116d27ebb04b742a
+    dependencies:
+    - name: idf
+      require: private
+      version: '>=5.3'
+    source:
+      registry_url: https://components.espressif.com/
+      type: service
+    version: 3.0.2
   espressif/cmake_utilities:
     component_hash: 351350613ceafba240b761b4ea991e0f231ac7a9f59a9ee901f751bddc0bb18f
     dependencies:
@@ -138,7 +148,7 @@ dependencies:
       registry_url: https://components.espressif.com
       type: service
     version: 9.4.0
-  wrapper-esp-idf:
+  wrapper-esp32:
     dependencies:
     - name: idf
       version: '>=5.5.1'
@@ -168,14 +178,15 @@ dependencies:
       - if: target == esp32p4
       version: ^1.0.0
     source:
-      path: /home/nixy/ws/wrapper-esp-idf
+      path: /home/nixy/ws/wrapper-esp32
       type: local
     targets:
     - esp32s3
     - esp32p4
     version: 0.1.0
 direct_dependencies:
-- wrapper-esp-idf
-manifest_hash: dcdcad99d02709ccd0442cfd39ba8f58ecf2fc1472b4636563d2df307bbd1322
+- 78/esp-wifi-connect
+- wrapper-esp32
+manifest_hash: 30588a145b2e19c23b961ece5c6ba0f52cce860d2b2bc4812a2ff6f84c9d08e8
 target: esp32s3
 version: 2.0.0

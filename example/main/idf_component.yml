@@ -1,3 +1,5 @@
 dependencies:
-  wrapper-esp-idf:
-    path: "./../.."
+  wrapper-esp32:
+    path: './../../'
+
+  78/esp-wifi-connect: ^3.0.2
