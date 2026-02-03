@@ -74,7 +74,7 @@ I2SChanTdmConfig rx_config(
     false,
     false);
 
-I2cBusConfig i2c_bus_config(
+I2cBusConfig i2c_bus1_config(
     I2C_NUM_1,
     GPIO_NUM_12,
     GPIO_NUM_11,
@@ -152,7 +152,7 @@ LvglDisplayConfig lvgl_display_config(
 LvglTouchConfig lvgl_touch_config(0.0f, 0.0f);
 
 Logger logger_nvs_ability("M5StackCoreS3", "nvs");
-Logger logger_i2c_bus("M5StackCoreS3", "i2c", "bus");
+Logger logger_i2c_bus1("M5StackCoreS3", "i2c", "bus");
 Logger logger_spi_bus("M5StackCoreS3", "spi", "bus");
 Logger logger_i2s_bus("M5StackCoreS3", "i2s", "bus");
 
@@ -164,7 +164,7 @@ Logger logger_lvgl("M5StackCoreS3", "lvgl", "port");
 Logger logger_audio_codec("M5StackCoreS3", "audio", "codec");
 
 Nvs nvs_ability(logger_nvs_ability);
-I2cBus i2c_bus(logger_i2c_bus);
+I2cBus i2c_bus1(logger_i2c_bus1);
 SpiBus spi_bus(logger_spi_bus);
 I2sBus i2s_bus(logger_i2s_bus);
 
@@ -247,11 +247,11 @@ bool M5StackCoreS3::InitSocAbility(bool nvs)
     return true;
 }
 
-bool M5StackCoreS3::InitBus(bool i2c, bool spi, bool i2s)
+bool M5StackCoreS3::InitBus(bool i2c1, bool spi, bool i2s)
 {
   esp_err_t err = ESP_OK;
-  if (i2c) {
-      err = i2c_bus.Init(i2c_bus_config);
+  if (i2c1) {
+      err = i2c_bus1.Init(i2c_bus1_config);
       if (err != ESP_OK) return false;
   }
   
@@ -277,7 +277,7 @@ bool M5StackCoreS3::InitDevice(bool power, bool audio, bool display, bool touch)
   
   if (power) {
       // AXP2101
-      err = axp2101.Init(i2c_bus, axp2101_config);
+      err = axp2101.Init(i2c_bus1, axp2101_config);
       if (err != ESP_OK) return false;
       
       uint8_t data = 0x00;
@@ -302,7 +302,7 @@ bool M5StackCoreS3::InitDevice(bool power, bool audio, bool display, bool touch)
       axp2101.GetLogger().Info("Configured successfully");
 
       // AW9523
-      err = aw9523.Init(i2c_bus, aw9523_config);
+      err = aw9523.Init(i2c_bus1, aw9523_config);
       if (err != ESP_OK) return false;
       
       std::tuple<uint8_t, uint8_t> aw_cmds[] = {
@@ -327,7 +327,7 @@ bool M5StackCoreS3::InitDevice(bool power, bool audio, bool display, bool touch)
   }
 
   if (touch) {
-      err = ft5x06.Init(i2c_bus, ft5x06_config, esp_lcd_touch_new_i2c_ft5x06);
+      err = ft5x06.Init(i2c_bus1, ft5x06_config, esp_lcd_touch_new_i2c_ft5x06);
       if (err != ESP_OK) return false;
   }
 
@@ -339,14 +339,14 @@ bool M5StackCoreS3::InitDevice(bool power, bool audio, bool display, bool touch)
   if (audio) {
       audio_codec.Init(i2s_bus);
       // speaker
-      err = audio_codec.AddSpeaker(i2c_bus, AW88298_CODEC_DEFAULT_ADDR, spk_codec_new_func);
+      err = audio_codec.AddSpeaker(i2c_bus1, AW88298_CODEC_DEFAULT_ADDR, spk_codec_new_func);
       if (err != ESP_OK)
       {
         audio_codec.GetLogger().Error("Failed to add speaker: %s", esp_err_to_name(err));
         return false;
       }
       // microphone
-      err = audio_codec.AddMicrophone(i2c_bus, ES7210_CODEC_DEFAULT_ADDR, mic_codec_new_func);
+      err = audio_codec.AddMicrophone(i2c_bus1, ES7210_CODEC_DEFAULT_ADDR, mic_codec_new_func);
       if (err != ESP_OK)
       {
         audio_codec.GetLogger().Error("Failed to add microphone: %s", esp_err_to_name(err));
@@ -383,4 +383,9 @@ bool M5StackCoreS3::Init()
     
     initialized_ = true;
     return true;
+}
+
+wrapper::I2cBus& M5StackCoreS3::GetI2cBus1()
+{
+    return i2c_bus1;
 }

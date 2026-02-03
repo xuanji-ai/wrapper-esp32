@@ -178,7 +178,7 @@ dependencies:
       - if: target == esp32p4
       version: ^1.0.0
     source:
-      path: /home/nixy/ws/wrapper-esp32
+      path: /home/nix/ws/wrapper-esp32
       type: local
     targets:
     - esp32s3
@@ -187,6 +187,6 @@ dependencies:
 direct_dependencies:
 - 78/esp-wifi-connect
 - wrapper-esp32
-manifest_hash: 30588a145b2e19c23b961ece5c6ba0f52cce860d2b2bc4812a2ff6f84c9d08e8
+manifest_hash: 12a46ec15a688dcc77a220e7d23f24d20186e42206523e80e8afc9a65c404d49
 target: esp32s3
 version: 2.0.0

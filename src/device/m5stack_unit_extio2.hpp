@@ -1,26 +1,13 @@
-#include <string>
-#include <vector>
-#include <freertos/FreeRTOS.h>
-#include <freertos/task.h>
+#pragma once
 
 #include "wrapper/logger.hpp"
-#include "wrapper/soc.hpp"
 #include "wrapper/i2c.hpp"
-#include "wrapper/wifi.hpp"
-#include "board/m5stack/m5stack_core_s3.hpp"
-
-using namespace wrapper;
-
-Logger logger_main("app_main");
-M5StackCoreS3 &m5 = M5StackCoreS3::GetInstance();
-
-Logger logger_unit("Extio2");
+#include "wrapper/display.hpp"
 
 class UnitExtio2 : public wrapper::I2cDevice
 {
 
-  static constexpr uint8_t I2C_ADDR_DEFAULT = 0x45;
-  static constexpr uint32_t I2C_SPEED_HZ = 400000;
+
 
   enum Reg : uint8_t
   {
@@ -94,6 +81,10 @@ class UnitExtio2 : public wrapper::I2cDevice
   }
 
 public:
+
+  static constexpr uint8_t I2C_ADDR_DEFAULT = 0x45;
+  static constexpr uint32_t I2C_SPEED_HZ = 400000;
+
   enum Mode : uint8_t
   {
     DIGITAL_INPUT = 0,
@@ -109,15 +100,15 @@ public:
     BITS12 = 1
   };
 
-  UnitExtio2(Logger &logger) : I2cDevice(logger)
+  UnitExtio2(wrapper::Logger &logger) : I2cDevice(logger)
   {
   }
 
   ~UnitExtio2() = default;
 
-  bool Init(const I2cBus &bus)
+  bool Init(const wrapper::I2cBus &bus)
   {
-    I2cDeviceConfig cfg = I2cDeviceConfig(I2C_ADDR_DEFAULT, I2C_SPEED_HZ);
+    wrapper::I2cDeviceConfig cfg = wrapper::I2cDeviceConfig(I2C_ADDR_DEFAULT, I2C_SPEED_HZ);
     return I2cDevice::Init(bus, cfg) == ESP_OK;
   }
 
@@ -168,44 +159,4 @@ public:
     }
     return false;
   }
-};
-
-I2cBusConfig i2c0_config = I2cBusConfig(
-    I2C_NUM_0,
-    GPIO_NUM_2, 
-    GPIO_NUM_1, 
-    I2C_CLK_SRC_DEFAULT,
-    7,  
-    1,  
-    0, 
-    true, 
-    false 
-);
-
-I2cBus i2c0(logger_main);
-UnitExtio2 extio2(logger_unit);
-
-static void board_init(void *arg)
-{
-  i2c0.Init(i2c0_config);
-  extio2.Init(i2c0);
-  extio2.SetModeAll(UnitExtio2::DIGITAL_INPUT);
-
-  for(;;)
-  {
-    std::string log_msg = "Digital Inputs: ";
-    for (int pin = 0; pin < 8; pin++)
-    {
-      bool state = extio2.GetDigitalInput(pin);
-      log_msg += "IO" + std::to_string(pin) + "[" + (state ? "1 " : "0 ") + "]";
-      vTaskDelay(pdMS_TO_TICKS(100));
-    }
-    logger_unit.Info("%s", log_msg.c_str());
-    vTaskDelay(pdMS_TO_TICKS(1000));
-  }
-}
-
-extern "C" void app_main()
-{
-  xTaskCreate(board_init, "board_init", 8192, nullptr, 5, nullptr);
 };

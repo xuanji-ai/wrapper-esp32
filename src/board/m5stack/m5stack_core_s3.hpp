@@ -1,5 +1,9 @@
 #pragma once
 
+#include "wrapper/logger.hpp"
+#include "wrapper/soc.hpp"
+#include "wrapper/i2c.hpp"
+
 class M5StackCoreS3 
 {
 private:
@@ -23,4 +27,6 @@ public:
   bool InitDevice(bool power, bool audio, bool display, bool touch);
   bool InitMiddleware(bool lvgl);
   bool Init();
+
+  wrapper::I2cBus& GetI2cBus1();
 };
