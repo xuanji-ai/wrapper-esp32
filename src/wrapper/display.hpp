@@ -11,8 +11,9 @@
 namespace wrapper
 {
 
-  using LcdPanelNewFunc = std::function<esp_err_t(const esp_lcd_panel_io_handle_t, const esp_lcd_panel_dev_config_t *, esp_lcd_panel_handle_t *)>;
-  using LcdPanelCustomInitFunc = std::function<esp_err_t(const esp_lcd_panel_io_handle_t)>;
+  using LcdNewPanelFunc = std::function<esp_err_t(const esp_lcd_panel_io_handle_t, const esp_lcd_panel_dev_config_t *, esp_lcd_panel_handle_t *)>;
+  using LcdNewPanelFunc = std::function<esp_err_t(const esp_lcd_panel_io_handle_t, const esp_lcd_panel_dev_config_t *, esp_lcd_panel_handle_t *)>;
+  using CustomLcdPanelInitFunc = std::function<esp_err_t(const esp_lcd_panel_io_handle_t)>;
 
   struct I2cLcdConfig
   {
@@ -208,34 +209,33 @@ namespace wrapper
     }
   };
 
-  class DisplayIo
+  /**
+   * @brief LCD Display Base wrapper class
+   * 
+   * Combines panel IO and panel operations for complete display control
+   */
+  class DisplayBase
   {
+  protected:
     esp_lcd_panel_io_handle_t m_io_handle;
-
-  public:
-    DisplayIo(esp_lcd_panel_io_handle_t io_handle) : m_io_handle(io_handle) {}
-
-    esp_err_t Del() { return esp_lcd_panel_io_del(m_io_handle); }
-    
-    esp_err_t TxParam(int lcd_cmd, const void *param, size_t param_size) {
-      return esp_lcd_panel_io_tx_param(m_io_handle, lcd_cmd, param, param_size);
-    }
-    
-    esp_err_t TxColor(int lcd_cmd, const void *color, size_t color_size) {
-      return esp_lcd_panel_io_tx_color(m_io_handle, lcd_cmd, color, color_size);
-    }
-
-    esp_lcd_panel_io_handle_t GetHandle() const { return m_io_handle; }
-  };
-
-  class DisplayPanel
-  {
     esp_lcd_panel_handle_t m_panel_handle;
 
   public:
-    DisplayPanel(esp_lcd_panel_handle_t panel_handle) : m_panel_handle(panel_handle) {}
+    DisplayBase(esp_lcd_panel_io_handle_t io_handle, esp_lcd_panel_handle_t panel_handle) 
+      : m_io_handle(io_handle), m_panel_handle(panel_handle) {}
+    
+    virtual ~DisplayBase() = default;
 
-    esp_err_t Del() { return esp_lcd_panel_del(m_panel_handle); }
+    // Panel IO operations
+    esp_err_t IoTxParam(int lcd_cmd, const void *param, size_t param_size) {
+      return esp_lcd_panel_io_tx_param(m_io_handle, lcd_cmd, param, param_size);
+    }
+    
+    esp_err_t IoTxColor(int lcd_cmd, const void *color, size_t color_size) {
+      return esp_lcd_panel_io_tx_color(m_io_handle, lcd_cmd, color, color_size);
+    }
+
+    // Panel operations
     esp_err_t Reset() { return esp_lcd_panel_reset(m_panel_handle); }
     esp_err_t Init() { return esp_lcd_panel_init(m_panel_handle); }
     
@@ -267,7 +267,92 @@ namespace wrapper
       return esp_lcd_panel_disp_sleep(m_panel_handle, sleep);
     }
 
-    esp_lcd_panel_handle_t GetHandle() const { return m_panel_handle; }
+    // Resource cleanup
+    esp_err_t DelPanel() { return esp_lcd_panel_del(m_panel_handle); }
+    esp_err_t DelIo() { return esp_lcd_panel_io_del(m_io_handle); }
+
+    // Handle getters
+    esp_lcd_panel_io_handle_t GetIoHandle() const { return m_io_handle; }
+    esp_lcd_panel_handle_t GetPanelHandle() const { return m_panel_handle; }
+  };
+
+  /**
+   * @brief I2C LCD Display wrapper class
+   * 
+   * Specialized display class for I2C-based LCD panels
+   */
+  class I2cDisplay : public DisplayBase
+  {
+  private:
+    Logger &m_logger;
+    const I2cBus &m_bus;
+
+    esp_err_t InitIo(const esp_lcd_panel_io_i2c_config_t &config);
+    esp_err_t InitPanel(const esp_lcd_panel_dev_config_t &panel_config, CustomLcdPanelInitFunc custom_init_panel_func = nullptr);
+
+  public:
+    I2cDisplay(Logger &logger, const I2cBus &bus) 
+      : DisplayBase(nullptr, nullptr), m_logger(logger), m_bus(bus) {}
+    
+    ~I2cDisplay() { Deinit(); }
+
+    esp_err_t Init(
+      const I2cLcdConfig &config, 
+      std::function<esp_err_t(const esp_lcd_panel_io_handle_t, const esp_lcd_panel_dev_config_t *, esp_lcd_panel_handle_t *)> new_panel_func, 
+      std::function<esp_err_t(const esp_lcd_panel_io_handle_t)> custom_init_panel_func = nullptr);
+    esp_err_t Deinit();
+  };
+
+  class SpiDisplay : public DisplayBase
+  {
+  private:
+    Logger &m_logger;
+    const SpiBus &m_bus;
+
+    esp_err_t InitIo(const esp_lcd_panel_io_spi_config_t &config);
+    esp_err_t InitPanel(const esp_lcd_panel_dev_config_t &panel_config, CustomLcdPanelInitFunc custom_init_panel_func = nullptr);
+
+  public:
+    SpiDisplay(Logger &logger, const SpiBus &bus) 
+      : DisplayBase(nullptr, nullptr), m_logger(logger), m_bus(bus) {}
+    
+    ~SpiDisplay() { Deinit(); }
+
+    esp_err_t Init(const SpiLcdConfig &config,
+      std::function<esp_err_t(const esp_lcd_panel_io_handle_t, const esp_lcd_panel_dev_config_t *, esp_lcd_panel_handle_t *)> new_panel_func, 
+      std::function<esp_err_t(const esp_lcd_panel_io_handle_t)> custom_init_panel_func = nullptr);
+    esp_err_t Deinit();
+  };
+
+  /**
+   * @brief DSI (MIPI-DSI) LCD Display wrapper class
+   * 
+   * Specialized display class for MIPI-DSI based LCD panels
+   */
+  class DsiDisplay : public DisplayBase
+  {
+  private:
+    Logger &m_logger;
+    esp_lcd_dsi_bus_handle_t m_dsi_bus_handle;
+
+    esp_err_t InitDsiBus(const esp_lcd_dsi_bus_config_t &config);
+    esp_err_t InitDbiIo(const esp_lcd_dbi_io_config_t &config);
+    esp_err_t InitPanel(const esp_lcd_panel_dev_config_t &panel_config, CustomLcdPanelInitFunc custom_init_panel_func = nullptr);
+
+  public:
+    DsiDisplay(Logger &logger) 
+      : DisplayBase(nullptr, nullptr), m_logger(logger), m_dsi_bus_handle(nullptr) {}
+    
+    ~DsiDisplay() { Deinit(); }
+
+    esp_err_t Init(
+      const DsiLcdConfig &config, 
+      std::function<esp_err_t(const esp_lcd_panel_io_handle_t, const esp_lcd_panel_dev_config_t *, esp_lcd_panel_handle_t *)> new_panel_func, 
+      std::function<esp_err_t(const esp_lcd_panel_io_handle_t)> custom_init_panel_func,
+      std::function<void(void* vender_conf)> vender_conf_init_func);
+    esp_err_t Deinit();
+
+    esp_lcd_dsi_bus_handle_t GetDsiBusHandle() const { return m_dsi_bus_handle; }
   };
 
   class Display
@@ -278,14 +363,14 @@ namespace wrapper
 
     esp_err_t InitIo(const I2cBus &bus, const esp_lcd_panel_io_i2c_config_t &config);
     esp_err_t InitIo(const SpiBus &bus, const esp_lcd_panel_io_spi_config_t &config);
-    esp_err_t InitPanel(const esp_lcd_panel_dev_config_t &panel_config, LcdPanelCustomInitFunc custom_init_func = nullptr);
+    esp_err_t InitPanel(const esp_lcd_panel_dev_config_t &panel_config, CustomLcdPanelInitFunc custom_init_panel_func = nullptr);
 
   public:
     Display(Logger &logger);
     ~Display();
 
-    esp_err_t Init(const I2cBus &bus, const I2cLcdConfig &config, LcdPanelNewFunc new_panel_func, LcdPanelCustomInitFunc custom_init_func = nullptr);
-    esp_err_t Init(const SpiBus &bus, const SpiLcdConfig &config, LcdPanelNewFunc new_panel_func, LcdPanelCustomInitFunc custom_init_func = nullptr);
+    esp_err_t Init(const I2cBus &bus, const I2cLcdConfig &config, LcdNewPanelFunc new_panel_func, CustomLcdPanelInitFunc custom_init_panel_func = nullptr);
+    esp_err_t Init(const SpiBus &bus, const SpiLcdConfig &config, LcdNewPanelFunc new_panel_func, CustomLcdPanelInitFunc custom_init_panel_func = nullptr);
 
     esp_err_t Deinit();
     esp_err_t Reset();
