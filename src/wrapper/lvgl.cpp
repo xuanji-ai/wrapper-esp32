@@ -287,12 +287,12 @@ bool LvglPort::SetRotation(lv_display_rotation_t rotation)
         return false;
     }
 
-    if (rotation != 0 && rotation != 90 && rotation != 180 && rotation != 270)
-    {
-        m_logger.Error("Invalid rotation value. Must be 0, 90, 180, or 270 degrees");
-        Unlock();
-        return false;
-    }
+    // if (rotation != 0 && rotation != 90 && rotation != 180 && rotation != 270)
+    // {
+    //     m_logger.Error("Invalid rotation value. Must be 0, 90, 180, or 270 degrees");
+    //     Unlock();
+    //     return false;
+    // }
 
     lv_disp_set_rotation(m_lvgl_display, rotation);
     Unlock();
