@@ -25,6 +25,21 @@ dependencies:
     public: true
     rules:
       - if: "target == esp32p4"
+  espressif/esp_io_expander_pi4ioe5v6408:
+    version: "*"
+    public: true
+    rules:
+      - if: "target == esp32p4"
+  espressif/esp_lcd_ili9881c:
+    version: "*"
+    public: true
+    rules:
+      - if: "target == esp32p4"
+  espressif/esp_lcd_touch_gt911:
+    version: "*"
+    public: true
+    rules:
+      - if: "target == esp32p4"
 
 repository: https://github.com/Nixy4/wrapper-esp32
 url: https://github.com/Nixy4/wrapper-esp32

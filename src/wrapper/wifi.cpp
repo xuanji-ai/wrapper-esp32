@@ -1,9 +1,13 @@
+#include "sdkconfig.h"
 #include "wrapper/wifi.hpp"
 #include <cstring>
 #include <memory>
+
+#if !defined(CONFIG_IDF_TARGET_ESP32P4)
 #include <esp_smartconfig.h>
 #include <wifi_provisioning/manager.h>
 #include <wifi_provisioning/scheme_ble.h>
+#endif
 
 static const int WIFI_CONNECTED_BIT = BIT0;
 static const int WIFI_FAIL_BIT      = BIT1;
@@ -29,6 +33,7 @@ WifiProvider::~WifiProvider()
 
 void WifiProvider::EventHandler(void* arg, esp_event_base_t event_base, int32_t event_id, void* event_data)
 {
+#if !defined(CONFIG_IDF_TARGET_ESP32P4)
     WifiProvider* self = static_cast<WifiProvider*>(arg);
 
     if (event_base == WIFI_EVENT) {
@@ -81,10 +86,12 @@ void WifiProvider::EventHandler(void* arg, esp_event_base_t event_base, int32_t 
             xEventGroupSetBits(self->m_event_group, WIFI_PROV_DONE_BIT);
         }
     }
+#endif
 }
 
 bool WifiProvider::StartStationMode(std::string_view ssid, std::string_view password)
 {
+#if !defined(CONFIG_IDF_TARGET_ESP32P4)
     m_netif = esp_netif_create_default_wifi_sta();
     wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
     ESP_ERROR_CHECK(esp_wifi_init(&cfg));
@@ -104,10 +111,15 @@ bool WifiProvider::StartStationMode(std::string_view ssid, std::string_view pass
 
     m_logger.Info("Started Station Mode, SSID: %s", ssid.data());
     return true;
+#else
+    m_logger.Error("WiFi not supported on ESP32P4");
+    return false;
+#endif
 }
 
 bool WifiProvider::StartSoftApMode(std::string_view ssid, std::string_view password, int max_connections)
 {
+#if !defined(CONFIG_IDF_TARGET_ESP32P4)
     m_netif = esp_netif_create_default_wifi_ap();
     wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
     ESP_ERROR_CHECK(esp_wifi_init(&cfg));
@@ -129,10 +141,15 @@ bool WifiProvider::StartSoftApMode(std::string_view ssid, std::string_view passw
 
     m_logger.Info("Started SoftAP Mode, SSID: %s", ssid.data());
     return true;
+#else
+    m_logger.Error("WiFi not supported on ESP32P4");
+    return false;
+#endif
 }
 
 bool WifiProvider::StartSmartConfigMode()
 {
+#if !defined(CONFIG_IDF_TARGET_ESP32P4)
     m_netif = esp_netif_create_default_wifi_sta();
     wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
     ESP_ERROR_CHECK(esp_wifi_init(&cfg));
@@ -150,10 +167,15 @@ bool WifiProvider::StartSmartConfigMode()
 
     m_logger.Info("Started SmartConfig Mode");
     return true;
+#else
+    m_logger.Error("WiFi not supported on ESP32P4");
+    return false;
+#endif
 }
 
 bool WifiProvider::StartEasyConnectMode()
 {
+#if !defined(CONFIG_IDF_TARGET_ESP32P4)
     // Initialize networking
     m_netif = esp_netif_create_default_wifi_sta();
     wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
@@ -165,7 +187,8 @@ bool WifiProvider::StartEasyConnectMode()
 
     wifi_prov_mgr_config_t config = {
         .scheme = wifi_prov_scheme_ble,
-        .scheme_event_handler = WIFI_PROV_SCHEME_BLE_EVENT_HANDLER_FREE_BTDM
+        .scheme_event_handler = WIFI_PROV_SCHEME_BLE_EVENT_HANDLER_FREE_BTDM,
+        .app_event_handler = WIFI_PROV_EVENT_HANDLER_NONE,
     };
     ESP_ERROR_CHECK(wifi_prov_mgr_init(config));
 
@@ -185,6 +208,10 @@ bool WifiProvider::StartEasyConnectMode()
     }
 
     return true;
+#else
+    m_logger.Error("WiFi not supported on ESP32P4");
+    return false;
+#endif
 }
 
 bool WifiProvider::Wait()
@@ -205,6 +232,7 @@ bool WifiProvider::Wait()
 
 bool WifiProvider::Stop()
 {
+#if !defined(CONFIG_IDF_TARGET_ESP32P4)
     esp_wifi_stop();
     esp_wifi_deinit();
     
@@ -218,6 +246,9 @@ bool WifiProvider::Stop()
         m_netif = nullptr;
     }
     return true;
+#else
+    return false;
+#endif
 }
 
 } // namespace wrapper

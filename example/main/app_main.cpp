@@ -7,17 +7,16 @@
 #include "wrapper/soc.hpp"
 #include "wrapper/i2c.hpp"
 #include "wrapper/wifi.hpp"
-#include "board/m5stack/m5stack_core_s3.hpp"
+
+#include "board/m5stack/tab5.hpp"
 
 using namespace wrapper;
 
-M5StackCoreS3 &m5 = M5StackCoreS3::GetInstance();
+M5StackTab5& m5 = M5StackTab5::GetInstance();
 
 static void board_init(void *arg)
 {
-  m5.InitBus(true, true, true);
-  m5.InitDevice(true, true, true, true);
-  m5.InitMiddleware(true);
+  m5.Init();
   m5.GetLvglPort().Test();
   vTaskDelete(nullptr);
 }

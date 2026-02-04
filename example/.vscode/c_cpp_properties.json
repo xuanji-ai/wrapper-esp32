@@ -10,6 +10,7 @@
         "${workspaceFolder}/main",
         "${workspaceFolder}/build/config",
         "${workspaceFolder}/managed_components/**",
+        "${workspaceFolder}/managed_components/**/include",
         "${workspaceFolder}/../src"
       ],
       "browse": {

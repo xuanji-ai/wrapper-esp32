@@ -1,4 +1,3 @@
-set(SRC_DIRS "src/wrapper" "src/device" "src/app")
 set(INCLUDE_DIRS "src")
 
 set(REQUIRES_ESP_IDF "log" "nvs_flash" "driver" "esp_lcd" "esp_wifi" "esp_event" "wifi_provisioning")
@@ -10,10 +9,22 @@ set(PRIV_REQUIRES "")
 
 set(EMBED_FILES "")
 
-list(APPEND SRC_DIRS "src/board/m5stack")
+# Common sources
+file(GLOB_RECURSE SOURCES 
+    "src/wrapper/*.cpp" 
+    "src/device/*.cpp" 
+    "src/app/*.cpp"
+)
+
+# Board specific sources
+if(IDF_TARGET STREQUAL "esp32s3")
+    list(APPEND SOURCES "src/board/m5stack/core_s3.cpp")
+elseif(IDF_TARGET STREQUAL "esp32p4")
+    list(APPEND SOURCES "src/board/m5stack/tab5.cpp")
+endif()
 
 idf_component_register(
-  SRC_DIRS ${SRC_DIRS}
+  SRCS ${SOURCES}
   INCLUDE_DIRS ${INCLUDE_DIRS}
   REQUIRES ${REQUIRES}
   PRIV_REQUIRES ${PRIV_REQUIRES}

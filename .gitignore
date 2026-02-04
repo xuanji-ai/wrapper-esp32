@@ -1,8 +1,6 @@
 example/build
 example/managed_components
 example/nix-wrapper-esp32
-vibecoding-prompts
-.vscode
 
 # Prerequisites
 *.d

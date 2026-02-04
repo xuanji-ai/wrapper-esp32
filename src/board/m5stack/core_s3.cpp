@@ -16,7 +16,7 @@
 #include "device/axp2101.hpp"
 #include "device/aw9523.hpp"
 
-#include "m5stack_core_s3.hpp"
+#include "board/m5stack/core_s3.hpp"
 
 namespace wrapper
 {
@@ -140,7 +140,7 @@ I2cDeviceConfig aw9523_config(Aw9523::DEFAULT_ADDR, Aw9523::DEFAULT_SPEED);
 LvglPortConfig lvgl_port_config(
     5,                                   // task_priority
     8192,                                // task_stack
-    APP_CPU_NUM,                         // task_affinity
+    1,                                   // task_affinity
     500,                                 // task_max_sleep_ms
     MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT, // task_stack_caps
     20                                   // timer_period_ms
