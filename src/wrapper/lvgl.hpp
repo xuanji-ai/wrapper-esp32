@@ -114,22 +114,13 @@ public:
     esp_err_t Deinit();
 
     /**
-     * @brief Add an I2C LCD to LVGL.
+     * @brief Add a display (I2C or SPI LCD) to LVGL.
      * 
-     * @param lcd The I2C LCD instance.
+     * @param lcd The Display instance.
      * @param config The display configuration.
      * @return esp_err_t ESP_OK on success.
      */
-    esp_err_t AddDisplay(const I2cLcd& lcd, const LvglDisplayConfig& config);
-
-    /**
-     * @brief Add an SPI LCD to LVGL.
-     * 
-     * @param lcd The SPI LCD instance.
-     * @param config The display configuration.
-     * @return esp_err_t ESP_OK on success.
-     */
-    esp_err_t AddDisplay(const SpiLcd& lcd, const LvglDisplayConfig& config);
+    esp_err_t AddDisplay(const Display& lcd, const LvglDisplayConfig& config);
 
     /**
      * @brief Add a touch controller to LVGL.
@@ -173,6 +164,21 @@ public:
      * @return lv_indev_t* 
      */
     lv_indev_t* GetTouch() const { return m_lvgl_touch; }
+
+    //! Options -----------------------------------------------------------------------------------------------------------
+
+    /**
+     * @brief Run a simple functional test to verify LVGL is working.
+     */
+    void Test();
+
+    /**
+     * @brief Set the display rotation.
+     * 
+     * @param rotation The rotation angle in degrees.
+     * @return true if successful.
+     */
+    bool SetRotation(uint32_t rotation);
 };
 
 } // namespace wrapper

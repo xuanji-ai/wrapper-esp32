@@ -69,37 +69,7 @@ esp_err_t LvglPort::Deinit()
     return ESP_OK;
 }
 
-esp_err_t LvglPort::AddDisplay(const I2cLcd& lcd, const LvglDisplayConfig& config)
-{
-    if (!m_initialized)
-    {
-        m_logger.Error("LVGL port not initialized");
-        return ESP_ERR_INVALID_STATE;
-    }
-
-    if (m_lvgl_display != NULL)
-    {
-        m_logger.Warning("Display already added. Removing existing display first.");
-        lvgl_port_remove_disp(m_lvgl_display);
-        m_lvgl_display = NULL;
-    }
-
-    LvglDisplayConfig final_config = config;
-    final_config.io_handle = lcd.GetIoHandle();
-    final_config.panel_handle = lcd.GetPanelHandle();
-
-    m_lvgl_display = lvgl_port_add_disp(&final_config);
-    if (m_lvgl_display == NULL)
-    {
-        m_logger.Error("Failed to add LVGL display");
-        return ESP_FAIL;
-    }
-
-    m_logger.Info("LVGL display added");
-    return ESP_OK;
-}
-
-esp_err_t LvglPort::AddDisplay(const SpiLcd& lcd, const LvglDisplayConfig& config)
+esp_err_t LvglPort::AddDisplay(const Display& lcd, const LvglDisplayConfig& config)
 {
     if (!m_initialized)
     {
@@ -174,3 +144,91 @@ void LvglPort::Unlock()
 {
     lvgl_port_unlock();
 }
+
+void LvglPort::Test()
+{
+    m_logger.Info("LVGL Functional Test Start");
+
+    if (!Lock(0))
+    {
+        m_logger.Error("Failed to acquire LVGL lock");
+        return;
+    }
+
+    // 1. Check if active screen exists
+    lv_obj_t *scr = lv_scr_act();
+    if (scr)
+    {
+        m_logger.Info("Active screen found: %p", scr);
+    }
+    else
+    {
+        m_logger.Error("No active screen!");
+        Unlock();
+        return;
+    }
+
+    // Clear screen first (Black background)
+    lv_obj_set_style_bg_color(scr, lv_color_hex(0x000000), LV_PART_MAIN);
+
+    // 2. Create a test label
+    lv_obj_t *label = lv_label_create(scr);
+    if (label)
+    {
+        lv_label_set_text(label, "LVGL TEST\nRUNNING");
+        lv_obj_set_style_text_align(label, LV_TEXT_ALIGN_CENTER, 0);
+        lv_obj_align(label, LV_ALIGN_CENTER, 0, -20);
+        lv_obj_set_style_text_color(label, lv_color_hex(0xFFFFFF), 0); // White text
+        m_logger.Info("Test label created");
+    }
+    else
+    {
+        m_logger.Error("Failed to create label");
+    }
+
+    // 3. Create a simple animation object (Spinner)
+    lv_obj_t *spinner = lv_spinner_create(scr);
+    if (spinner)
+    {
+        lv_spinner_set_anim_params(spinner, 1000, 60);
+        lv_obj_set_size(spinner, 40, 40);
+        lv_obj_align(spinner, LV_ALIGN_CENTER, 0, 20);
+        lv_obj_set_style_arc_color(spinner, lv_color_hex(0xFFFFFF), LV_PART_INDICATOR);
+        lv_obj_set_style_arc_width(spinner, 4, LV_PART_INDICATOR);
+        lv_obj_set_style_arc_width(spinner, 4, LV_PART_MAIN);
+        m_logger.Info("Test spinner created");
+    }
+
+    Unlock();
+
+    m_logger.Info("LVGL Functional Test Complete");
+}
+
+bool LvglPort::SetRotation(uint32_t rotation)
+{
+    if (!Lock(0))
+    {
+        m_logger.Error("Failed to acquire LVGL lock");
+        return false;
+    }
+    
+    if (m_lvgl_display == NULL)
+    {
+        m_logger.Error("Display must be added before setting rotation");
+        Unlock();
+        return false;
+    }
+
+    if (rotation != 0 && rotation != 90 && rotation != 180 && rotation != 270)
+    {
+        m_logger.Error("Invalid rotation value. Must be 0, 90, 180, or 270 degrees");
+        Unlock();
+        return false;
+    }
+
+    lvgl_port_set_rotation(m_lvgl_display, rotation);
+    Unlock();
+    m_logger.Info("Display rotation set to %d degrees", rotation);
+    return true;
+}
+
