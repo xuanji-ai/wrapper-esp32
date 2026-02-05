@@ -8,6 +8,10 @@ if [ -z "$1" ]; then
     echo "用法: $0 [cs3|t5]"
     echo "  cs3 - 切换到 M5Stack Core S3 配置"
     echo "  t5  - 切换到 M5Stack Tab5 配置"
+    echo ""
+    if [ -f "$SCRIPT_DIR/crboard" ]; then
+        echo "当前开发板: $(cat "$SCRIPT_DIR/crboard")"
+    fi
     exit 1
 fi
 
@@ -37,27 +41,44 @@ if [ ! -f "$SOURCE_CONFIG" ]; then
     exit 1
 fi
 
-# 如果存在 crboard 文件，先保存当前 sdkconfig 到之前的配置文件
-if [ -f "$CRBOARD_FILE" ] && [ -f "$SDKCONFIG" ]; then
+# 检查是否切换到相同的开发板
+if [ -f "$CRBOARD_FILE" ]; then
     CURRENT_BOARD=$(cat "$CRBOARD_FILE")
-    case "$CURRENT_BOARD" in
-        cs3)
-            CURRENT_CONFIG="$SCRIPT_DIR/sdkconfig-m5cs3"
-            CURRENT_BOARD_NAME="M5Stack Core S3"
-            ;;
-        t5)
-            CURRENT_CONFIG="$SCRIPT_DIR/sdkconfig-m5t5"
-            CURRENT_BOARD_NAME="M5Stack Tab5"
-            ;;
-        *)
-            CURRENT_CONFIG=""
-            ;;
-    esac
-    
-    if [ -n "$CURRENT_CONFIG" ]; then
-        echo "保存当前配置到 $CURRENT_CONFIG..."
-        cp "$SDKCONFIG" "$CURRENT_CONFIG"
-        echo "✓ 已保存 $CURRENT_BOARD_NAME 配置"
+    if [ "$CURRENT_BOARD" = "$BOARD" ]; then
+        echo "当前已是 $BOARD_NAME 配置，无需切换"
+        exit 0
+    fi
+fi
+
+# 保存当前 sdkconfig 到对应的配置文件
+if [ -f "$SDKCONFIG" ]; then
+    if [ -f "$CRBOARD_FILE" ]; then
+        # 有记录当前开发板，保存到对应文件
+        CURRENT_BOARD=$(cat "$CRBOARD_FILE")
+        case "$CURRENT_BOARD" in
+            cs3)
+                CURRENT_CONFIG="$SCRIPT_DIR/sdkconfig-m5cs3"
+                CURRENT_BOARD_NAME="M5Stack Core S3"
+                ;;
+            t5)
+                CURRENT_CONFIG="$SCRIPT_DIR/sdkconfig-m5t5"
+                CURRENT_BOARD_NAME="M5Stack Tab5"
+                ;;
+            *)
+                CURRENT_CONFIG=""
+                ;;
+        esac
+        
+        if [ -n "$CURRENT_CONFIG" ]; then
+            echo "保存当前配置到 $CURRENT_CONFIG..."
+            cp "$SDKCONFIG" "$CURRENT_CONFIG"
+            echo "✓ 已保存 $CURRENT_BOARD_NAME 配置"
+        fi
+    else
+        # 没有记录当前开发板，备份到 sdkconfig.backup
+        echo "⚠ 未检测到当前开发板记录，备份 sdkconfig 到 sdkconfig.backup..."
+        cp "$SDKCONFIG" "$SCRIPT_DIR/sdkconfig.backup"
+        echo "✓ 已备份当前配置"
     fi
 fi
 
