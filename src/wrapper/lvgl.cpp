@@ -191,7 +191,7 @@ void LvglPort::Test(bool is_monochrome)
         
         // Scale font if possible/needed for very small screens
         if (ver_res < 64) {
-            lv_obj_set_style_text_font(label, &lv_font_montserrat_10, 0);
+            lv_obj_set_style_text_font(label, &lv_font_montserrat_14, 0);
         }
         m_logger.Info("Test label created");
     }

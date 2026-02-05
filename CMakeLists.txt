@@ -16,11 +16,16 @@ file(GLOB_RECURSE SOURCES
     "src/app/*.cpp"
 )
 
+# Exclude display-dsi.cpp from common sources
+list(FILTER SOURCES EXCLUDE REGEX ".*display-dsi\\.cpp$")
+
 # Board specific sources
 if(IDF_TARGET STREQUAL "esp32s3")
     list(APPEND SOURCES "src/board/m5stack/core_s3.cpp")
 elseif(IDF_TARGET STREQUAL "esp32p4")
     list(APPEND SOURCES "src/board/m5stack/tab5.cpp")
+    # Add DSI display support for ESP32P4
+    list(APPEND SOURCES "src/wrapper/display-dsi.cpp")
 endif()
 
 idf_component_register(

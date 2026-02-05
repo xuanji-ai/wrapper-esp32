@@ -1,3 +1,3 @@
 dependencies:
   wrapper-esp32:
-    path: "./../../"
+    path: "./../.."
