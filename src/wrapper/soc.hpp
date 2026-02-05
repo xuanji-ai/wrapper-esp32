@@ -11,8 +11,8 @@ namespace wrapper
 
 class Nvs
 {
-    Logger& m_logger;
-    nvs_handle_t m_nvs_handle;
+    Logger& logger_;
+    nvs_handle_t nvs_handle_;
 public:
     Nvs(Logger& logger);
     ~Nvs();
@@ -34,9 +34,9 @@ public:
 
 class Event
 {
-    Logger& m_logger;
-    esp_event_loop_handle_t m_loop_handle = nullptr;
-    bool m_is_default_loop = false;
+    Logger& logger_;
+    esp_event_loop_handle_t loop_handle_ = nullptr;
+    bool is_default_loop_ = false;
 
 public:
     Event(Logger& logger);

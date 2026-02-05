@@ -107,8 +107,8 @@ namespace wrapper
   class DsiBus
   {
   private:
-    Logger& m_logger;
-    esp_lcd_dsi_bus_handle_t m_bus_handle = nullptr;
+    Logger& logger_;
+    esp_lcd_dsi_bus_handle_t bus_handle_ = nullptr;
 
   public:
     DsiBus(Logger& logger);
@@ -129,7 +129,7 @@ namespace wrapper
   class DsiDisplay : public DisplayBase
   {
   private:
-    Logger& m_logger;
+    Logger& logger_;
 
     esp_err_t InitIo(const DsiBus& bus, const esp_lcd_dbi_io_config_t& config);
     esp_err_t InitPanel(

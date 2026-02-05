@@ -5,10 +5,10 @@
 using namespace wrapper;
 
 LvglPort::LvglPort(Logger& logger) 
-    : m_logger(logger), 
-      m_lvgl_display(NULL), 
-      m_lvgl_touch(NULL), 
-      m_initialized(false)
+    : logger_(logger), 
+      lvgl_display_(NULL), 
+      lvgl_touch_(NULL), 
+      initialized_(false)
 {
 }
 
@@ -19,48 +19,48 @@ LvglPort::~LvglPort()
 
 esp_err_t LvglPort::Init(const LvglPortConfig& config)
 {
-    if (m_initialized)
+    if (initialized_)
     {
-        m_logger.Warning("LVGL port already initialized");
+        logger_.Warning("LVGL port already initialized");
         return ESP_OK;
     }
 
     esp_err_t ret = lvgl_port_init(&config);
     if (ret != ESP_OK)
     {
-        m_logger.Error("Failed to initialize LVGL port: %s", esp_err_to_name(ret));
+        logger_.Error("Failed to initialize LVGL port: %s", esp_err_to_name(ret));
         return ret;
     }
 
-    m_initialized = true;
-    m_logger.Info("LVGL port initialized");
+    initialized_ = true;
+    logger_.Info("LVGL port initialized");
     return ESP_OK;
 }
 
 esp_err_t LvglPort::Deinit()
 {
-    if (m_lvgl_touch != NULL)
+    if (lvgl_touch_ != NULL)
     {
-        lvgl_port_remove_touch(m_lvgl_touch);
-        m_lvgl_touch = NULL;
+        lvgl_port_remove_touch(lvgl_touch_);
+        lvgl_touch_ = NULL;
     }
 
-    if (m_lvgl_display != NULL)
+    if (lvgl_display_ != NULL)
     {
-        lvgl_port_remove_disp(m_lvgl_display);
-        m_lvgl_display = NULL;
+        lvgl_port_remove_disp(lvgl_display_);
+        lvgl_display_ = NULL;
     }
 
-    if (m_initialized)
+    if (initialized_)
     {
         esp_err_t ret = lvgl_port_deinit();
         if (ret != ESP_OK)
         {
-            m_logger.Error("Failed to deinitialize LVGL port: %s", esp_err_to_name(ret));
+            logger_.Error("Failed to deinitialize LVGL port: %s", esp_err_to_name(ret));
             return ret;
         }
-        m_initialized = false;
-        m_logger.Info("LVGL port deinitialized");
+        initialized_ = false;
+        logger_.Info("LVGL port deinitialized");
         
         // Give LVGL worker task a moment to exit cleanly
         vTaskDelay(pdMS_TO_TICKS(20));
@@ -71,27 +71,27 @@ esp_err_t LvglPort::Deinit()
 
 esp_err_t LvglPort::AddDisplay(const DisplayBase& display, LvglDisplayConfig& config)
 {
-    if (!m_initialized)
+    if (!initialized_)
     {
-        m_logger.Error("LVGL port not initialized");
+        logger_.Error("LVGL port not initialized");
         return ESP_ERR_INVALID_STATE;
     }
 
-    if (m_lvgl_display != NULL)
+    if (lvgl_display_ != NULL)
     {
-        m_logger.Warning("Display already added. Removing existing display first.");
-        lvgl_port_remove_disp(m_lvgl_display);
-        m_lvgl_display = NULL;
+        logger_.Warning("Display already added. Removing existing display first.");
+        lvgl_port_remove_disp(lvgl_display_);
+        lvgl_display_ = NULL;
     }
 
     // LvglDisplayConfig final_config = config;
     config.io_handle = display.GetIoHandle();
     config.panel_handle = display.GetPanelHandle();
 
-    m_lvgl_display = lvgl_port_add_disp(&config);
-    if (m_lvgl_display == NULL)
+    lvgl_display_ = lvgl_port_add_disp(&config);
+    if (lvgl_display_ == NULL)
     {
-        m_logger.Error("Failed to add LVGL display");
+        logger_.Error("Failed to add LVGL display");
         return ESP_FAIL;
     }
 
@@ -100,65 +100,65 @@ esp_err_t LvglPort::AddDisplay(const DisplayBase& display, LvglDisplayConfig& co
 
 esp_err_t LvglPort::AddDisplayDsi(const DisplayBase& display, LvglDisplayConfig& config, const LvglDisplayDsiConfig& dsi_config)
 {
-    if (!m_initialized)
+    if (!initialized_)
     {
-        m_logger.Error("LVGL port not initialized");
+        logger_.Error("LVGL port not initialized");
         return ESP_ERR_INVALID_STATE;
     }
 
-    if (m_lvgl_display != NULL)
+    if (lvgl_display_ != NULL)
     {
-        m_logger.Warning("Display already added. Removing existing display first.");
-        lvgl_port_remove_disp(m_lvgl_display);
-        m_lvgl_display = NULL;
+        logger_.Warning("Display already added. Removing existing display first.");
+        lvgl_port_remove_disp(lvgl_display_);
+        lvgl_display_ = NULL;
     }
 
     config.io_handle = display.GetIoHandle();
     config.panel_handle = display.GetPanelHandle();
 
-    m_lvgl_display = lvgl_port_add_disp_dsi(&config, &dsi_config);
-    if (m_lvgl_display == NULL)
+    lvgl_display_ = lvgl_port_add_disp_dsi(&config, &dsi_config);
+    if (lvgl_display_ == NULL)
     {
-        m_logger.Error("Failed to add LVGL DSI display");
+        logger_.Error("Failed to add LVGL DSI display");
         return ESP_FAIL;
     }
 
-    m_logger.Info("LVGL DSI display added");
+    logger_.Info("LVGL DSI display added");
     return ESP_OK;
 }
 
 esp_err_t LvglPort::AddTouch(const I2cTouch& touch, LvglTouchConfig& config)
 {
-    if (!m_initialized)
+    if (!initialized_)
     {
-        m_logger.Error("LVGL port not initialized");
+        logger_.Error("LVGL port not initialized");
         return ESP_ERR_INVALID_STATE;
     }
 
-    if (m_lvgl_display == NULL)
+    if (lvgl_display_ == NULL)
     {
-        m_logger.Error("Display must be added before touch");
+        logger_.Error("Display must be added before touch");
         return ESP_ERR_INVALID_STATE;
     }
 
-    if (m_lvgl_touch != NULL)
+    if (lvgl_touch_ != NULL)
     {
-        m_logger.Warning("Touch already added. Removing existing touch first.");
-        lvgl_port_remove_touch(m_lvgl_touch);
-        m_lvgl_touch = NULL;
+        logger_.Warning("Touch already added. Removing existing touch first.");
+        lvgl_port_remove_touch(lvgl_touch_);
+        lvgl_touch_ = NULL;
     }
 
-    config.disp = m_lvgl_display;
+    config.disp = lvgl_display_;
     config.handle = touch.GetHandle();
 
-    m_lvgl_touch = lvgl_port_add_touch(&config);
-    if (m_lvgl_touch == NULL)
+    lvgl_touch_ = lvgl_port_add_touch(&config);
+    if (lvgl_touch_ == NULL)
     {
-        m_logger.Error("Failed to add LVGL touch");
+        logger_.Error("Failed to add LVGL touch");
         return ESP_FAIL;
     }
 
-    m_logger.Info("LVGL touch added");
+    logger_.Info("LVGL touch added");
     return ESP_OK;
 }
 
@@ -174,26 +174,26 @@ void LvglPort::Unlock()
 
 void LvglPort::Test(bool is_monochrome)
 {
-    m_logger.Info("LVGL Functional Test Start (%s mode)", is_monochrome ? "Monochrome" : "Color");
+    logger_.Info("LVGL Functional Test Start (%s mode)", is_monochrome ? "Monochrome" : "Color");
 
     if (!Lock(0))
     {
-        m_logger.Error("Failed to acquire LVGL lock");
+        logger_.Error("Failed to acquire LVGL lock");
         return;
     }
 
     lv_obj_t *scr = lv_scr_act();
     if (!scr)
     {
-        m_logger.Error("No active screen!");
+        logger_.Error("No active screen!");
         Unlock();
         return;
     }
 
     // Get display resolution
-    int32_t hor_res = lv_display_get_horizontal_resolution(m_lvgl_display);
-    int32_t ver_res = lv_display_get_vertical_resolution(m_lvgl_display);
-    m_logger.Info("Display resolution: %dx%d", hor_res, ver_res);
+    int32_t hor_res = lv_display_get_horizontal_resolution(lvgl_display_);
+    int32_t ver_res = lv_display_get_vertical_resolution(lvgl_display_);
+    logger_.Info("Display resolution: %dx%d", hor_res, ver_res);
 
     // Calculate scale factor based on minimum dimension (relative to 128px baseline)
     int32_t min_dim = (hor_res < ver_res) ? hor_res : ver_res;
@@ -231,7 +231,7 @@ void LvglPort::Test(bool is_monochrome)
         int32_t label_y = (ver_res * 5) / 100; // 5% from top
         if (label_y < 2) label_y = 2;
         lv_obj_align(label, LV_ALIGN_TOP_MID, 0, label_y);
-        m_logger.Info("Test label created");
+        logger_.Info("Test label created");
     }
 
     if (!is_monochrome) {
@@ -265,7 +265,7 @@ void LvglPort::Test(bool is_monochrome)
             lv_obj_set_style_radius(rect, radius, 0);
             lv_obj_align(rect, LV_ALIGN_LEFT_MID, i * (rect_size + spacing) + spacing, 0);
         }
-        m_logger.Info("RGB bars created (size: %d, spacing: %d)", rect_size, spacing);
+        logger_.Info("RGB bars created (size: %d, spacing: %d)", rect_size, spacing);
     } else {
         // 3. Mono Specific: White Frame (centered, 50% width, 25% height)
         lv_obj_t *frame = lv_obj_create(scr);
@@ -284,7 +284,7 @@ void LvglPort::Test(bool is_monochrome)
         if (border_w > 4) border_w = 4;
         lv_obj_set_style_border_width(frame, border_w, 0);
         lv_obj_set_style_pad_all(frame, 0, 0);
-        m_logger.Info("White frame created (%dx%d, border: %d)", frame_w, frame_h, border_w);
+        logger_.Info("White frame created (%dx%d, border: %d)", frame_w, frame_h, border_w);
     }
 
     // 4. Create Spinner (bottom 20% of screen)
@@ -319,38 +319,38 @@ void LvglPort::Test(bool is_monochrome)
             lv_obj_set_style_arc_width(spinner, arc_w, LV_PART_MAIN);
             lv_obj_set_style_arc_color(spinner, lv_palette_lighten(LV_PALETTE_GREY, 1), LV_PART_MAIN);
         }
-        m_logger.Info("Test spinner created (size: %d, arc_width: %d)", spin_size, arc_w);
+        logger_.Info("Test spinner created (size: %d, arc_width: %d)", spin_size, arc_w);
     }
 
     Unlock();
-    m_logger.Info("LVGL Functional Test Complete");
+    logger_.Info("LVGL Functional Test Complete");
 }
 
 bool LvglPort::SetRotation(lv_display_rotation_t rotation)
 {
     if (!Lock(0))
     {
-        m_logger.Error("Failed to acquire LVGL lock");
+        logger_.Error("Failed to acquire LVGL lock");
         return false;
     }
     
-    if (m_lvgl_display == NULL)
+    if (lvgl_display_ == NULL)
     {
-        m_logger.Error("Display must be added before setting rotation");
+        logger_.Error("Display must be added before setting rotation");
         Unlock();
         return false;
     }
 
     // if (rotation != 0 && rotation != 90 && rotation != 180 && rotation != 270)
     // {
-    //     m_logger.Error("Invalid rotation value. Must be 0, 90, 180, or 270 degrees");
+    //     logger_.Error("Invalid rotation value. Must be 0, 90, 180, or 270 degrees");
     //     Unlock();
     //     return false;
     // }
 
-    lv_disp_set_rotation(m_lvgl_display, rotation);
+    lv_disp_set_rotation(lvgl_display_, rotation);
     Unlock();
-    m_logger.Info("Display rotation set to %d degrees", rotation);
+    logger_.Info("Display rotation set to %d degrees", rotation);
     return true;
 }
 

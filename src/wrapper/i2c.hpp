@@ -33,9 +33,9 @@ namespace wrapper
 
   class I2cBus
   {
-    Logger &m_logger;
-    i2c_port_t m_port;
-    i2c_master_bus_handle_t m_bus_handle;
+    Logger &logger_;
+    i2c_port_t port_;
+    i2c_master_bus_handle_t bus_handle_;
 
     // 私有方法：实际执行Probe的逻辑
     esp_err_t ProbeInternal(int addr);
@@ -81,8 +81,8 @@ namespace wrapper
   class I2cDevice
   {
   protected:
-    Logger &m_logger;
-    i2c_master_dev_handle_t m_dev_handle;
+    Logger &logger_;
+    i2c_master_dev_handle_t dev_handle_;
 
   public:
     I2cDevice(Logger &logger);
@@ -93,18 +93,18 @@ namespace wrapper
 
     inline esp_err_t WriteBytes(const uint8_t *data, size_t length, int timeout_ms)
     {
-      return i2c_master_transmit(m_dev_handle, data, length, timeout_ms);
+      return i2c_master_transmit(dev_handle_, data, length, timeout_ms);
     }
 
     inline esp_err_t ReadBytes(uint8_t *data, size_t length, int timeout_ms)
     {
-      return i2c_master_receive(m_dev_handle, data, length, timeout_ms);
+      return i2c_master_receive(dev_handle_, data, length, timeout_ms);
     }
 
     inline esp_err_t WriteReadBytes(
         const uint8_t *write_data, size_t write_length, uint8_t *read_data, size_t read_length, int timeout_ms)
     {
-      return i2c_master_transmit_receive(m_dev_handle, write_data, write_length, read_data, read_length, timeout_ms);
+      return i2c_master_transmit_receive(dev_handle_, write_data, write_length, read_data, read_length, timeout_ms);
     }
 
     esp_err_t WriteByte(uint8_t data, int timeout_ms);

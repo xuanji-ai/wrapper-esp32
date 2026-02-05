@@ -12,35 +12,35 @@ namespace wrapper
   class AudioCodec
   {
     //common
-    Logger &m_logger;
-    I2sBus *m_i2s_bus = nullptr;
-    const audio_codec_data_if_t *m_i2s_data_if = nullptr;
-    const audio_codec_gpio_if_t *m_i2s_gpio_if = nullptr;
+    Logger &logger_;
+    I2sBus *i2s_bus_ = nullptr;
+    const audio_codec_data_if_t *i2s_data_if_ = nullptr;
+    const audio_codec_gpio_if_t *i2s_gpio_if_ = nullptr;
     //speaker
-    const audio_codec_ctrl_if_t *m_spk_audio_codec_ctrl_if = nullptr;
-    const audio_codec_if_t *m_spk_audio_codec_if = nullptr;
-    esp_codec_dev_handle_t m_spk_codec_dev_handle = nullptr;
-    bool m_spk_enabled = false;
+    const audio_codec_ctrl_if_t *spk_audio_codec_ctrl_if_ = nullptr;
+    const audio_codec_if_t *spk_audio_codec_if_ = nullptr;
+    esp_codec_dev_handle_t spk_codec_dev_handle_ = nullptr;
+    bool spk_enabled_ = false;
     //microphone
-    const audio_codec_ctrl_if_t *m_mic_audio_codec_ctrl_if = nullptr;
-    const audio_codec_if_t *m_mic_audio_codec_if = nullptr;
-    esp_codec_dev_handle_t m_mic_codec_dev_handle = nullptr;  
-    bool m_mic_enabled = false;
+    const audio_codec_ctrl_if_t *mic_audio_codec_ctrl_if_ = nullptr;
+    const audio_codec_if_t *mic_audio_codec_if_ = nullptr;
+    esp_codec_dev_handle_t mic_codec_dev_handle_ = nullptr;  
+    bool mic_enabled_ = false;
 
   public:
     AudioCodec(Logger &logger);
     ~AudioCodec();
 
-    Logger & GetLogger() const { return m_logger; }
-    const audio_codec_data_if_t * GetDataInterface() const { return m_i2s_data_if; }
-    const audio_codec_gpio_if_t * GetGpioInterface() const { return m_i2s_gpio_if; }
-    const audio_codec_ctrl_if_t * GetSpeakerCtrlInterface() const { return m_spk_audio_codec_ctrl_if; }
-    const audio_codec_ctrl_if_t * GetMicrophoneCtrlInterface() const { return m_mic_audio_codec_ctrl_if; }
+    Logger & GetLogger() const { return logger_; }
+    const audio_codec_data_if_t * GetDataInterface() const { return i2s_data_if_; }
+    const audio_codec_gpio_if_t * GetGpioInterface() const { return i2s_gpio_if_; }
+    const audio_codec_ctrl_if_t * GetSpeakerCtrlInterface() const { return spk_audio_codec_ctrl_if_; }
+    const audio_codec_ctrl_if_t * GetMicrophoneCtrlInterface() const { return mic_audio_codec_ctrl_if_; }
 
-    void SetSpeakerCodecInterface(const audio_codec_if_t *codec_if) { m_spk_audio_codec_if = codec_if;  }
-    void SetMicrophoneCodecInterface(const audio_codec_if_t *codec_if) { m_mic_audio_codec_if = codec_if;  }
-    void SetSpeakerCodecDeviceHandle(esp_codec_dev_handle_t handle) { m_spk_codec_dev_handle = handle;  }
-    void SetMicrophoneCodecDeviceHandle(esp_codec_dev_handle_t handle) { m_mic_codec_dev_handle = handle;  }
+    void SetSpeakerCodecInterface(const audio_codec_if_t *codec_if) { spk_audio_codec_if_ = codec_if;  }
+    void SetMicrophoneCodecInterface(const audio_codec_if_t *codec_if) { mic_audio_codec_if_ = codec_if;  }
+    void SetSpeakerCodecDeviceHandle(esp_codec_dev_handle_t handle) { spk_codec_dev_handle_ = handle;  }
+    void SetMicrophoneCodecDeviceHandle(esp_codec_dev_handle_t handle) { mic_codec_dev_handle_ = handle;  }
 
     esp_err_t Init(I2sBus &i2m_bus);
 

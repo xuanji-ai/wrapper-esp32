@@ -97,10 +97,10 @@ namespace wrapper
 
   class LvglPort
   {
-    Logger &m_logger;
-    lv_display_t *m_lvgl_display;
-    lv_indev_t *m_lvgl_touch;
-    bool m_initialized;
+    Logger &logger_;
+    lv_display_t *lvgl_display_;
+    lv_indev_t *lvgl_touch_;
+    bool initialized_;
 
   public:
     LvglPort(Logger &logger);
@@ -112,9 +112,9 @@ namespace wrapper
     esp_err_t AddTouch(const I2cTouch &touch, LvglTouchConfig &config);
     bool Lock(uint32_t timeout_ms);
     void Unlock();
-    bool IsInitialized() const { return m_initialized; }
-    lv_display_t *GetDisplay() const { return m_lvgl_display; }
-    lv_indev_t *GetTouch() const { return m_lvgl_touch; }
+    bool IsInitialized() const { return initialized_; }
+    lv_display_t *GetDisplay() const { return lvgl_display_; }
+    lv_indev_t *GetTouch() const { return lvgl_touch_; }
 
     //! Options -----------------------------------------------------------------------------------------------------------
     bool SetRotation(lv_display_rotation_t rotation);
