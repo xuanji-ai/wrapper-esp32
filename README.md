@@ -1,9 +1,10 @@
 # wrapper-esp32
 
-这是一个对原有ESP-IDF组件, 以及ESP-Registry组件进行C++风格封装的组件, 也包含个人常用开发板的一些封装
+这是一个对原有ESP-IDF组件, 以及ESP-Registry组件进行C++风格封装的组件
 
 主要封装代码在wrapper中, device和board是在wrapper之上建立的
 
+将包含Xuanji使用ESP32为主控的项目中, 使用过的开发板和外设模块
 
 # 为什么封装?
 
