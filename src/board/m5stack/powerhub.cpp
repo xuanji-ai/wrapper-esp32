@@ -1,13 +1,147 @@
-#include "board/m5stack/powerhub.hpp"
-#include "nvs_flash.h"
-#include "nvs.h"
-#include "driver/gpio.h"
-#include "esp_timer.h"
+
+#include <freertos/FreeRTOS.h>
+#include <freertos/task.h>
+#include <nvs_flash.h>
+#include <nvs.h>
+#include <esp_timer.h>
+#include <driver/gpio.h>
+
 #include <map>
+
+#include "board/m5stack/powerhub.hpp"
 
 namespace wrapper {
 
-static const char* TAG = "PowerHub";
+enum class PowerControl { LED, USB, I2C, UART, BUS, VAMeter, Charge };
+enum class LedControl { NONE = -1, USB_C, USB_A, UART, BUS, I2C, BAT_CHARGE, POWER_L, POWER_R };
+enum class VAMonitor { BAT, CAN_BUS, RS485_BUS, USB, I2C, UART };
+enum class ButtonKey { OK, KEY2, SELECT = 11 };
+enum class WakeUpSource { RTC_ALARM, VIN, BUTTON };
+enum class USBMode { SLAVE_MODE, HOST_MODE_TPYE_A, HOST_MODE_TPYE_C };
+
+struct BusConfig {
+    uint16_t voltage;
+    uint8_t currentLimit;
+    uint8_t enable;
+    uint8_t direction;
+};
+
+struct SC8721Config {
+    uint8_t csoValue;
+    uint8_t slopeCompensation;
+    uint16_t outputVoltageSet;
+    uint8_t control;
+    uint8_t systemSetting;
+    uint8_t frequency;
+    uint16_t statusFlags;
+};
+
+struct RtcTime {
+    uint8_t sec;
+    uint8_t min;
+    uint8_t hour;
+    uint8_t day;
+    uint8_t mon;
+    uint8_t year;
+    uint8_t wday;
+};
+
+struct AlarmTime {
+    uint8_t min;
+    uint8_t hour;
+    uint8_t day;
+};
+
+class PowerHubI2c : public I2cDevice {
+public:
+    static constexpr uint8_t DEFAULT_ADDR = 0x50;
+    static constexpr uint32_t DEFAULT_SPEED = 100000;
+
+    PowerHubI2c(Logger& logger);
+    virtual ~PowerHubI2c() = default;
+
+    esp_err_t Init(const I2cBus& bus, uint8_t addr = DEFAULT_ADDR);
+
+    // Power Control
+    esp_err_t SetPowerState(PowerControl device, bool state);
+    esp_err_t GetPowerState(PowerControl device, bool& state);
+
+    // USB Mode
+    esp_err_t SetUSBMode(USBMode mode);
+    esp_err_t GetUSBMode(USBMode& mode);
+
+    // Bus Config
+    esp_err_t SetBusConfig(const BusConfig& config);
+    esp_err_t GetBusConfig(BusConfig& config);
+
+    // VA Monitor
+    esp_err_t GetDeviceVoltage(VAMonitor device, uint16_t& voltage);
+    esp_err_t GetDeviceCurrent(VAMonitor device, int16_t& current);
+    
+    // Status
+    esp_err_t GetChargeStatus(uint8_t& status);
+    esp_err_t GetPowerSupplyStatus(uint8_t& status);
+
+    // LED
+    esp_err_t SetLEDColor(LedControl device, uint32_t color);
+    esp_err_t UpdateLedColors(const std::vector<uint32_t>& colors);
+    esp_err_t GetLEDColor(LedControl device, uint32_t& color);
+    esp_err_t SetLEDBrightness(LedControl device, uint8_t brightness);
+    esp_err_t GetLEDBrightness(LedControl device, uint8_t& brightness);
+
+    // SC8721
+    esp_err_t GetSC8721Config(SC8721Config& config);
+
+    // Button
+    bool GetButtonState(ButtonKey key);
+
+    // Wakeup
+    esp_err_t SetWakeUpSource(WakeUpSource source, bool state);
+    esp_err_t CheckWakeUpSource(WakeUpSource source, bool& state);
+
+    // RTC
+    esp_err_t SetRTCTime(const RtcTime& time);
+    esp_err_t GetRTCTime(RtcTime& time);
+    esp_err_t SetAlarmTime(const AlarmTime& time);
+    esp_err_t GetAlarmTime(AlarmTime& time);
+    esp_err_t SetAlarmState(bool state);
+    esp_err_t GetAlarmState(bool& state);
+
+    // System
+    esp_err_t PowerOff();
+    esp_err_t GetBootloaderVersion(uint8_t& version);
+    esp_err_t GetFirmwareVersion(uint8_t& version);
+    esp_err_t SetI2CAddress(uint8_t newAddr);
+    esp_err_t GetI2CAddress(uint8_t& addr);
+
+    // Storage
+    esp_err_t SaveConfig();
+    esp_err_t LoadConfig();
+
+private:
+    // Registers
+    static constexpr uint8_t REG_POWER_CTR = 0x00;
+    static constexpr uint8_t REG_USB_MODE = 0x10;
+    static constexpr uint8_t REG_BUS_CFG = 0x20;
+    static constexpr uint8_t REG_CHG_STA = 0x50;
+    static constexpr uint8_t REG_PWR_SUP = 0x51;
+    static constexpr uint8_t REG_SC8721_CFG = 0x90;
+    static constexpr uint8_t REG_BUTTON = 0xA0;
+    static constexpr uint8_t REG_WAKEUP = 0xB0;
+    static constexpr uint8_t REG_RTC_TIME = 0xC0;
+    static constexpr uint8_t REG_RTC_ALARM = 0xD0;
+    static constexpr uint8_t REG_RTC_ALARM_CTR = 0xD3;
+    static constexpr uint8_t REG_POWER_OFF = 0xE0;
+    static constexpr uint8_t REG_BL_VERSION = 0xFC;
+    static constexpr uint8_t REG_FW_VERSION = 0xFE;
+    static constexpr uint8_t REG_I2C_ADDR_CFG = 0xFF;
+
+    struct PersistentConfig {
+        BusConfig busConfig;
+        USBMode usbMode;
+        // Add more persistent fields if needed
+    };
+};
 
 struct LedRegisterInfo {
     uint8_t colorStartReg;
@@ -30,10 +164,10 @@ static const std::map<VAMonitor, VARegisterInfo> VARegisterMap = {
     {VAMonitor::I2C, {0x40, 0x42}},       {VAMonitor::UART, {0x44, 0x46}}
 };
 
-PowerHub::PowerHub(Logger& logger) : I2cDevice(logger) {
+PowerHubI2c::PowerHubI2c(Logger& logger) : I2cDevice(logger) {
 }
 
-esp_err_t PowerHub::Init(const I2cBus& bus, uint8_t addr) {
+esp_err_t PowerHubI2c::Init(const I2cBus& bus, uint8_t addr) {
     I2cDeviceConfig config(addr, DEFAULT_SPEED);
     esp_err_t err = I2cDevice::Init(bus, config);
     if (err != ESP_OK) return err;
@@ -50,11 +184,11 @@ esp_err_t PowerHub::Init(const I2cBus& bus, uint8_t addr) {
     return ESP_OK;
 }
 
-esp_err_t PowerHub::SetPowerState(PowerControl device, bool state) {
+esp_err_t PowerHubI2c::SetPowerState(PowerControl device, bool state) {
     return WriteReg8(REG_POWER_CTR + (uint8_t)device, state ? 1 : 0, -1);
 }
 
-esp_err_t PowerHub::GetPowerState(PowerControl device, bool& state) {
+esp_err_t PowerHubI2c::GetPowerState(PowerControl device, bool& state) {
     uint8_t val;
     esp_err_t err = ReadReg8(REG_POWER_CTR + (uint8_t)device, val, -1);
     if (err == ESP_OK) {
@@ -63,11 +197,11 @@ esp_err_t PowerHub::GetPowerState(PowerControl device, bool& state) {
     return err;
 }
 
-esp_err_t PowerHub::SetUSBMode(USBMode mode) {
+esp_err_t PowerHubI2c::SetUSBMode(USBMode mode) {
     return WriteReg8(REG_USB_MODE, (uint8_t)mode, -1);
 }
 
-esp_err_t PowerHub::GetUSBMode(USBMode& mode) {
+esp_err_t PowerHubI2c::GetUSBMode(USBMode& mode) {
     uint8_t val;
     esp_err_t err = ReadReg8(REG_USB_MODE, val, -1);
     if (err == ESP_OK) {
@@ -76,7 +210,7 @@ esp_err_t PowerHub::GetUSBMode(USBMode& mode) {
     return err;
 }
 
-esp_err_t PowerHub::SetBusConfig(const BusConfig& config) {
+esp_err_t PowerHubI2c::SetBusConfig(const BusConfig& config) {
     std::vector<uint8_t> data(5);
     data[0] = config.voltage & 0xFF;
     data[1] = (config.voltage >> 8) & 0xFF;
@@ -86,7 +220,7 @@ esp_err_t PowerHub::SetBusConfig(const BusConfig& config) {
     return WriteRegBytes(REG_BUS_CFG, data, -1);
 }
 
-esp_err_t PowerHub::GetBusConfig(BusConfig& config) {
+esp_err_t PowerHubI2c::GetBusConfig(BusConfig& config) {
     std::vector<uint8_t> data(5);
     esp_err_t err = ReadRegBytes(REG_BUS_CFG, data, 5, -1);
     if (err == ESP_OK) {
@@ -98,7 +232,7 @@ esp_err_t PowerHub::GetBusConfig(BusConfig& config) {
     return err;
 }
 
-esp_err_t PowerHub::GetDeviceVoltage(VAMonitor device, uint16_t& voltage) {
+esp_err_t PowerHubI2c::GetDeviceVoltage(VAMonitor device, uint16_t& voltage) {
     if (VARegisterMap.find(device) == VARegisterMap.end()) return ESP_ERR_INVALID_ARG;
     uint8_t reg = VARegisterMap.at(device).voltageReg;
     std::vector<uint8_t> data(2);
@@ -109,7 +243,7 @@ esp_err_t PowerHub::GetDeviceVoltage(VAMonitor device, uint16_t& voltage) {
     return err;
 }
 
-esp_err_t PowerHub::GetDeviceCurrent(VAMonitor device, int16_t& current) {
+esp_err_t PowerHubI2c::GetDeviceCurrent(VAMonitor device, int16_t& current) {
     if (VARegisterMap.find(device) == VARegisterMap.end()) return ESP_ERR_INVALID_ARG;
     uint8_t reg = VARegisterMap.at(device).currentReg;
     std::vector<uint8_t> data(2);
@@ -120,15 +254,15 @@ esp_err_t PowerHub::GetDeviceCurrent(VAMonitor device, int16_t& current) {
     return err;
 }
 
-esp_err_t PowerHub::GetChargeStatus(uint8_t& status) {
+esp_err_t PowerHubI2c::GetChargeStatus(uint8_t& status) {
     return ReadReg8(REG_CHG_STA, status, -1);
 }
 
-esp_err_t PowerHub::GetPowerSupplyStatus(uint8_t& status) {
+esp_err_t PowerHubI2c::GetPowerSupplyStatus(uint8_t& status) {
     return ReadReg8(REG_PWR_SUP, status, -1);
 }
 
-esp_err_t PowerHub::SetLEDColor(LedControl device, uint32_t color) {
+esp_err_t PowerHubI2c::SetLEDColor(LedControl device, uint32_t color) {
     if (ledRegisterMap.find(device) == ledRegisterMap.end()) return ESP_ERR_INVALID_ARG;
     uint8_t reg = ledRegisterMap.at(device).colorStartReg;
     std::vector<uint8_t> data(3);
@@ -138,7 +272,7 @@ esp_err_t PowerHub::SetLEDColor(LedControl device, uint32_t color) {
     return WriteRegBytes(reg, data, -1);
 }
 
-esp_err_t PowerHub::UpdateLedColors(const std::vector<uint32_t>& colors) {
+esp_err_t PowerHubI2c::UpdateLedColors(const std::vector<uint32_t>& colors) {
     if (colors.size() > 8) return ESP_ERR_INVALID_ARG;
     std::vector<uint8_t> data(32, 0);
     for (size_t i = 0; i < colors.size(); ++i) {
@@ -151,7 +285,7 @@ esp_err_t PowerHub::UpdateLedColors(const std::vector<uint32_t>& colors) {
     return WriteRegBytes(ledRegisterMap.at(LedControl::USB_C).colorStartReg, data, -1);
 }
 
-esp_err_t PowerHub::GetLEDColor(LedControl device, uint32_t& color) {
+esp_err_t PowerHubI2c::GetLEDColor(LedControl device, uint32_t& color) {
     if (ledRegisterMap.find(device) == ledRegisterMap.end()) return ESP_ERR_INVALID_ARG;
     uint8_t reg = ledRegisterMap.at(device).colorStartReg;
     std::vector<uint8_t> data(3);
@@ -162,17 +296,17 @@ esp_err_t PowerHub::GetLEDColor(LedControl device, uint32_t& color) {
     return err;
 }
 
-esp_err_t PowerHub::SetLEDBrightness(LedControl device, uint8_t brightness) {
+esp_err_t PowerHubI2c::SetLEDBrightness(LedControl device, uint8_t brightness) {
     if (ledRegisterMap.find(device) == ledRegisterMap.end()) return ESP_ERR_INVALID_ARG;
     return WriteReg8(ledRegisterMap.at(device).brightnessReg, brightness, -1);
 }
 
-esp_err_t PowerHub::GetLEDBrightness(LedControl device, uint8_t& brightness) {
+esp_err_t PowerHubI2c::GetLEDBrightness(LedControl device, uint8_t& brightness) {
     if (ledRegisterMap.find(device) == ledRegisterMap.end()) return ESP_ERR_INVALID_ARG;
     return ReadReg8(ledRegisterMap.at(device).brightnessReg, brightness, -1);
 }
 
-esp_err_t PowerHub::GetSC8721Config(SC8721Config& config) {
+esp_err_t PowerHubI2c::GetSC8721Config(SC8721Config& config) {
     uint8_t writeData = 1;
     esp_err_t err = WriteReg8(REG_SC8721_CFG, writeData, -1);
     if (err != ESP_OK) return err;
@@ -203,7 +337,7 @@ esp_err_t PowerHub::GetSC8721Config(SC8721Config& config) {
     return ESP_ERR_TIMEOUT;
 }
 
-bool PowerHub::GetButtonState(ButtonKey key) {
+bool PowerHubI2c::GetButtonState(ButtonKey key) {
     if (key == ButtonKey::SELECT) {
         return gpio_get_level((gpio_num_t)key);
     } else {
@@ -215,11 +349,11 @@ bool PowerHub::GetButtonState(ButtonKey key) {
     }
 }
 
-esp_err_t PowerHub::SetWakeUpSource(WakeUpSource source, bool state) {
+esp_err_t PowerHubI2c::SetWakeUpSource(WakeUpSource source, bool state) {
     return WriteReg8(REG_WAKEUP + (uint8_t)source, state ? 1 : 0, -1);
 }
 
-esp_err_t PowerHub::CheckWakeUpSource(WakeUpSource source, bool& state) {
+esp_err_t PowerHubI2c::CheckWakeUpSource(WakeUpSource source, bool& state) {
     uint8_t val;
     esp_err_t err = ReadReg8(REG_WAKEUP + (uint8_t)source, val, -1);
     if (err == ESP_OK) {
@@ -228,7 +362,7 @@ esp_err_t PowerHub::CheckWakeUpSource(WakeUpSource source, bool& state) {
     return err;
 }
 
-esp_err_t PowerHub::SetRTCTime(const RtcTime& time) {
+esp_err_t PowerHubI2c::SetRTCTime(const RtcTime& time) {
     std::vector<uint8_t> data(7);
     data[0] = time.sec;
     data[1] = time.min;
@@ -241,7 +375,7 @@ esp_err_t PowerHub::SetRTCTime(const RtcTime& time) {
     return WriteRegBytes(REG_RTC_TIME, data, -1);
 }
 
-esp_err_t PowerHub::GetRTCTime(RtcTime& time) {
+esp_err_t PowerHubI2c::GetRTCTime(RtcTime& time) {
     std::vector<uint8_t> data(7);
     esp_err_t err = ReadRegBytes(REG_RTC_TIME, data, 7, -1);
     if (err == ESP_OK) {
@@ -265,7 +399,7 @@ esp_err_t PowerHub::GetRTCTime(RtcTime& time) {
     return err;
 }
 
-esp_err_t PowerHub::SetAlarmTime(const AlarmTime& time) {
+esp_err_t PowerHubI2c::SetAlarmTime(const AlarmTime& time) {
     std::vector<uint8_t> data(3);
     data[0] = time.min;
     data[1] = time.hour;
@@ -273,7 +407,7 @@ esp_err_t PowerHub::SetAlarmTime(const AlarmTime& time) {
     return WriteRegBytes(REG_RTC_ALARM, data, -1);
 }
 
-esp_err_t PowerHub::GetAlarmTime(AlarmTime& time) {
+esp_err_t PowerHubI2c::GetAlarmTime(AlarmTime& time) {
     std::vector<uint8_t> data(3);
     esp_err_t err = ReadRegBytes(REG_RTC_ALARM, data, 3, -1);
     if (err == ESP_OK) {
@@ -284,11 +418,11 @@ esp_err_t PowerHub::GetAlarmTime(AlarmTime& time) {
     return err;
 }
 
-esp_err_t PowerHub::SetAlarmState(bool state) {
+esp_err_t PowerHubI2c::SetAlarmState(bool state) {
     return WriteReg8(REG_RTC_ALARM_CTR, state ? 1 : 0, -1);
 }
 
-esp_err_t PowerHub::GetAlarmState(bool& state) {
+esp_err_t PowerHubI2c::GetAlarmState(bool& state) {
     uint8_t val;
     esp_err_t err = ReadReg8(REG_RTC_ALARM_CTR, val, -1);
     if (err == ESP_OK) {
@@ -297,27 +431,27 @@ esp_err_t PowerHub::GetAlarmState(bool& state) {
     return err;
 }
 
-esp_err_t PowerHub::PowerOff() {
+esp_err_t PowerHubI2c::PowerOff() {
     return WriteReg8(REG_POWER_OFF, 1, -1);
 }
 
-esp_err_t PowerHub::GetBootloaderVersion(uint8_t& version) {
+esp_err_t PowerHubI2c::GetBootloaderVersion(uint8_t& version) {
     return ReadReg8(REG_BL_VERSION, version, -1);
 }
 
-esp_err_t PowerHub::GetFirmwareVersion(uint8_t& version) {
+esp_err_t PowerHubI2c::GetFirmwareVersion(uint8_t& version) {
     return ReadReg8(REG_FW_VERSION, version, -1);
 }
 
-esp_err_t PowerHub::SetI2CAddress(uint8_t newAddr) {
+esp_err_t PowerHubI2c::SetI2CAddress(uint8_t newAddr) {
     return WriteReg8(REG_I2C_ADDR_CFG, newAddr, -1);
 }
 
-esp_err_t PowerHub::GetI2CAddress(uint8_t& addr) {
+esp_err_t PowerHubI2c::GetI2CAddress(uint8_t& addr) {
     return ReadReg8(REG_I2C_ADDR_CFG, addr, -1);
 }
 
-esp_err_t PowerHub::SaveConfig() {
+esp_err_t PowerHubI2c::SaveConfig() {
     nvs_handle_t my_handle;
     esp_err_t err = nvs_open("powerhub", NVS_READWRITE, &my_handle);
     if (err != ESP_OK) return err;
@@ -338,7 +472,7 @@ esp_err_t PowerHub::SaveConfig() {
     return err;
 }
 
-esp_err_t PowerHub::LoadConfig() {
+esp_err_t PowerHubI2c::LoadConfig() {
     nvs_handle_t my_handle;
     esp_err_t err = nvs_open("powerhub", NVS_READONLY, &my_handle);
     if (err != ESP_OK) return err;
@@ -355,5 +489,5 @@ esp_err_t PowerHub::LoadConfig() {
     nvs_close(my_handle);
     return err;
 }
-
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             
 } // namespace wrapper

@@ -4,7 +4,8 @@
 #include <freertos/task.h>
 #include <nvs_flash.h>
 
-#include "app/service.hpp"
+#include "service.hpp"
+#include "freertps.hpp"
 
 #if CONFIG_WRAPPER_ESP32_BOARD_M5STACK_CORE_S3
 #include "board/m5stack/core-s3.hpp"
