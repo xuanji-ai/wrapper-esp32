@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <functional>
+#include <atomic>
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
 #include <freertos/semphr.h>
@@ -78,7 +79,8 @@ namespace monncake
       Stopped,
     };
 
-    State state_{State::Stopped};
+    std::atomic<State> state_{State::Stopped};
+    std::atomic<bool> should_stop_{false};
 
     bool IsRunning() const { return state_ == State::Running; }
     bool IsSuspended() const { return state_ == State::Suspended; }
@@ -112,12 +114,20 @@ namespace monncake
       task_handle_ = nullptr;
     }
 
-    virtual ~TaskAbility() = default;
+    // RAII: 禁止拷贝，确保 Handle 唯一性
+    TaskAbility(const TaskAbility&) = delete;
+    TaskAbility& operator=(const TaskAbility&) = delete;
+
+    virtual ~TaskAbility() 
+    {
+        Stop();
+    }
 
     virtual void Start()
     {
-      if (task_handle_ != nullptr)
+      if (task_handle_ == nullptr)
       {
+        should_stop_ = false;
         UBaseType_t result = xTaskCreate(
             [](void *param)
             {
@@ -155,10 +165,11 @@ namespace monncake
 
     virtual void Stop()
     {
+      should_stop_ = true;
+
       if (task_handle_ != nullptr && state_ != State::Stopped)
       {
         // 请求停止，等待任务自行退出
-        state_ = State::Stopped;
         
         // 等待任务真正结束 (eDeleted 或 eInvalid)
         constexpr int kMaxWaitMs = 5000;
@@ -183,6 +194,7 @@ namespace monncake
         }
         
         task_handle_ = nullptr;
+        state_ = State::Stopped;
       }
     }
     
@@ -194,93 +206,7 @@ namespace monncake
     virtual void TaskFunc() = 0;
   };
 //!--------------------------------------------------------------------------------------------------------------------
-  template <typename DataType>
-  class QueueAbility : public Ability
-  {
-  public:
-    QueueHandle_t queue_handle_;
-    
-    QueueAbility(AbilityType type, int id, const std::string_view &name) : Ability(type, id, name)
-    {
-      queue_handle_ = xQueueCreate(10, sizeof(DataType));
-    }
-
-    virtual ~QueueAbility() 
-    {
-      if (queue_handle_ != nullptr)
-      {
-        vQueueDelete(queue_handle_);
-        queue_handle_ = nullptr;
-      }
-    }
-
-    void Send(const DataType &data, int ms)
-    {
-      if (queue_handle_ != nullptr)
-      {
-        xQueueSend(queue_handle_, &data, pdMS_TO_TICKS(ms));
-      }
-    }
-
-    void SendFont(const DataType &data, int ms)
-    {
-      if (queue_handle_ != nullptr)
-      {
-        xQueueSendToFront(queue_handle_, &data, pdMS_TO_TICKS(ms));
-      }
-    }
-
-    void SendBack(const DataType &data, int ms)
-    {
-      if (queue_handle_ != nullptr)
-      {
-        xQueueSendToBack(queue_handle_, &data, pdMS_TO_TICKS(ms));
-      }
-    }
-
-    void OverWrite(const DataType &data)
-    {
-      if (queue_handle_ != nullptr)
-      {
-        xQueueOverwrite(queue_handle_, &data);
-      }
-    }
-
-    void Receive(DataType &data, int ms)
-    {
-      if (queue_handle_ != nullptr)
-      {
-        xQueueReceive(queue_handle_, &data, pdMS_TO_TICKS(ms));
-      }
-    }
-
-    void Clear()
-    {
-      if (queue_handle_ != nullptr)
-      {
-        xQueueReset(queue_handle_);
-      }
-    }
-
-    void Peek(DataType &data, int ms)
-    {
-      if (queue_handle_ != nullptr)
-      {
-        xQueuePeek(queue_handle_, &data, pdMS_TO_TICKS(ms));
-      }
-    }
-
-    void Delete()
-    {
-      if (queue_handle_ != nullptr)
-      {
-        vQueueDelete(queue_handle_);
-        queue_handle_ = nullptr;
-      }
-    }
-  };
-//!--------------------------------------------------------------------------------------------------------------------
-  class ServiceAbility : public TaskAbility
+  class ServiceAbility : public Ability
   {
   public:
 
@@ -292,41 +218,37 @@ namespace monncake
       Stopped,
     };
 
-    State state_{State::Stopped};
+    std::atomic<State> state_{State::Stopped};
+    std::atomic<bool> should_stop_{false};
+    
+    // Task resources
+    configSTACK_DEPTH_TYPE stack_size_{2048};
+    UBaseType_t priority_{0};
+    TaskHandle_t task_handle_{nullptr};
+    EventGroupHandle_t event_group_{nullptr};
 
     bool HasRequest() const { return state_ == State::HasRequest; }
     bool IsProcessing() const { return state_ == State::Processing; }
     bool IsIdle() const { return state_ == State::Idle; }
     bool IsStopped() const { return state_ == State::Stopped; }
 
-    EventGroupHandle_t event_group_;
+    void SetStackSize(int stack_size) { stack_size_ = static_cast<configSTACK_DEPTH_TYPE>(stack_size); }
+    void SetPriority(int priority) { priority_ = static_cast<UBaseType_t>(priority); }
+    TaskHandle_t GetTaskHandle() const { return task_handle_; }
 
-// To Self
-
-    virtual void TaskFunc() override
-    {
-      for(;;)
-      {
-        EventBits_t bits = xEventGroupWaitBits(event_group_, 0x01, pdTRUE, pdFALSE, portMAX_DELAY);
-        if (bits & 0x01)
-        {
-          state_ = State::Processing;
-          Process();
-          state_ = State::Idle;
-        }
-      }
-    }
-
-// To Other Ability or External Call
-
-    ServiceAbility(AbilityType type, int id, const std::string_view &name) : TaskAbility(type, id, name)
+    ServiceAbility(AbilityType type, int id, const std::string_view &name) : Ability(type, id, name)
     {
       state_ = State::Stopped;
       event_group_ = xEventGroupCreate();
     }
 
+    // RAII
+    ServiceAbility(const ServiceAbility&) = delete;
+    ServiceAbility& operator=(const ServiceAbility&) = delete;
+
     virtual ~ServiceAbility()
     {
+      Stop();
       if (event_group_ != nullptr)
       {
         vEventGroupDelete(event_group_);
@@ -334,23 +256,59 @@ namespace monncake
       }
     }
 
-    virtual void Start() override
+    virtual void Start()
     {
-      if(State::Stopped != state_)
+      if (task_handle_ == nullptr && state_ == State::Stopped)
       {
-        return; 
+        should_stop_ = false;
+        UBaseType_t result = xTaskCreate(
+            [](void *param)
+            {
+              ServiceAbility *ability = static_cast<ServiceAbility *>(param);
+              ability->ServiceLoop();
+              vTaskDelete(nullptr);
+            },
+            name_.data(), stack_size_, this, priority_, &task_handle_);
+
+        if (result == pdPASS)
+        {
+          state_ = State::Idle;
+        }
       }
-      TaskAbility::Start();
-      state_ = State::Idle;
     }
 
-    virtual void Stop() override
+    virtual void Stop()
     {
-      if(State::Stopped == state_)
-      {
-        return; 
+      should_stop_ = true;
+      if (event_group_) {
+          xEventGroupSetBits(event_group_, 0x01); // Wake up if waiting
       }
-      TaskAbility::Stop();
+      
+      if (task_handle_ != nullptr)
+      {
+         // Wait for task to exit
+        constexpr int kMaxWaitMs = 5000;
+        constexpr int kPollIntervalMs = 10;
+        int waited = 0;
+        
+        while (waited < kMaxWaitMs)
+        {
+          eTaskState task_state = eTaskGetState(task_handle_);
+          if (task_state == eDeleted || task_state == eInvalid)
+          {
+            break;
+          }
+          vTaskDelay(pdMS_TO_TICKS(kPollIntervalMs));
+          waited += kPollIntervalMs;
+        }
+
+        if (waited >= kMaxWaitMs)
+        {
+          vTaskDelete(task_handle_);
+        }
+        
+        task_handle_ = nullptr;
+      }
       state_ = State::Stopped;
     }
 
@@ -362,8 +320,58 @@ namespace monncake
         xEventGroupSetBits(event_group_, 0x01);
       }
     }
-// To Override
+
     virtual void Process() = 0;
-    virtual void Request() = 0;
+
+  private:
+    void ServiceLoop()
+    {
+      while (!should_stop_)
+      {
+        EventBits_t bits = xEventGroupWaitBits(event_group_, 0x01, pdTRUE, pdFALSE, pdMS_TO_TICKS(1000));
+        
+        if (should_stop_) break;
+
+        if (bits & 0x01)
+        {
+          state_ = State::Processing;
+          Process();
+          state_ = State::Idle;
+        }
+      }
+      state_ = State::Stopped;
+    }
   };
+
+  class OpusDecodeService : public ServiceAbility
+  {
+  public:
+
+    std::vector<uint8_t> input_buffer_;
+    std::vector<int16_t> output_buffer_;
+
+    OpusDecodeService(int id, const std::string_view &name) : ServiceAbility(AbilityType::Service, id, name)
+    {
+    }
+    virtual ~OpusDecodeService() = default;
+    virtual void Process() override
+    {
+      // Opus解码处理逻辑
+      // 模拟处理时间
+      vTaskDelay(pdMS_TO_TICKS(100));
+    }
+
+    void Request(const std::vector<uint8_t>& encoded_data)
+    {
+      // 存储或处理传入的encoded_data
+      // 然后调用RequestReady以通知服务处理请求
+      RequestReady();
+    }
+
+    void GetDecodedData(std::vector<int16_t>& out_data)
+    {
+      out_data = output_buffer_;
+    }
+  };
+
 } // namespace monncake
