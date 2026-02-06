@@ -4,6 +4,8 @@
 #include <freertos/task.h>
 #include <nvs_flash.h>
 
+#include "app/ability.hpp"
+
 #if CONFIG_WRAPPER_ESP32_BOARD_M5STACK_CORE_S3
 #include "board/m5stack/core-s3.hpp"
 using namespace wrapper;
@@ -37,6 +39,8 @@ static void board_init(void *arg)
   vTaskDelete(nullptr);
 }
 #endif
+
+
 
 extern "C" void app_main()
 {

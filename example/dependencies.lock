@@ -387,7 +387,7 @@ dependencies:
       public: true
       version: '*'
     source:
-      path: /home/nixy/ws/wrapper-esp32
+      path: /home/nix/ws/wrapper-esp32
       type: local
     targets:
     - esp32s3
@@ -395,6 +395,6 @@ dependencies:
     version: 0.1.0
 direct_dependencies:
 - wrapper-esp32
-manifest_hash: 3e6e3a2dbfe81c8965101774ee73681d4eec61ba2b502bd2a174a231908fc0bd
+manifest_hash: 2aceb884b5249acbf10dddca5c9ba29076dde9b3bb32ca4a7678402e98343681
 target: esp32p4
 version: 2.0.0
