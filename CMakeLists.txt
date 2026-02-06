@@ -19,6 +19,9 @@ file(GLOB_RECURSE SOURCES
 # Exclude display-dsi.cpp from common sources
 list(FILTER SOURCES EXCLUDE REGEX ".*display-dsi\\.cpp$")
 
+# Add PowerHub source
+list(APPEND SOURCES "src/board/m5stack/powerhub.cpp")
+
 # Board specific sources
 if(IDF_TARGET STREQUAL "esp32s3")
     list(APPEND SOURCES "src/board/m5stack/core-s3.cpp")

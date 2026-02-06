@@ -1,3 +1,4 @@
 {
-  "C_Cpp.intelliSenseEngine": "default"
+  "C_Cpp.intelliSenseEngine": "default",
+  "idf.currentSetup": "/home/nix/esp/v5.5.1/esp-idf"
 }
