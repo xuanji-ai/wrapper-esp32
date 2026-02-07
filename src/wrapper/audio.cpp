@@ -11,7 +11,7 @@ AudioCodec::~AudioCodec()
 {
 }
 
-esp_err_t AudioCodec::Init(I2sBus& i2s_bus)
+bool AudioCodec::Init(I2sBus& i2s_bus)
 {
     if (i2s_data_if_ == nullptr) {
         audio_codec_i2s_cfg_t i2s_cfg = {};
@@ -24,7 +24,7 @@ esp_err_t AudioCodec::Init(I2sBus& i2s_bus)
         i2s_data_if_ = audio_codec_new_i2s_data(&i2s_cfg);
         if (i2s_data_if_ == nullptr) {
             logger_.Error("Failed to initialize I2S Audio Codec Interface");
-            return ESP_FAIL;
+            return false;
         }
         logger_.Info("I2S Audio Codec Interface initialized");
     }
@@ -33,21 +33,21 @@ esp_err_t AudioCodec::Init(I2sBus& i2s_bus)
         i2s_gpio_if_ = audio_codec_new_gpio();
         if (i2s_gpio_if_ == nullptr) {
             logger_.Error("Failed to initialize I2S Audio Codec GPIO Interface");
-            return ESP_FAIL;
+            return false;
         }
         logger_.Info("I2S Audio Codec GPIO Interface initialized");
     }
 
     i2s_bus_ = &i2s_bus;
 
-    return ESP_OK;
+    return true;
 }
 
-esp_err_t AudioCodec::AddSpeaker(I2cBus& i2c_bus, uint8_t addr,std::function<esp_err_t()> codec_new_func)
+bool AudioCodec::AddSpeaker(I2cBus& i2c_bus, uint8_t addr,std::function<esp_err_t()> codec_new_func)
 {
     if (spk_codec_dev_handle_ != nullptr) {
         logger_.Warning("Speaker codec device already added");
-        return ESP_OK;
+        return true;
     }
 
     audio_codec_i2c_cfg_t spk_i2c_cfg = {};
@@ -58,21 +58,21 @@ esp_err_t AudioCodec::AddSpeaker(I2cBus& i2c_bus, uint8_t addr,std::function<esp
 
     esp_err_t err = codec_new_func();
     if (err != ESP_OK) {
-        logger_.Error("Failed to create speaker codec device");
-        return err;
+        logger_.Error("Failed to create speaker codec device: %s", esp_err_to_name(err));
+        return false;
     }
 
     logger_.Info("Speaker codec device added successfully");
-    return ESP_OK;
+    return true;
 }
 
-esp_err_t AudioCodec::AddMicrophone(I2cBus& i2c_bus, uint8_t addr, std::function<esp_err_t()> codec_new_func)
+bool AudioCodec::AddMicrophone(I2cBus& i2c_bus, uint8_t addr, std::function<esp_err_t()> codec_new_func)
 {
     esp_err_t err;
 
     if (mic_codec_dev_handle_ != nullptr) {
         logger_.Warning("Microphone codec device already added");
-        return ESP_OK;
+        return true;
     }
 
     audio_codec_i2c_cfg_t mic_i2c_cfg = {};
@@ -83,54 +83,89 @@ esp_err_t AudioCodec::AddMicrophone(I2cBus& i2c_bus, uint8_t addr, std::function
     
     err = codec_new_func();
     if (err != ESP_OK) {
-        logger_.Error("Failed to create microphone codec device");
-        return err;
+        logger_.Error("Failed to create microphone codec device: %s", esp_err_to_name(err));
+        return false;
     }
 
     logger_.Info("Microphone codec device added successfully");
-    return ESP_OK;
+    return true;
 }
 
-esp_err_t AudioCodec::SetSpeakerVolume(int vol)
+bool AudioCodec::SetSpeakerVolume(int vol)
 {
-    return esp_codec_dev_set_out_vol(spk_codec_dev_handle_, vol);
+    esp_err_t ret = esp_codec_dev_set_out_vol(spk_codec_dev_handle_, vol);
+    if (ret != ESP_OK) {
+        logger_.Error("Failed to set speaker volume: %s", esp_err_to_name(ret));
+        return false;
+    }
+    return true;
 }
 
-esp_err_t AudioCodec::GetSpeakerVolume(int &vol)
+bool AudioCodec::GetSpeakerVolume(int &vol)
 {
-    return esp_codec_dev_get_out_vol(spk_codec_dev_handle_, &vol);
+    esp_err_t ret = esp_codec_dev_get_out_vol(spk_codec_dev_handle_, &vol);
+    if (ret != ESP_OK) {
+        logger_.Error("Failed to get speaker volume: %s", esp_err_to_name(ret));
+        return false;
+    }
+    return true;
 }
 
-esp_err_t AudioCodec::SetSpeakerMute(bool mute)
+bool AudioCodec::SetSpeakerMute(bool mute)
 {
-    return esp_codec_dev_set_out_mute(spk_codec_dev_handle_, mute);
+    esp_err_t ret = esp_codec_dev_set_out_mute(spk_codec_dev_handle_, mute);
+    if (ret != ESP_OK) {
+        logger_.Error("Failed to set speaker mute: %s", esp_err_to_name(ret));
+        return false;
+    }
+    return true;
 }
 
-esp_err_t AudioCodec::IsSpeakerMuted(bool &mute)
+bool AudioCodec::IsSpeakerMuted(bool &mute)
 {
-    return esp_codec_dev_get_out_mute(spk_codec_dev_handle_, &mute);
+    esp_err_t ret = esp_codec_dev_get_out_mute(spk_codec_dev_handle_, &mute);
+    if (ret != ESP_OK) {
+        logger_.Error("Failed to get speaker mute state: %s", esp_err_to_name(ret));
+        return false;
+    }
+    return true;
 }
 
-esp_err_t AudioCodec::SetMicrophoneGain(float gain)
+bool AudioCodec::SetMicrophoneGain(float gain)
 {
-    return esp_codec_dev_set_in_gain(mic_codec_dev_handle_, gain);
+    esp_err_t ret = esp_codec_dev_set_in_gain(mic_codec_dev_handle_, gain);
+    if (ret != ESP_OK) {
+        logger_.Error("Failed to set microphone gain: %s", esp_err_to_name(ret));
+        return false;
+    }
+    return true;
 }
 
-esp_err_t AudioCodec::GetMicrophoneGain(float &gain)
+bool AudioCodec::GetMicrophoneGain(float &gain)
 {
-    return esp_codec_dev_get_in_gain(mic_codec_dev_handle_, &gain);
+    esp_err_t ret = esp_codec_dev_get_in_gain(mic_codec_dev_handle_, &gain);
+    if (ret != ESP_OK) {
+        logger_.Error("Failed to get microphone gain: %s", esp_err_to_name(ret));
+        return false;
+    }
+    return true;
 }
 
-esp_err_t AudioCodec::SetMicrophoneMute(bool mute)
+bool AudioCodec::SetMicrophoneMute(bool mute)
 {
-    return esp_codec_dev_set_in_mute(mic_codec_dev_handle_, mute);
+    esp_err_t ret = esp_codec_dev_set_in_mute(mic_codec_dev_handle_, mute);
+    if (ret != ESP_OK) {
+        logger_.Error("Failed to set microphone mute: %s", esp_err_to_name(ret));
+        return false;
+    }
+    return true;
 }
 
-esp_err_t AudioCodec::TestSpeaker()
+bool AudioCodec::TestSpeaker()
 {
     if (i2s_bus_ == nullptr) {
         logger_.Error("I2S bus not initialized");
-        return ESP_ERR_INVALID_STATE;
+        return false;
     }
 
     logger_.Info("Starting speaker test: 1kHz sine wave");
@@ -139,7 +174,7 @@ esp_err_t AudioCodec::TestSpeaker()
     const int sample_rate = i2s_bus_->GetTxSampleRate();
     if (sample_rate == 0) {
         logger_.Error("I2S TX sample rate is 0");
-        return ESP_ERR_INVALID_STATE;
+        return false;
     }
 
     const int duration_sec = 1;
@@ -154,7 +189,7 @@ esp_err_t AudioCodec::TestSpeaker()
     int16_t* buffer = (int16_t*)malloc(buffer_size);
     if (buffer == nullptr) {
         logger_.Error("Failed to allocate memory for speaker test");
-        return ESP_ERR_NO_MEM;
+        return false;
     }
 
     // Generate sine wave
@@ -173,14 +208,14 @@ esp_err_t AudioCodec::TestSpeaker()
     }
 
     free(buffer);
-    return ret;
+    return (ret == ESP_OK);
 }
 
-esp_err_t AudioCodec::TestMicrophone()
+bool AudioCodec::TestMicrophone()
 {
     if (i2s_bus_ == nullptr) {
         logger_.Error("I2S bus not initialized");
-        return ESP_ERR_INVALID_STATE;
+        return false;
     }
 
     logger_.Info("Starting microphone test: Recording 3 seconds...");
@@ -188,7 +223,7 @@ esp_err_t AudioCodec::TestMicrophone()
     const int sample_rate = i2s_bus_->GetRxSampleRate(); // Assuming 48kHz
     if (sample_rate == 0) {
         logger_.Error("I2S RX sample rate is 0");
-        return ESP_ERR_INVALID_STATE;
+        return false;
     }
 
     const int duration_sec = 3;
@@ -200,19 +235,16 @@ esp_err_t AudioCodec::TestMicrophone()
     
     if (buffer == nullptr) {
         logger_.Error("Failed to allocate memory for microphone test");
-        return ESP_ERR_NO_MEM;
+        return false;
     }
 
     // Record
     esp_err_t ret = esp_codec_dev_read(mic_codec_dev_handle_, buffer, buffer_size);
-    // Note: esp_codec_dev_read might return error or partial read depending on implementation
-    // For simplicity, we assume blocking read or sufficient data available if configured correctly.
-    // However, esp_codec_dev_read prototype is (handle, data, len). It returns ESP_OK on success.
     
     if (ret != ESP_OK) {
         logger_.Error("Failed to read from microphone codec: %s", esp_err_to_name(ret));
         free(buffer);
-        return ret;
+        return false;
     }
     
     logger_.Info("Recording completed. Playing back...");
@@ -226,24 +258,30 @@ esp_err_t AudioCodec::TestMicrophone()
     }
 
     free(buffer);
-    return ret;
+    return (ret == ESP_OK);
 }
 
-esp_err_t AudioCodec::IsMicrophoneMuted(bool &mute)
+bool AudioCodec::IsMicrophoneMuted(bool &mute)
 {
-    return esp_codec_dev_get_in_mute(mic_codec_dev_handle_, &mute);
+    esp_err_t ret = esp_codec_dev_get_in_mute(mic_codec_dev_handle_, &mute);
+    if (ret != ESP_OK) {
+        logger_.Error("Failed to get microphone mute state: %s", esp_err_to_name(ret));
+        return false;
+    }
+    return true;
 }
 
-esp_err_t AudioCodec::EnableSpeaker(bool enable)
+bool AudioCodec::EnableSpeaker(bool enable)
 {
     if (spk_enabled_ == enable) {
-        return ESP_OK;
+        return true;
     }
     
     esp_err_t ret = ESP_OK;
     if (enable) {
         if (i2s_bus_ == nullptr) {
-            return ESP_ERR_INVALID_STATE;
+            logger_.Error("I2S bus not initialized");
+            return false;
         }
         esp_codec_dev_sample_info_t fs = {
             .bits_per_sample = 16,
@@ -259,26 +297,30 @@ esp_err_t AudioCodec::EnableSpeaker(bool enable)
     
     if (ret == ESP_OK) {
         spk_enabled_ = enable;
+        return true;
+    } else {
+        logger_.Error("Failed to %s speaker: %s", enable ? "enable" : "disable", esp_err_to_name(ret));
+        return false;
     }
-    return ret;
 }
 
-esp_err_t AudioCodec::IsSpeakerEnabled(bool &enable)
+bool AudioCodec::IsSpeakerEnabled(bool &enable)
 {
     enable = spk_enabled_;
-    return ESP_OK;
+    return true;
 }
 
-esp_err_t AudioCodec::EnableMicrophone(bool enable)
+bool AudioCodec::EnableMicrophone(bool enable)
 {
     if (mic_enabled_ == enable) {
-        return ESP_OK;
+        return true;
     }
 
     esp_err_t ret = ESP_OK;
     if (enable) {
         if (i2s_bus_ == nullptr) {
-            return ESP_ERR_INVALID_STATE;
+            logger_.Error("I2S bus not initialized");
+            return false;
         }
         esp_codec_dev_sample_info_t fs = {
             .bits_per_sample = 16,
@@ -294,22 +336,35 @@ esp_err_t AudioCodec::EnableMicrophone(bool enable)
 
     if (ret == ESP_OK) {
         mic_enabled_ = enable;
+        return true;
+    } else {
+        logger_.Error("Failed to %s microphone: %s", enable ? "enable" : "disable", esp_err_to_name(ret));
+        return false;
     }
-    return ret;
 }
 
-esp_err_t AudioCodec::IsMicrophoneEnabled(bool &enable)
+bool AudioCodec::IsMicrophoneEnabled(bool &enable)
 {
     enable = mic_enabled_;
-    return ESP_OK;
+    return true;
 }
 
-esp_err_t AudioCodec::Write(const void *data, size_t size)
+bool AudioCodec::Write(const void *data, size_t size)
 {
-    return esp_codec_dev_write(spk_codec_dev_handle_, (void*)data, size);
+    esp_err_t ret = esp_codec_dev_write(spk_codec_dev_handle_, (void*)data, size);
+    if (ret != ESP_OK) {
+        logger_.Error("Failed to write audio data: %s", esp_err_to_name(ret));
+        return false;
+    }
+    return true;
 }
 
-esp_err_t AudioCodec::Read(void *data, size_t size)
+bool AudioCodec::Read(void *data, size_t size)
 {
-    return esp_codec_dev_read(mic_codec_dev_handle_, data, size);
+    esp_err_t ret = esp_codec_dev_read(mic_codec_dev_handle_, data, size);
+    if (ret != ESP_OK) {
+        logger_.Error("Failed to read audio data: %s", esp_err_to_name(ret));
+        return false;
+    }
+    return true;
 }

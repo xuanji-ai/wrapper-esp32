@@ -197,7 +197,6 @@ void LvglPort::Test(bool is_monochrome)
 
     // Calculate scale factor based on minimum dimension (relative to 128px baseline)
     int32_t min_dim = (hor_res < ver_res) ? hor_res : ver_res;
-    int32_t scale = (min_dim * 100) / 128; // Percentage scale (128px = 100%)
 
     // 1. Clear screen and remove default padding/border
     lv_obj_set_style_bg_opa(scr, LV_OPA_COVER, LV_PART_MAIN);

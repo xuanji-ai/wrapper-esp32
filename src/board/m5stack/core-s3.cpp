@@ -8,7 +8,7 @@
 #include "wrapper/i2c.hpp"
 #include "wrapper/spi.hpp"
 #include "wrapper/i2s.hpp"
-#include "wrapper/display-new.hpp"
+#include "wrapper/display.hpp"
 #include "wrapper/touch.hpp"
 #include "wrapper/lvgl.hpp"
 #include "wrapper/audio.hpp"
@@ -366,24 +366,25 @@ bool M5StackCoreS3::InitDevice(bool power, bool audio, bool display, bool touch)
   }
 
   if (display) {
-      err = ili9341.Init(spi_lcd_config, esp_lcd_new_panel_ili9341);
-      if (err != ESP_OK) return false;
+      if (!ili9341.Init(spi_lcd_config, esp_lcd_new_panel_ili9341))
+      {
+        ili9341.GetLogger().Error("Failed to initialize display");
+        return false;
+      }
   }
 
   if (audio) {
       audio_codec.Init(i2s_bus);
       // speaker
-      err = audio_codec.AddSpeaker(i2c_bus1, AW88298_CODEC_DEFAULT_ADDR, spk_codec_new_func);
-      if (err != ESP_OK)
+      if (!audio_codec.AddSpeaker(i2c_bus1, AW88298_CODEC_DEFAULT_ADDR, spk_codec_new_func))
       {
-        audio_codec.GetLogger().Error("Failed to add speaker: %s", esp_err_to_name(err));
+        audio_codec.GetLogger().Error("Failed to add speaker");
         return false;
       }
       // microphone
-      err = audio_codec.AddMicrophone(i2c_bus1, ES7210_CODEC_DEFAULT_ADDR, mic_codec_new_func);
-      if (err != ESP_OK)
+      if (!audio_codec.AddMicrophone(i2c_bus1, ES7210_CODEC_DEFAULT_ADDR, mic_codec_new_func))
       {
-        audio_codec.GetLogger().Error("Failed to add microphone: %s", esp_err_to_name(err));
+        audio_codec.GetLogger().Error("Failed to add microphone");
         return false;
       }
   }

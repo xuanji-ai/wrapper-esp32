@@ -1,8 +1,7 @@
 #pragma once
 
 #include "esp_lvgl_port.h"
-// #include "wrapper/display.hpp"
-#include "wrapper/display-new.hpp"
+#include "wrapper/display.hpp"
 #include "wrapper/touch.hpp"
 #include "wrapper/logger.hpp"
 

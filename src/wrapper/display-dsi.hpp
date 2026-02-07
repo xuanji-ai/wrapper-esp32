@@ -3,7 +3,7 @@
 #include "esp_lcd_panel_vendor.h"
 #include "esp_lcd_mipi_dsi.h"
 #include "wrapper/logger.hpp"
-#include "wrapper/display-new.hpp"
+#include "wrapper/display.hpp"
 #include <functional>
 
 namespace wrapper

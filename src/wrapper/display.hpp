@@ -140,49 +140,49 @@ namespace wrapper
     ~DisplayBase() = default;
 
     // Panel IO operations
-    esp_err_t IoTxParam(int lcd_cmd, const void *param, size_t param_size) {
-      return esp_lcd_panel_io_tx_param(io_handle_, lcd_cmd, param, param_size);
+    bool IoTxParam(int lcd_cmd, const void *param, size_t param_size) {
+      return esp_lcd_panel_io_tx_param(io_handle_, lcd_cmd, param, param_size) == ESP_OK;
     }
     
-    esp_err_t IoTxColor(int lcd_cmd, const void *color, size_t color_size) {
-      return esp_lcd_panel_io_tx_color(io_handle_, lcd_cmd, color, color_size);
+    bool IoTxColor(int lcd_cmd, const void *color, size_t color_size) {
+      return esp_lcd_panel_io_tx_color(io_handle_, lcd_cmd, color, color_size) == ESP_OK;
     }
 
     // Panel operations
-    esp_err_t Reset() { return esp_lcd_panel_reset(panel_handle_); }
-    esp_err_t Init() { return esp_lcd_panel_init(panel_handle_); }
+    bool Reset() { return esp_lcd_panel_reset(panel_handle_) == ESP_OK; }
+    bool Init() { return esp_lcd_panel_init(panel_handle_) == ESP_OK; }
     
-    esp_err_t DrawBitmap(int x_start, int y_start, int x_end, int y_end, const void *color_data) {
-      return esp_lcd_panel_draw_bitmap(panel_handle_, x_start, y_start, x_end, y_end, color_data);
+    bool DrawBitmap(int x_start, int y_start, int x_end, int y_end, const void *color_data) {
+      return esp_lcd_panel_draw_bitmap(panel_handle_, x_start, y_start, x_end, y_end, color_data) == ESP_OK;
     }
     
-    esp_err_t Mirror(bool mirror_x, bool mirror_y) {
-      return esp_lcd_panel_mirror(panel_handle_, mirror_x, mirror_y);
+    bool Mirror(bool mirror_x, bool mirror_y) {
+      return esp_lcd_panel_mirror(panel_handle_, mirror_x, mirror_y) == ESP_OK;
     }
     
-    esp_err_t SwapXY(bool swap_axes) {
-      return esp_lcd_panel_swap_xy(panel_handle_, swap_axes);
+    bool SwapXY(bool swap_axes) {
+      return esp_lcd_panel_swap_xy(panel_handle_, swap_axes) == ESP_OK;
     }
     
-    esp_err_t SetGap(int x_gap, int y_gap) {
-      return esp_lcd_panel_set_gap(panel_handle_, x_gap, y_gap);
+    bool SetGap(int x_gap, int y_gap) {
+      return esp_lcd_panel_set_gap(panel_handle_, x_gap, y_gap) == ESP_OK;
     }
     
-    esp_err_t InvertColor(bool invert_color_data) {
-      return esp_lcd_panel_invert_color(panel_handle_, invert_color_data);
+    bool InvertColor(bool invert_color_data) {
+      return esp_lcd_panel_invert_color(panel_handle_, invert_color_data) == ESP_OK;
     }
     
-    esp_err_t DispOnOff(bool on_off) {
-      return esp_lcd_panel_disp_on_off(panel_handle_, on_off);
+    bool DispOnOff(bool on_off) {
+      return esp_lcd_panel_disp_on_off(panel_handle_, on_off) == ESP_OK;
     }
     
-    esp_err_t DispSleep(bool sleep) {
-      return esp_lcd_panel_disp_sleep(panel_handle_, sleep);
+    bool DispSleep(bool sleep) {
+      return esp_lcd_panel_disp_sleep(panel_handle_, sleep) == ESP_OK;
     }
 
     // Resource cleanup
-    esp_err_t DelPanel() { return esp_lcd_panel_del(panel_handle_); }
-    esp_err_t DelIo() { return esp_lcd_panel_io_del(io_handle_); }
+    bool DelPanel() { return esp_lcd_panel_del(panel_handle_) == ESP_OK; }
+    bool DelIo() { return esp_lcd_panel_io_del(io_handle_) == ESP_OK; }
 
     // Handle getters
     esp_lcd_panel_io_handle_t GetIoHandle() const { return io_handle_; }
@@ -200,8 +200,8 @@ namespace wrapper
     Logger &logger_;
     const I2cBus &bus_;
 
-    esp_err_t InitIo(const esp_lcd_panel_io_i2c_config_t &config);
-    esp_err_t InitPanel(const esp_lcd_panel_dev_config_t &panel_config, 
+    bool InitIo(const esp_lcd_panel_io_i2c_config_t &config);
+    bool InitPanel(const esp_lcd_panel_dev_config_t &panel_config, 
       std::function<esp_err_t(const esp_lcd_panel_io_handle_t)> custom_init_panel_func = nullptr);
 
   public:
@@ -210,11 +210,11 @@ namespace wrapper
     
     ~I2cDisplay() { Deinit(); }
 
-    esp_err_t Init(
+    bool Init(
       const I2cLcdConfig &config, 
       std::function<esp_err_t(const esp_lcd_panel_io_handle_t, const esp_lcd_panel_dev_config_t *, esp_lcd_panel_handle_t *)> new_panel_func, 
       std::function<esp_err_t(const esp_lcd_panel_io_handle_t)> custom_init_panel_func = nullptr);
-    esp_err_t Deinit();
+    bool Deinit();
   };
 
   class SpiDisplay : public DisplayBase
@@ -223,8 +223,8 @@ namespace wrapper
     Logger &logger_;
     const SpiBus &bus_;
 
-    esp_err_t InitIo(const esp_lcd_panel_io_spi_config_t &config);
-    esp_err_t InitPanel(const esp_lcd_panel_dev_config_t &panel_config,
+    bool InitIo(const esp_lcd_panel_io_spi_config_t &config);
+    bool InitPanel(const esp_lcd_panel_dev_config_t &panel_config,
       std::function<esp_err_t(const esp_lcd_panel_io_handle_t)> custom_init_panel_func = nullptr);
 
   public:
@@ -233,10 +233,10 @@ namespace wrapper
     
     ~SpiDisplay() { Deinit(); }
 
-    esp_err_t Init(const SpiLcdConfig &config,
+    bool Init(const SpiLcdConfig &config,
       std::function<esp_err_t(const esp_lcd_panel_io_handle_t, const esp_lcd_panel_dev_config_t *, esp_lcd_panel_handle_t *)> new_panel_func, 
       std::function<esp_err_t(const esp_lcd_panel_io_handle_t)> custom_init_panel_func = nullptr);
-    esp_err_t Deinit();
+    bool Deinit();
   };
 
 } // namespace wrapper
