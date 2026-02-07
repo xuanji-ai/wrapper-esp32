@@ -48,8 +48,6 @@ static void board_init(void *arg)
 #include "wrapper/spi.hpp"
 #include "wrapper/display.hpp"
 #include "wrapper/i2s.hpp"
-#include "wrapper/sd.hpp" // Wrapper not found in list, placeholder
-#include "wrapper/gpio.hpp" // Wrapper not found in list, placeholder
 
 using namespace wrapper;
 
@@ -118,7 +116,7 @@ I2sChanStdConfig i2s_speaker_chan_cfg(
     I2S_DATA_BIT_WIDTH_16BIT, // data_bit_width
     I2S_SLOT_BIT_WIDTH_AUTO,  // slot_bit_width
     I2S_SLOT_MODE_MONO,       // slot_mode (Speaker usually mono or stereo, NS4168 is mono amp but input usually stereo I2S?)
-    I2S_STD_SLOT_MASK_BOTH,   // slot_mask
+    I2S_STD_SLOT_BOTH,        // slot_mask
     16,                       // ws_width
     false,                    // ws_pol
     false,                    // bit_shift

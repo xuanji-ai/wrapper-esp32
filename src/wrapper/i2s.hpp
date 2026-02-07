@@ -3,6 +3,7 @@
 #include "driver/i2s_std.h"
 #include "driver/i2s_tdm.h"
 #include "wrapper/logger.hpp"
+#include <vector>
 
 namespace wrapper
 {
@@ -160,6 +161,7 @@ public:
     I2sBus(Logger& logger) : logger_(logger) {}
     ~I2sBus();
     bool Init(I2sBusConfig& bus_config);
+    bool Deinit();
     bool ConfigureTxChannel(I2sChanStdConfig& chan_config);
     bool ConfigureTxChannel(I2SChanTdmConfig& chan_config);
     bool ConfigureRxChannel(I2SChanTdmConfig& chan_config);
@@ -169,6 +171,13 @@ public:
     bool EnableRxChannel();
     bool DisableTxChannel();
     bool DisableRxChannel();
+
+    bool Write(const void *src, size_t size, size_t &bytes_written, uint32_t timeout_ms = 1000);
+    bool Read(void *dest, size_t size, size_t &bytes_read, uint32_t timeout_ms = 1000);
+
+    // C++ style overloads
+    bool Write(const std::vector<uint8_t>& data, uint32_t timeout_ms = 1000);
+    bool Read(std::vector<uint8_t>& dest, size_t size, uint32_t timeout_ms = 1000);
 
     i2s_port_t GetPort() const { return port_; }
     i2s_chan_handle_t GetTxHandle() const { return tx_chan_handle_; }

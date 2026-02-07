@@ -4,32 +4,30 @@ using namespace wrapper;
 
 I2sBus::~I2sBus()
 {
+    Deinit();
+}
+
+bool I2sBus::Deinit()
+{
+    bool ret = true;
     if (tx_chan_handle_ != NULL) {
-        i2s_channel_disable(tx_chan_handle_);
-        i2s_del_channel(tx_chan_handle_);
+        if (i2s_channel_disable(tx_chan_handle_) != ESP_OK) ret = false;
+        if (i2s_del_channel(tx_chan_handle_) != ESP_OK) ret = false;
         tx_chan_handle_ = NULL;
     }
     if (rx_chan_handle_ != NULL) {
-        i2s_channel_disable(rx_chan_handle_);
-        i2s_del_channel(rx_chan_handle_);
+        if (i2s_channel_disable(rx_chan_handle_) != ESP_OK) ret = false;
+        if (i2s_del_channel(rx_chan_handle_) != ESP_OK) ret = false;
         rx_chan_handle_ = NULL;
     }
+    return ret;
 }
 
 bool I2sBus::Init(I2sBusConfig& bus_config)
 {
     if (tx_chan_handle_ != NULL || rx_chan_handle_ != NULL) {
         logger_.Warning("Already initialized. Deinitializing first.");
-        if (tx_chan_handle_) {
-            i2s_channel_disable(tx_chan_handle_);
-            i2s_del_channel(tx_chan_handle_);
-            tx_chan_handle_ = NULL;
-        }
-        if (rx_chan_handle_) {
-            i2s_channel_disable(rx_chan_handle_);
-            i2s_del_channel(rx_chan_handle_);
-            rx_chan_handle_ = NULL;
-        }
+        Deinit();
     }
 
     esp_err_t ret = i2s_new_channel(&bus_config, &tx_chan_handle_, &rx_chan_handle_);
@@ -163,4 +161,49 @@ bool I2sBus::ConfigureRxChannel(I2SChanTdmConfig& chan_config)
 
     rx_sample_rate_hz_ = chan_config.clk_cfg.sample_rate_hz;
     return true;
+}
+
+bool I2sBus::Write(const void *src, size_t size, size_t &bytes_written, uint32_t timeout_ms)
+{
+    if (tx_chan_handle_ == NULL) {
+        logger_.Error("TX Channel handle is NULL.");
+        return false;
+    }
+    esp_err_t ret = i2s_channel_write(tx_chan_handle_, src, size, &bytes_written, timeout_ms);
+    if (ret != ESP_OK) {
+        logger_.Error("I2S Write Failed: %s", esp_err_to_name(ret));
+        return false;
+    }
+    return true;
+}
+
+bool I2sBus::Read(void *dest, size_t size, size_t &bytes_read, uint32_t timeout_ms)
+{
+    if (rx_chan_handle_ == NULL) {
+        logger_.Error("RX Channel handle is NULL.");
+        return false;
+    }
+    esp_err_t ret = i2s_channel_read(rx_chan_handle_, dest, size, &bytes_read, timeout_ms);
+    if (ret != ESP_OK) {
+        logger_.Error("I2S Read Failed: %s", esp_err_to_name(ret));
+        return false;
+    }
+    return true;
+}
+
+bool I2sBus::Write(const std::vector<uint8_t>& data, uint32_t timeout_ms)
+{
+    size_t bytes_written = 0;
+    return Write(data.data(), data.size(), bytes_written, timeout_ms);
+}
+
+bool I2sBus::Read(std::vector<uint8_t>& dest, size_t size, uint32_t timeout_ms)
+{
+    dest.resize(size);
+    size_t bytes_read = 0;
+    bool ret = Read(dest.data(), size, bytes_read, timeout_ms);
+    if (ret && bytes_read < size) {
+        dest.resize(bytes_read);
+    }
+    return ret;
 }
