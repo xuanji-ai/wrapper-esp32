@@ -16,20 +16,20 @@ class Nvs
 public:
     Nvs(Logger& logger);
     ~Nvs();
-    esp_err_t Init();
-    esp_err_t Erase();
-    esp_err_t Commit();
+    bool Init();
+    bool Erase();
+    bool Commit();
 
-    esp_err_t OpenNamespace(std::string_view namespace_name, nvs_open_mode_t open_mode);
-    esp_err_t EraseKey(std::string_view key);
+    bool OpenNamespace(std::string_view namespace_name, nvs_open_mode_t open_mode);
+    bool EraseKey(std::string_view key);
     
     template<typename T>
-    esp_err_t SetValue(std::string_view key, T value);
+    bool SetValue(std::string_view key, T value);
     template<typename T>
-    esp_err_t GetValue(std::string_view key, T& out_value);
+    bool GetValue(std::string_view key, T& out_value);
     
-    esp_err_t SetString(std::string_view key, std::string value);
-    esp_err_t GetString(std::string_view key, std::string& out_value);
+    bool SetString(std::string_view key, std::string value);
+    bool GetString(std::string_view key, std::string& out_value);
 };
 
 class Event
@@ -43,26 +43,26 @@ public:
     ~Event();
 
     // Loop Management
-    esp_err_t CreateLoopDefault();
-    esp_err_t DeleteLoopDefault();
+    bool CreateLoopDefault();
+    bool DeleteLoopDefault();
     
-    esp_err_t CreateLoop(const esp_event_loop_args_t& args);
-    esp_err_t DeleteLoop();
+    bool CreateLoop(const esp_event_loop_args_t& args);
+    bool DeleteLoop();
     
-    esp_err_t RunLoop(TickType_t ticks_to_run);
+    bool RunLoop(TickType_t ticks_to_run);
 
     // Handler Management
-    esp_err_t Register(esp_event_base_t event_base, int32_t event_id, esp_event_handler_t event_handler, void* event_handler_arg, esp_event_handler_instance_t* instance);
-    esp_err_t Unregister(esp_event_base_t event_base, int32_t event_id, esp_event_handler_instance_t instance);
+    bool Register(esp_event_base_t event_base, int32_t event_id, esp_event_handler_t event_handler, void* event_handler_arg, esp_event_handler_instance_t* instance);
+    bool Unregister(esp_event_base_t event_base, int32_t event_id, esp_event_handler_instance_t instance);
     
     // Post Events
-    esp_err_t Post(esp_event_base_t event_base, int32_t event_id, const void* event_data, size_t event_data_size, TickType_t ticks_to_wait);
+    bool Post(esp_event_base_t event_base, int32_t event_id, const void* event_data, size_t event_data_size, TickType_t ticks_to_wait);
     
     // ISR Post
-    esp_err_t PostFromIsr(esp_event_base_t event_base, int32_t event_id, const void* event_data, size_t event_data_size, BaseType_t* task_unblocked);
+    bool PostFromIsr(esp_event_base_t event_base, int32_t event_id, const void* event_data, size_t event_data_size, BaseType_t* task_unblocked);
 
     // Diagnostics
-    esp_err_t Dump(FILE* file);
+    bool Dump(FILE* file);
 };
 
 } // namespace wrapper

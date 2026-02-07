@@ -67,10 +67,10 @@ public:
     ~SpiBus();
     Logger& GetLogger();
     spi_host_device_t GetHostId() const;
-    
-    esp_err_t Init(const SpiBusConfig& config);
-    esp_err_t Deinit();
-    esp_err_t Reset();
+    // ops
+    bool Init(const SpiBusConfig& config);
+    bool Deinit();
+    bool Reset();
 };
 
 struct SpiDeviceConfig : public spi_device_interface_config_t
@@ -104,18 +104,18 @@ public:
     SpiDevice(Logger& logger);
     ~SpiDevice();
     Logger& GetLogger();
-    
-    esp_err_t Init(const SpiBus& bus, const SpiDeviceConfig& config);
-    esp_err_t Deinit();
+    //ops
+    bool Init(const SpiBus& bus, const SpiDeviceConfig& config);
+    bool Deinit();
     
     // Simple transfer (write and read simultaneously)
-    esp_err_t Transfer(const std::vector<uint8_t>& tx_data, std::vector<uint8_t>& rx_data);
+    bool Transfer(const std::vector<uint8_t>& tx_data, std::vector<uint8_t>& rx_data);
     
     // Write only
-    esp_err_t Write(const std::vector<uint8_t>& data);
+    bool Write(const std::vector<uint8_t>& data);
     
     // Read only (sends dummy data)
-    esp_err_t Read(size_t len, std::vector<uint8_t>& rx_data);
+    bool Read(size_t len, std::vector<uint8_t>& rx_data);
 };
 
 } // namespace wrapper

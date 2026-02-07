@@ -6,7 +6,7 @@
 - 典型板级初始化流程：SoC 能力 -> 总线 -> 设备 -> 中间件（LVGL），示例见 wrapper-esp32/src/board/m5stack/m5stack_core_s3.cpp。
 
 ## 关键约定与模式
-- **配置结构体封装**：诸如 I2cBusConfig、SpiLcdConfig 等都直接继承 ESP-IDF 的 *_config_t，并在构造函数中一次性填充常量参数（见 wrapper-esp32/src/wrapper/i2c.hpp、display.hpp）。新增封装时沿用该模式。
+- **配置结构体封装**：诸如 I2cBusConfig、SpiDisplayConfig 等都直接继承 ESP-IDF 的 *_config_t，并在构造函数中一次性填充常量参数（见 wrapper-esp32/src/wrapper/i2c.hpp、display.hpp）。新增封装时沿用该模式。
 - **Init/Deinit 语义**：所有 wrapper 类都提供 Init/Deinit，返回 esp_err_t 或 bool；出错时用 Logger 记录 `esp_err_to_name(err)`（例如 wrapper-esp32/src/wrapper/lvgl.cpp）。
 - **Logger 标签**：Logger 支持多级 tag（例如 "M5StackCoreS3", "i2c", "bus"），保持现有层级命名以便日志过滤（见 wrapper-esp32/src/board/m5stack/m5stack_core_s3.cpp）。
 - **LVGL 访问**：使用 LvglPort.Init -> AddDisplay -> AddTouch，操作 UI 前后必须 Lock/Unlock（见 wrapper-esp32/src/wrapper/lvgl.cpp）。

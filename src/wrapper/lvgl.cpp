@@ -17,27 +17,27 @@ LvglPort::~LvglPort()
     Deinit();
 }
 
-esp_err_t LvglPort::Init(const LvglPortConfig& config)
+bool LvglPort::Init(const LvglPortConfig& config)
 {
     if (initialized_)
     {
         logger_.Warning("LVGL port already initialized");
-        return ESP_OK;
+        return true;
     }
 
     esp_err_t ret = lvgl_port_init(&config);
     if (ret != ESP_OK)
     {
         logger_.Error("Failed to initialize LVGL port: %s", esp_err_to_name(ret));
-        return ret;
+        return false;
     }
 
     initialized_ = true;
     logger_.Info("LVGL port initialized");
-    return ESP_OK;
+    return true;
 }
 
-esp_err_t LvglPort::Deinit()
+bool LvglPort::Deinit()
 {
     if (lvgl_touch_ != NULL)
     {
@@ -57,7 +57,7 @@ esp_err_t LvglPort::Deinit()
         if (ret != ESP_OK)
         {
             logger_.Error("Failed to deinitialize LVGL port: %s", esp_err_to_name(ret));
-            return ret;
+            return false;
         }
         initialized_ = false;
         logger_.Info("LVGL port deinitialized");
@@ -66,15 +66,15 @@ esp_err_t LvglPort::Deinit()
         vTaskDelay(pdMS_TO_TICKS(20));
     }
 
-    return ESP_OK;
+    return true;
 }
 
-esp_err_t LvglPort::AddDisplay(const DisplayBase& display, LvglDisplayConfig& config)
+bool LvglPort::AddDisplay(const DisplayBase& display, LvglDisplayConfig& config)
 {
     if (!initialized_)
     {
         logger_.Error("LVGL port not initialized");
-        return ESP_ERR_INVALID_STATE;
+        return false;
     }
 
     if (lvgl_display_ != NULL)
@@ -92,18 +92,18 @@ esp_err_t LvglPort::AddDisplay(const DisplayBase& display, LvglDisplayConfig& co
     if (lvgl_display_ == NULL)
     {
         logger_.Error("Failed to add LVGL display");
-        return ESP_FAIL;
+        return false;
     }
 
-    return ESP_OK;
+    return true;
 }
 
-esp_err_t LvglPort::AddDisplayDsi(const DisplayBase& display, LvglDisplayConfig& config, const LvglDisplayDsiConfig& dsi_config)
+bool LvglPort::AddDisplayDsi(const DisplayBase& display, LvglDisplayConfig& config, const LvglDisplayDsiConfig& dsi_config)
 {
     if (!initialized_)
     {
         logger_.Error("LVGL port not initialized");
-        return ESP_ERR_INVALID_STATE;
+        return false;
     }
 
     if (lvgl_display_ != NULL)
@@ -120,25 +120,25 @@ esp_err_t LvglPort::AddDisplayDsi(const DisplayBase& display, LvglDisplayConfig&
     if (lvgl_display_ == NULL)
     {
         logger_.Error("Failed to add LVGL DSI display");
-        return ESP_FAIL;
+        return false;
     }
 
     logger_.Info("LVGL DSI display added");
-    return ESP_OK;
+    return true;
 }
 
-esp_err_t LvglPort::AddTouch(const I2cTouch& touch, LvglTouchConfig& config)
+bool LvglPort::AddTouch(const I2cTouch& touch, LvglTouchConfig& config)
 {
     if (!initialized_)
     {
         logger_.Error("LVGL port not initialized");
-        return ESP_ERR_INVALID_STATE;
+        return false;
     }
 
     if (lvgl_display_ == NULL)
     {
         logger_.Error("Display must be added before touch");
-        return ESP_ERR_INVALID_STATE;
+        return false;
     }
 
     if (lvgl_touch_ != NULL)
@@ -155,11 +155,11 @@ esp_err_t LvglPort::AddTouch(const I2cTouch& touch, LvglTouchConfig& config)
     if (lvgl_touch_ == NULL)
     {
         logger_.Error("Failed to add LVGL touch");
-        return ESP_FAIL;
+        return false;
     }
 
     logger_.Info("LVGL touch added");
-    return ESP_OK;
+    return true;
 }
 
 bool LvglPort::Lock(uint32_t timeout_ms)

@@ -19,7 +19,7 @@ esp_lcd_dsi_bus_handle_t DsiBus::GetHandle() const {
   return bus_handle_;
 }
 
-esp_err_t DsiBus::Init(const DsiBusConfig& config) {
+bool DsiBus::Init(const DsiBusConfig& config) {
   if (bus_handle_ != nullptr) {
     logger_.Warning("Already initialized. Deinitializing first.");
     Deinit();
@@ -29,24 +29,26 @@ esp_err_t DsiBus::Init(const DsiBusConfig& config) {
   if (ret == ESP_OK) {
     logger_.Info("Initialized (Bus ID: %d, Lanes: %d, Rate: %lu Mbps)", 
                   config.bus_id, config.num_data_lanes, config.lane_bit_rate_mbps);
+    return true;
   } else {
     logger_.Error("Failed to initialize: %s", esp_err_to_name(ret));
+    return false;
   }
-  return ret;
 }
 
-esp_err_t DsiBus::Deinit() {
+bool DsiBus::Deinit() {
   if (bus_handle_ != nullptr) {
     esp_err_t ret = esp_lcd_del_dsi_bus(bus_handle_);
     if (ret == ESP_OK) {
       logger_.Info("Deinitialized");
       bus_handle_ = nullptr;
+      return true;
     } else {
       logger_.Error("Failed to deinitialize: %s", esp_err_to_name(ret));
+      return false;
     }
-    return ret;
   }
-  return ESP_OK;
+  return true;
 }
 
 // --- DsiDisplay ---
@@ -58,7 +60,7 @@ DsiDisplay::~DsiDisplay() {
   Deinit();
 }
 
-esp_err_t DsiDisplay::Init(
+bool DsiDisplay::Init(
   const DsiBus& bus,
   const DsiDisplayConfig& config,
   std::function<esp_err_t(const esp_lcd_panel_io_handle_t, const esp_lcd_panel_dev_config_t*, esp_lcd_panel_handle_t*)> new_panel_func,
@@ -67,8 +69,7 @@ esp_err_t DsiDisplay::Init(
   std::function<void(void)> vendor_config_init_func)
 {
   // 1. Initialize Panel IO (DBI)
-  esp_err_t ret = InitIo(bus, config.dbi_config);
-  if (ret != ESP_OK) return ret;
+  if (!InitIo(bus, config.dbi_config)) return false;
 
   // 2. Execute vendor config initialization callback if provided
   if (vendor_config_init_func) {
@@ -79,17 +80,17 @@ esp_err_t DsiDisplay::Init(
   esp_lcd_panel_dev_config_t panel_config = config.panel_config;
   panel_config.vendor_config = vendor_config;
   
-  ret = new_panel_func(io_handle_, &panel_config, &panel_handle_);
+  esp_err_t ret = new_panel_func(io_handle_, &panel_config, &panel_handle_);
   if (ret != ESP_OK) {
     logger_.Error("Failed to create LCD panel handle: %s", esp_err_to_name(ret));
-    return ret;
+    return false;
   }
 
   // 4. Initialize Panel (reset, init, turn on)
   return InitPanel(panel_config, custom_init_panel_func, vendor_config, vendor_config_init_func);
 }
 
-esp_err_t DsiDisplay::InitIo(const DsiBus& bus, const esp_lcd_dbi_io_config_t& config)
+bool DsiDisplay::InitIo(const DsiBus& bus, const esp_lcd_dbi_io_config_t& config)
 {
   if (io_handle_ != nullptr) {
     logger_.Warning("Display IO already initialized. Deinitializing first.");
@@ -98,21 +99,21 @@ esp_err_t DsiDisplay::InitIo(const DsiBus& bus, const esp_lcd_dbi_io_config_t& c
 
   if (bus.GetHandle() == nullptr) {
     logger_.Error("DSI bus not initialized");
-    return ESP_ERR_INVALID_STATE;
+    return false;
   }
 
   // Create DBI IO handle
   esp_err_t ret = esp_lcd_new_panel_io_dbi(bus.GetHandle(), &config, &io_handle_);
   if (ret != ESP_OK) {
     logger_.Error("Failed to create LCD DBI IO handle: %s", esp_err_to_name(ret));
-    return ret;
+    return false;
   }
 
   logger_.Info("LCD DBI IO initialized (VC: %d)", config.virtual_channel);
-  return ESP_OK;
+  return true;
 }
 
-esp_err_t DsiDisplay::InitPanel(
+bool DsiDisplay::InitPanel(
   const esp_lcd_panel_dev_config_t& panel_config, 
   std::function<esp_err_t(const esp_lcd_panel_io_handle_t)> custom_init_panel_func,
   void* vendor_config,
@@ -120,12 +121,12 @@ esp_err_t DsiDisplay::InitPanel(
 {
   if (io_handle_ == nullptr) {
     logger_.Error("IO handle not initialized. Call Init first.");
-    return ESP_ERR_INVALID_STATE;
+    return false;
   }
 
   if (panel_handle_ == nullptr) {
     logger_.Error("Panel handle not created. Create it before calling InitPanel.");
-    return ESP_ERR_INVALID_STATE;
+    return false;
   }
 
   // 1. Reset the display
@@ -133,7 +134,7 @@ esp_err_t DsiDisplay::InitPanel(
   esp_err_t ret = esp_lcd_panel_reset(panel_handle_);
   if (ret != ESP_OK) {
     logger_.Error("Panel Reset Failed: %s", esp_err_to_name(ret));
-    return ret;
+    return false;
   }
 
   // 2. Initialize the display
@@ -146,7 +147,7 @@ esp_err_t DsiDisplay::InitPanel(
 
   if (ret != ESP_OK) {
     logger_.Error("Panel Init Failed: %s", esp_err_to_name(ret));
-    return ret;
+    return false;
   }
 
   // 3. Set invert color (optional, typically false for most panels)
@@ -154,14 +155,14 @@ esp_err_t DsiDisplay::InitPanel(
   ret = esp_lcd_panel_invert_color(panel_handle_, false);
   if (ret != ESP_OK) {
     logger_.Error("Failed to set invert color: %s", esp_err_to_name(ret));
-    return ret;
+    return false;
   }
 
   logger_.Info("Display initialization complete!");
-  return ESP_OK;
+  return true;
 }
 
-esp_err_t DsiDisplay::Deinit()
+bool DsiDisplay::Deinit()
 {
   esp_err_t ret = ESP_OK;
   
@@ -185,9 +186,10 @@ esp_err_t DsiDisplay::Deinit()
   
   if (ret == ESP_OK) {
     logger_.Info("DSI Display deinitialized");
+    return true;
   }
   
-  return ret;
+  return false;
 }
 
 } // namespace wrapper

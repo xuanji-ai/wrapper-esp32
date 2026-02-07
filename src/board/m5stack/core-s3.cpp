@@ -15,6 +15,7 @@
 
 #include "device/axp2101.hpp"
 #include "device/aw9523.hpp"
+#include "device/ili9341.hpp"
 
 #include "board/m5stack/core-s3.hpp"
 
@@ -133,7 +134,7 @@ I2cTouchConfig ft5x06_config(
     nullptr                 // interrupt_callback
 );
 
-SpiLcdConfig spi_lcd_config(
+SpiDisplayConfig spi_lcd_config(
     // io_config parameters
     GPIO_NUM_3,                // cs_gpio
     GPIO_NUM_35,               // dc_gpio
@@ -215,7 +216,7 @@ I2sBus i2s_bus(logger_i2s_bus);
 Axp2101 axp2101(logger_axp2101);
 Aw9523 aw9523(logger_aw9523);
 I2cTouch ft5x06(logger_ft5x06);
-SpiDisplay ili9341(logger_ili9341, spi_bus);
+Ili9341 ili9341(logger_ili9341, spi_bus);
 LvglPort lvgl_port(logger_lvgl);
 
 AudioCodec audio_codec(logger_audio_codec);
@@ -283,40 +284,33 @@ std::function<esp_err_t()> mic_codec_new_func = []() -> esp_err_t
 
 bool M5StackCoreS3::InitBus(bool i2c1, bool spi, bool i2s)
 {
-  esp_err_t err = ESP_OK;
   if (i2c1) {
-      err = i2c_bus1.Init(i2c_bus1_config);
-      if (err != ESP_OK) return false;
+      if (!i2c_bus1.Init(i2c_bus1_config)) return false;
   }
   
   if (spi) {
-      err = spi_bus.Init(spi_bus_config);
-      if (err != ESP_OK) return false;
+      if (!spi_bus.Init(spi_bus_config)) {
+          spi_bus.GetLogger().Error("Failed to initialize SPI bus");
+          return false;
+      }
   }
   
   if (i2s) {
-      err = i2s_bus.Init(bus_config);
-      if (err != ESP_OK) return false;
-      err = i2s_bus.ConfigureTxChannel(tx_config);
-      if (err != ESP_OK) return false;
-      err = i2s_bus.ConfigureRxChannel(rx_config);
-      if (err != ESP_OK) return false;
+      if (!i2s_bus.Init(bus_config)) return false;
+      if (!i2s_bus.ConfigureTxChannel(tx_config)) return false;
+      if (!i2s_bus.ConfigureRxChannel(rx_config)) return false;
   }
   return true;
 }
 
 bool M5StackCoreS3::InitDevice(bool power, bool audio, bool display, bool touch)
-{
-  esp_err_t err = ESP_OK;
-  
+{ 
   if (power) {
       // AXP2101
-      err = axp2101.Init(i2c_bus1, axp2101_config);
-      if (err != ESP_OK) return false;
+      if (!axp2101.Init(i2c_bus1, axp2101_config)) return false;
       
       uint8_t data = 0x00;
-      err = axp2101.ReadReg8(0x90, data, -1);
-      if (err != ESP_OK) return false;
+      if (!axp2101.ReadReg8(0x90, data, -1)) return false;
       data |= 0b10110100;
       std::tuple<uint8_t, uint8_t> axp_cmds[] = {
           {0x90, data},
@@ -330,14 +324,12 @@ bool M5StackCoreS3::InitDevice(bool power, bool audio, bool display, bool touch)
       };
       for (const auto &[reg, value] : axp_cmds)
       {
-        err = axp2101.WriteReg8(reg, value, -1);
-        if (err != ESP_OK) return false;
+        if (!axp2101.WriteReg8(reg, value, -1)) return false;
       }
       axp2101.GetLogger().Info("Configured successfully");
 
       // AW9523
-      err = aw9523.Init(i2c_bus1, aw9523_config);
-      if (err != ESP_OK) return false;
+      if (!aw9523.Init(i2c_bus1, aw9523_config)) return false;
       
       std::tuple<uint8_t, uint8_t> aw_cmds[] = {
           {0x02, 0b00000111},
@@ -350,10 +342,9 @@ bool M5StackCoreS3::InitDevice(bool power, bool audio, bool display, bool touch)
       };
       for (const auto &[reg, value] : aw_cmds)
       {
-        err = aw9523.WriteReg8(reg, value, -1);
-        if (err != ESP_OK)
+        if (!aw9523.WriteReg8(reg, value, -1))
         {
-          aw9523.GetLogger().Error("Failed to write register 0x%02X: %s", reg, esp_err_to_name(err));
+          aw9523.GetLogger().Error("Failed to write register 0x%02X", reg);
           return false;
         }
       }
@@ -361,12 +352,11 @@ bool M5StackCoreS3::InitDevice(bool power, bool audio, bool display, bool touch)
   }
 
   if (touch) {
-      err = ft5x06.Init(i2c_bus1, ft5x06_config, esp_lcd_touch_new_i2c_ft5x06);
-      if (err != ESP_OK) return false;
+      if (!ft5x06.Init(i2c_bus1, ft5x06_config, esp_lcd_touch_new_i2c_ft5x06)) return false;
   }
 
   if (display) {
-      if (!ili9341.Init(spi_lcd_config, esp_lcd_new_panel_ili9341))
+      if (!ili9341.Init(spi_lcd_config))
       {
         ili9341.GetLogger().Error("Failed to initialize display");
         return false;
@@ -394,16 +384,18 @@ bool M5StackCoreS3::InitDevice(bool power, bool audio, bool display, bool touch)
 
 bool M5StackCoreS3::InitMiddleware(bool lvgl)
 {
-    esp_err_t err = ESP_OK;
     if (lvgl) {
-      err = lvgl_port.Init(lvgl_port_config);
-      if (err != ESP_OK) return false;
+      if (!lvgl_port.Init(lvgl_port_config)) {
+        return false;
+      }
       
-      err = lvgl_port.AddDisplay(ili9341, lvgl_display_config);
-      if (err != ESP_OK) return false;
+      if (!lvgl_port.AddDisplay(ili9341, lvgl_display_config)) {
+        return false;
+      }
       
-      err = lvgl_port.AddTouch(ft5x06, lvgl_touch_config);
-      if (err != ESP_OK) return false;
+      if (!lvgl_port.AddTouch(ft5x06, lvgl_touch_config)) {
+        return false;
+      }
     }
     return true;
 }

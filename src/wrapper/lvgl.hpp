@@ -104,18 +104,19 @@ namespace wrapper
   public:
     LvglPort(Logger &logger);
     ~LvglPort();
-    esp_err_t Init(const LvglPortConfig &config);
-    esp_err_t Deinit();
-    esp_err_t AddDisplay(const DisplayBase& display, LvglDisplayConfig& config);
-    esp_err_t AddDisplayDsi(const DisplayBase& display, LvglDisplayConfig& config, const LvglDisplayDsiConfig& dsi_config);
-    esp_err_t AddTouch(const I2cTouch &touch, LvglTouchConfig &config);
-    bool Lock(uint32_t timeout_ms);
-    void Unlock();
+
     bool IsInitialized() const { return initialized_; }
     lv_display_t *GetDisplay() const { return lvgl_display_; }
     lv_indev_t *GetTouch() const { return lvgl_touch_; }
-
-    //! Options -----------------------------------------------------------------------------------------------------------
+    
+    // operations
+    bool Init(const LvglPortConfig &config);
+    bool Deinit();
+    bool AddDisplay(const DisplayBase& display, LvglDisplayConfig& config);
+    bool AddDisplayDsi(const DisplayBase& display, LvglDisplayConfig& config, const LvglDisplayDsiConfig& dsi_config);
+    bool AddTouch(const I2cTouch &touch, LvglTouchConfig &config);
+    bool Lock(uint32_t timeout_ms);
+    void Unlock();
     bool SetRotation(lv_display_rotation_t rotation);
     void Test(bool is_monochrome = false);
   };

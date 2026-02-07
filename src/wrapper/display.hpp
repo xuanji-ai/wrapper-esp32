@@ -11,12 +11,12 @@
 
 namespace wrapper
 {
-  struct I2cLcdConfig
+  struct I2cDisplayConfig
   {
     esp_lcd_panel_io_i2c_config_t io_config;
     esp_lcd_panel_dev_config_t panel_config;
 
-    I2cLcdConfig(
+    I2cDisplayConfig(
         // io_config parameters
         uint16_t dev_addr = 0x00,
         esp_lcd_panel_io_color_trans_done_cb_t on_color_trans_done = nullptr,
@@ -59,12 +59,12 @@ namespace wrapper
     }
   };
 
-  struct SpiLcdConfig
+  struct SpiDisplayConfig
   {
     esp_lcd_panel_io_spi_config_t io_config;
     esp_lcd_panel_dev_config_t panel_config;
 
-    SpiLcdConfig(
+    SpiDisplayConfig(
         // io_config parameters
         int cs_gpio,
         int dc_gpio,
@@ -132,12 +132,14 @@ namespace wrapper
   protected:
     esp_lcd_panel_io_handle_t io_handle_ = nullptr;
     esp_lcd_panel_handle_t panel_handle_ = nullptr;
-
+    Logger &logger_;
   public:
-    DisplayBase(esp_lcd_panel_io_handle_t io_handle, esp_lcd_panel_handle_t panel_handle) 
-      : io_handle_(io_handle), panel_handle_(panel_handle) {}
+    DisplayBase(esp_lcd_panel_io_handle_t io_handle, esp_lcd_panel_handle_t panel_handle, Logger &logger) 
+      : io_handle_(io_handle), panel_handle_(panel_handle), logger_(logger) {}
     
     ~DisplayBase() = default;
+
+    Logger& GetLogger() { return logger_; }
 
     // Panel IO operations
     bool IoTxParam(int lcd_cmd, const void *param, size_t param_size) {
@@ -197,7 +199,6 @@ namespace wrapper
   class I2cDisplay : public DisplayBase
   {
   private:
-    Logger &logger_;
     const I2cBus &bus_;
 
     bool InitIo(const esp_lcd_panel_io_i2c_config_t &config);
@@ -206,12 +207,12 @@ namespace wrapper
 
   public:
     I2cDisplay(Logger &logger, const I2cBus &bus) 
-      : DisplayBase(nullptr, nullptr), logger_(logger), bus_(bus) {}
+      : DisplayBase(nullptr, nullptr, logger), bus_(bus) {}
     
     ~I2cDisplay() { Deinit(); }
 
     bool Init(
-      const I2cLcdConfig &config, 
+      const I2cDisplayConfig &config, 
       std::function<esp_err_t(const esp_lcd_panel_io_handle_t, const esp_lcd_panel_dev_config_t *, esp_lcd_panel_handle_t *)> new_panel_func, 
       std::function<esp_err_t(const esp_lcd_panel_io_handle_t)> custom_init_panel_func = nullptr);
     bool Deinit();
@@ -220,7 +221,6 @@ namespace wrapper
   class SpiDisplay : public DisplayBase
   {
   private:
-    Logger &logger_;
     const SpiBus &bus_;
 
     bool InitIo(const esp_lcd_panel_io_spi_config_t &config);
@@ -229,11 +229,11 @@ namespace wrapper
 
   public:
     SpiDisplay(Logger &logger, const SpiBus &bus) 
-      : DisplayBase(nullptr, nullptr), logger_(logger), bus_(bus) {}
+      : DisplayBase(nullptr, nullptr, logger), bus_(bus) {}
     
     ~SpiDisplay() { Deinit(); }
 
-    bool Init(const SpiLcdConfig &config,
+    bool Init(const SpiDisplayConfig &config,
       std::function<esp_err_t(const esp_lcd_panel_io_handle_t, const esp_lcd_panel_dev_config_t *, esp_lcd_panel_handle_t *)> new_panel_func, 
       std::function<esp_err_t(const esp_lcd_panel_io_handle_t)> custom_init_panel_func = nullptr);
     bool Deinit();

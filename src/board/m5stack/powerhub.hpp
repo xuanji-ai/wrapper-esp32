@@ -25,7 +25,6 @@ public:
         static PowerHub instance;
         return instance;
     }
-    
 };
 
 } // namespace wrapper

@@ -57,16 +57,17 @@ namespace wrapper
   public:
     LedcTimer(Logger &logger);
     ~LedcTimer();
-
-    esp_err_t Init(const LedcTimerConfig &config);
-    esp_err_t Deinit();
-    esp_err_t Pause();
-    esp_err_t Resume();
-    esp_err_t SetFreq(uint32_t freq_hz);
-
     ledc_mode_t GetSpeedMode() const { return speed_mode_; }
     ledc_timer_t GetTimerNum() const { return timer_num_; }
     bool IsInitialized() const { return initialized_; }
+    // operations
+    bool Init(const LedcTimerConfig &config);
+    bool Deinit();
+    bool Pause();
+    bool Resume();
+    bool SetFreq(uint32_t freq_hz);
+
+
   };
 
   class LedcChannel
@@ -80,16 +81,17 @@ namespace wrapper
   public:
     LedcChannel(Logger &logger);
     ~LedcChannel();
-
-    esp_err_t Init(const LedcChannelConfig &config);
-    esp_err_t Deinit();
-    esp_err_t SetDuty(uint32_t duty);
-    esp_err_t SetDutyAndUpdate(uint32_t duty);
-    esp_err_t UpdateDuty();
-    esp_err_t Stop(uint32_t idle_level);
-
     ledc_mode_t GetSpeedMode() const { return speed_mode_; }
     ledc_channel_t GetChannel() const { return channel_; }
     bool IsInitialized() const { return initialized_; }
+    // operations
+    bool Init(const LedcChannelConfig &config);
+    bool Deinit();
+    bool SetDuty(uint32_t duty);
+    bool SetDutyAndUpdate(uint32_t duty);
+    bool UpdateDuty();
+    bool Stop(uint32_t idle_level);
+
+
   };
 }

@@ -159,16 +159,16 @@ class I2sBus
 public:
     I2sBus(Logger& logger) : logger_(logger) {}
     ~I2sBus();
-    esp_err_t Init(I2sBusConfig& bus_config);
-    esp_err_t ConfigureTxChannel(I2sChanStdConfig& chan_config);
-    esp_err_t ConfigureTxChannel(I2SChanTdmConfig& chan_config);
-    esp_err_t ConfigureRxChannel(I2SChanTdmConfig& chan_config);
-    esp_err_t ConfigureRxChannel(I2sChanStdConfig& chan_config);
+    bool Init(I2sBusConfig& bus_config);
+    bool ConfigureTxChannel(I2sChanStdConfig& chan_config);
+    bool ConfigureTxChannel(I2SChanTdmConfig& chan_config);
+    bool ConfigureRxChannel(I2SChanTdmConfig& chan_config);
+    bool ConfigureRxChannel(I2sChanStdConfig& chan_config);
 
-    esp_err_t EnableTxChannel();
-    esp_err_t EnableRxChannel();
-    esp_err_t DisableTxChannel();
-    esp_err_t DisableRxChannel();
+    bool EnableTxChannel();
+    bool EnableRxChannel();
+    bool DisableTxChannel();
+    bool DisableRxChannel();
 
     i2s_port_t GetPort() const { return port_; }
     i2s_chan_handle_t GetTxHandle() const { return tx_chan_handle_; }

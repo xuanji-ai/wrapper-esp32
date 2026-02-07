@@ -15,19 +15,19 @@ LedcTimer::~LedcTimer()
     Deinit();
 }
 
-esp_err_t LedcTimer::Init(const LedcTimerConfig &config)
+bool LedcTimer::Init(const LedcTimerConfig &config)
 {
     if (initialized_)
     {
         logger_.Warning("LEDC Timer already initialized");
-        return ESP_ERR_INVALID_STATE;
+        return false;
     }
 
     esp_err_t ret = ledc_timer_config(&config);
     if (ret != ESP_OK)
     {
         logger_.Error("Failed to configure LEDC timer: %s", esp_err_to_name(ret));
-        return ret;
+        return false;
     }
 
     speed_mode_ = config.speed_mode;
@@ -36,14 +36,14 @@ esp_err_t LedcTimer::Init(const LedcTimerConfig &config)
 
     logger_.Info("LEDC Timer initialized (mode: %d, timer: %d, freq: %lu Hz)",
                   speed_mode_, timer_num_, config.freq_hz);
-    return ESP_OK;
+    return true;
 }
 
-esp_err_t LedcTimer::Deinit()
+bool LedcTimer::Deinit()
 {
     if (!initialized_)
     {
-        return ESP_OK;
+        return true;
     }
 
     // Use deconfigure flag to deinit timer
@@ -56,69 +56,69 @@ esp_err_t LedcTimer::Deinit()
     if (ret != ESP_OK)
     {
         logger_.Error("Failed to deinitialize LEDC timer: %s", esp_err_to_name(ret));
-        return ret;
+        return false;
     }
 
     initialized_ = false;
     logger_.Info("LEDC Timer deinitialized");
-    return ESP_OK;
+    return true;
 }
 
-esp_err_t LedcTimer::Pause()
+bool LedcTimer::Pause()
 {
     if (!initialized_)
     {
         logger_.Error("LEDC Timer not initialized");
-        return ESP_ERR_INVALID_STATE;
+        return false;
     }
 
     esp_err_t ret = ledc_timer_pause(speed_mode_, timer_num_);
     if (ret != ESP_OK)
     {
         logger_.Error("Failed to pause LEDC timer: %s", esp_err_to_name(ret));
-        return ret;
+        return false;
     }
 
     logger_.Debug("LEDC Timer paused");
-    return ESP_OK;
+    return true;
 }
 
-esp_err_t LedcTimer::Resume()
+bool LedcTimer::Resume()
 {
     if (!initialized_)
     {
         logger_.Error("LEDC Timer not initialized");
-        return ESP_ERR_INVALID_STATE;
+        return false;
     }
 
     esp_err_t ret = ledc_timer_resume(speed_mode_, timer_num_);
     if (ret != ESP_OK)
     {
         logger_.Error("Failed to resume LEDC timer: %s", esp_err_to_name(ret));
-        return ret;
+        return false;
     }
 
     logger_.Debug("LEDC Timer resumed");
-    return ESP_OK;
+    return true;
 }
 
-esp_err_t LedcTimer::SetFreq(uint32_t freq_hz)
+bool LedcTimer::SetFreq(uint32_t freq_hz)
 {
     if (!initialized_)
     {
         logger_.Error("LEDC Timer not initialized");
-        return ESP_ERR_INVALID_STATE;
+        return false;
     }
 
     esp_err_t ret = ledc_set_freq(speed_mode_, timer_num_, freq_hz);
     if (ret != ESP_OK)
     {
         logger_.Error("Failed to set LEDC timer frequency to %lu Hz: %s", freq_hz, esp_err_to_name(ret));
-        return ret;
+        return false;
     }
 
     logger_.Debug("LEDC Timer frequency set to %lu Hz", freq_hz);
-    return ESP_OK;
+    return true;
 }
 
 // --- LedcChannel ---
@@ -133,19 +133,19 @@ LedcChannel::~LedcChannel()
     Deinit();
 }
 
-esp_err_t LedcChannel::Init(const LedcChannelConfig &config)
+bool LedcChannel::Init(const LedcChannelConfig &config)
 {
     if (initialized_)
     {
         logger_.Warning("LEDC Channel already initialized");
-        return ESP_ERR_INVALID_STATE;
+        return false;
     }
 
     esp_err_t ret = ledc_channel_config(&config);
     if (ret != ESP_OK)
     {
         logger_.Error("Failed to configure LEDC channel: %s", esp_err_to_name(ret));
-        return ret;
+        return false;
     }
 
     speed_mode_ = config.speed_mode;
@@ -154,93 +154,91 @@ esp_err_t LedcChannel::Init(const LedcChannelConfig &config)
 
     logger_.Info("LEDC Channel initialized (mode: %d, channel: %d, gpio: %d)",
                   speed_mode_, channel_, config.gpio_num);
-    return ESP_OK;
+    return true;
 }
 
-esp_err_t LedcChannel::Deinit()
+bool LedcChannel::Deinit()
 {
     if (!initialized_)
     {
-        return ESP_OK;
+        return true;
     }
 
     // Stop the channel before deinit
-    esp_err_t ret = Stop(0);
-    if (ret != ESP_OK)
+    if (!Stop(0))
     {
-        logger_.Error("Failed to stop LEDC channel during deinit: %s", esp_err_to_name(ret));
-        return ret;
+        // Stop already logs error
+        return false;
     }
 
     initialized_ = false;
     logger_.Info("LEDC Channel deinitialized");
-    return ESP_OK;
+    return true;
 }
 
-esp_err_t LedcChannel::SetDuty(uint32_t duty)
+bool LedcChannel::SetDuty(uint32_t duty)
 {
     if (!initialized_)
     {
         logger_.Error("LEDC Channel not initialized");
-        return ESP_ERR_INVALID_STATE;
+        return false;
     }
 
     esp_err_t ret = ledc_set_duty(speed_mode_, channel_, duty);
     if (ret != ESP_OK)
     {
         logger_.Error("Failed to set LEDC duty to %lu: %s", duty, esp_err_to_name(ret));
-        return ret;
+        return false;
     }
 
-    return ESP_OK;
+    return true;
 }
 
-esp_err_t LedcChannel::SetDutyAndUpdate(uint32_t duty)
+bool LedcChannel::SetDutyAndUpdate(uint32_t duty)
 {
-    esp_err_t ret = SetDuty(duty);
-    if (ret != ESP_OK)
+    if (!SetDuty(duty))
     {
-        return ret;
+        return false;
     }
 
     return UpdateDuty();
 }
 
-esp_err_t LedcChannel::UpdateDuty()
+bool LedcChannel::UpdateDuty()
 {
     if (!initialized_)
     {
         logger_.Error("LEDC Channel not initialized");
-        return ESP_ERR_INVALID_STATE;
+        return false;
     }
 
     esp_err_t ret = ledc_update_duty(speed_mode_, channel_);
     if (ret != ESP_OK)
     {
         logger_.Error("Failed to update LEDC duty: %s", esp_err_to_name(ret));
-        return ret;
+        return false;
     }
 
-    return ESP_OK;
+    return true;
 }
 
-esp_err_t LedcChannel::Stop(uint32_t idle_level)
+bool LedcChannel::Stop(uint32_t idle_level)
 {
     if (!initialized_)
     {
         logger_.Error("LEDC Channel not initialized");
-        return ESP_ERR_INVALID_STATE;
+        return false;
     }
 
     esp_err_t ret = ledc_stop(speed_mode_, channel_, idle_level);
     if (ret != ESP_OK)
     {
         logger_.Error("Failed to stop LEDC channel: %s", esp_err_to_name(ret));
-        return ret;
+        return false;
     }
 
     logger_.Debug("LEDC Channel stopped");
-    return ESP_OK;
+    return true;
 }
 
 } // namespace wrapper

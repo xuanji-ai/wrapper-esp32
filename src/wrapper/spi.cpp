@@ -36,7 +36,7 @@ spi_host_device_t SpiBus::GetHostId() const {
     return host_id_;
 }
 
-esp_err_t SpiBus::Init(const SpiBusConfig& config) {
+bool SpiBus::Init(const SpiBusConfig& config) {
     if (initialized_) {
         logger_.Warning("Already initialized. Deinitializing first.");
         Deinit();
@@ -51,38 +51,39 @@ esp_err_t SpiBus::Init(const SpiBusConfig& config) {
         initialized_ = true;
         logger_.Info("Initialized (Host: %d, MOSI: %d, MISO: %d, SCLK: %d)", 
                      config.host_id, config.mosi_io_num, config.miso_io_num, config.sclk_io_num);
+        return true;
     } else {
         logger_.Error("Failed to initialize: %s", esp_err_to_name(ret));
+        return false;
     }
-    return ret;
 }
 
-esp_err_t SpiBus::Deinit() {
+bool SpiBus::Deinit() {
     if (initialized_) {
         esp_err_t ret = spi_bus_free(host_id_);
         if (ret == ESP_OK) {
             logger_.Info("Deinitialized");
             initialized_ = false;
+            return true;
         } else {
             logger_.Error("Failed to deinitialize: %s", esp_err_to_name(ret));
+            return false;
         }
-        return ret;
     }
-    return ESP_OK;
+    return true;
 }
 
-esp_err_t SpiBus::Reset() {
+bool SpiBus::Reset() {
     if (!initialized_) {
         logger_.Error("Cannot reset: Not initialized");
-        return ESP_ERR_INVALID_STATE;
+        return false;
     }
 
     logger_.Info("Resetting...");
     
     // Deinit current bus
-    esp_err_t ret = Deinit();
-    if (ret != ESP_OK) {
-        return ret;
+    if (!Deinit()) {
+        return false;
     }
     
     // Re-init with saved config
@@ -102,7 +103,7 @@ Logger& SpiDevice::GetLogger() {
     return logger_;
 }
 
-esp_err_t SpiDevice::Init(const SpiBus& bus, const SpiDeviceConfig& config) {
+bool SpiDevice::Init(const SpiBus& bus, const SpiDeviceConfig& config) {
     if (dev_handle_ != NULL) {
         logger_.Warning("Device already initialized. Deinitializing first.");
         Deinit();
@@ -115,29 +116,31 @@ esp_err_t SpiDevice::Init(const SpiBus& bus, const SpiDeviceConfig& config) {
     esp_err_t ret = spi_bus_add_device(bus.GetHostId(), &config, &dev_handle_);
     if (ret == ESP_OK) {
         logger_.Info("Device initialized (CS: %d, Speed: %d Hz)", config.spics_io_num, config.clock_speed_hz);
+        return true;
     } else {
         logger_.Error("Failed to add device: %s", esp_err_to_name(ret));
+        return false;
     }
-    return ret;
 }
 
-esp_err_t SpiDevice::Deinit() {
+bool SpiDevice::Deinit() {
     if (dev_handle_ != NULL) {
         esp_err_t ret = spi_bus_remove_device(dev_handle_);
         if (ret == ESP_OK) {
             logger_.Info("Device deinitialized");
             dev_handle_ = NULL;
+            return true;
         } else {
             logger_.Error("Failed to remove device: %s", esp_err_to_name(ret));
+            return false;
         }
-        return ret;
     }
-    return ESP_OK;
+    return true;
 }
 
-esp_err_t SpiDevice::Transfer(const std::vector<uint8_t>& tx_data, std::vector<uint8_t>& rx_data) {
+bool SpiDevice::Transfer(const std::vector<uint8_t>& tx_data, std::vector<uint8_t>& rx_data) {
     if (dev_handle_ == NULL) {
-        return ESP_ERR_INVALID_STATE;
+        return false;
     }
 
     spi_transaction_t t;
@@ -149,12 +152,12 @@ esp_err_t SpiDevice::Transfer(const std::vector<uint8_t>& tx_data, std::vector<u
     rx_data.resize(tx_data.size());
     t.rx_buffer = rx_data.data();
 
-    return spi_device_transmit(dev_handle_, &t);
+    return spi_device_transmit(dev_handle_, &t) == ESP_OK;
 }
 
-esp_err_t SpiDevice::Write(const std::vector<uint8_t>& data) {
+bool SpiDevice::Write(const std::vector<uint8_t>& data) {
     if (dev_handle_ == NULL) {
-        return ESP_ERR_INVALID_STATE;
+        return false;
     }
 
     spi_transaction_t t;
@@ -164,12 +167,12 @@ esp_err_t SpiDevice::Write(const std::vector<uint8_t>& data) {
     t.tx_buffer = data.data();
     t.rx_buffer = NULL; // No receive
 
-    return spi_device_transmit(dev_handle_, &t);
+    return spi_device_transmit(dev_handle_, &t) == ESP_OK;
 }
 
-esp_err_t SpiDevice::Read(size_t len, std::vector<uint8_t>& rx_data) {
+bool SpiDevice::Read(size_t len, std::vector<uint8_t>& rx_data) {
     if (dev_handle_ == NULL) {
-        return ESP_ERR_INVALID_STATE;
+        return false;
     }
 
     spi_transaction_t t;
@@ -181,7 +184,7 @@ esp_err_t SpiDevice::Read(size_t len, std::vector<uint8_t>& rx_data) {
     rx_data.resize(len);
     t.rx_buffer = rx_data.data();
 
-    return spi_device_transmit(dev_handle_, &t);
+    return spi_device_transmit(dev_handle_, &t) == ESP_OK;
 }
 
 

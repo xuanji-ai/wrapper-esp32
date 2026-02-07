@@ -45,60 +45,12 @@ public:
 
     ~Ip5306() = default;
 
-    bool Init(const I2cBus &bus)
-    {
-        I2cDeviceConfig cfg = I2cDeviceConfig(I2C_ADDR_DEFAULT, I2C_SPEED_HZ);
-        return I2cDevice::Init(bus, cfg) == ESP_OK;
-    }
+    bool Init(const I2cBus &bus);
+    bool GetChargingStatus();
 
-    bool GetChargingStatus()
-    {
-        uint8_t reg_value = 0;
-        esp_err_t err = ReadReg8(REG_READ0, reg_value, -1);
-        if (err != ESP_OK)
-        {
-            GetLogger().Error("Failed to read REG_READ0: %s", esp_err_to_name(err));
-            return false;
-        }
-        return (reg_value & (1 << REG_READ0_BIT_CHARGE_EN)) != 0;
-    }
+    bool SetChargerVoltage(ChargerVoltage voltage);
 
-    bool SetChargerVoltage(ChargerVoltage voltage)
-    {
-        uint8_t reg_value = 0;
-        esp_err_t err = ReadReg8(REG_CHARGER_CTL0, reg_value, 1000);
-        if (err != ESP_OK)
-        {
-            GetLogger().Error("Failed to read REG_CHARGER_CTL0: %s", esp_err_to_name(err));
-            return false;
-        }
-
-        // 清除 bits 1:0，然后设置新值
-        reg_value = (reg_value & 0xFC) | static_cast<uint8_t>(voltage);
-        
-        err = WriteReg8(REG_CHARGER_CTL0, reg_value, 1000);
-        if (err != ESP_OK)
-        {
-            GetLogger().Error("Failed to write REG_CHARGER_CTL0: %s", esp_err_to_name(err));
-            return false;
-        }
-
-        GetLogger().Info("Charger voltage set to: 0x%02X", static_cast<uint8_t>(voltage));
-        return true;
-    }
-
-    ChargerVoltage GetChargerVoltage()
-    {
-        uint8_t reg_value = 0;
-        esp_err_t err = ReadReg8(REG_CHARGER_CTL0, reg_value, 1000);
-        if (err != ESP_OK)
-        {
-            GetLogger().Error("Failed to read REG_CHARGER_CTL0: %s", esp_err_to_name(err));
-            return ChargerVoltage::V_4_185_4_29_4_335_4_38; // 返回默认值
-        }
-
-        return static_cast<ChargerVoltage>(reg_value & 0x03);
-    }
+    ChargerVoltage GetChargerVoltage();
 
 };
 

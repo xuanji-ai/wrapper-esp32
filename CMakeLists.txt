@@ -16,8 +16,9 @@ file(GLOB_RECURSE SOURCES
     "src/app/*.cpp"
 )
 
-# Exclude display-dsi.cpp from common sources
+# Exclude display-dsi.cpp and ili9881c.cpp from common sources
 list(FILTER SOURCES EXCLUDE REGEX ".*display-dsi\\.cpp$")
+list(FILTER SOURCES EXCLUDE REGEX ".*ili9881c\\.cpp$")
 
 # Add PowerHub source
 list(APPEND SOURCES "src/board/m5stack/powerhub.cpp")
@@ -29,6 +30,7 @@ elseif(IDF_TARGET STREQUAL "esp32p4")
     list(APPEND SOURCES "src/board/m5stack/tab5.cpp")
     # Add DSI display support for ESP32P4
     list(APPEND SOURCES "src/wrapper/display-dsi.cpp")
+    list(APPEND SOURCES "src/device/ili9881c.cpp")
 endif()
 
 idf_component_register(

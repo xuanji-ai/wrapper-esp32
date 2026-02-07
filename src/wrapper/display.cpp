@@ -46,7 +46,7 @@ bool I2cDisplay::InitPanel(const esp_lcd_panel_dev_config_t &panel_config, std::
 }
 
 bool I2cDisplay::Init(
-    const I2cLcdConfig &config,
+    const I2cDisplayConfig &config,
     std::function<esp_err_t(const esp_lcd_panel_io_handle_t, const esp_lcd_panel_dev_config_t *, esp_lcd_panel_handle_t *)> new_panel_func,
     std::function<esp_err_t(const esp_lcd_panel_io_handle_t)> custom_init_panel_func)
 {
@@ -130,7 +130,7 @@ bool SpiDisplay::InitPanel(const esp_lcd_panel_dev_config_t &panel_config, std::
     return true;
 }
 
-bool SpiDisplay::Init(const SpiLcdConfig &config,
+bool SpiDisplay::Init(const SpiDisplayConfig &config,
                       std::function<esp_err_t(const esp_lcd_panel_io_handle_t, const esp_lcd_panel_dev_config_t *, esp_lcd_panel_handle_t *)> new_panel_func,
                       std::function<esp_err_t(const esp_lcd_panel_io_handle_t)> custom_init_panel_func)
 {

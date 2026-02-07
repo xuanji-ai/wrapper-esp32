@@ -87,18 +87,19 @@ namespace wrapper
       public:
         I2cTouch(Logger& logger);
         ~I2cTouch();
-
-        esp_err_t Init(
+        esp_lcd_touch_handle_t GetHandle() const { return touch_handle_; }
+        // ops
+        bool Init(
           const I2cBus& bus, 
           const I2cTouchConfig& config, 
           std::function<esp_err_t(const esp_lcd_panel_io_handle_t, const esp_lcd_touch_config_t*, esp_lcd_touch_handle_t*)> new_touch_func
         );
-        esp_err_t Deinit();
+        bool Deinit();
         
-        esp_err_t ReadData();
-        esp_err_t GetData(esp_lcd_touch_point_data_t *data, uint8_t *point_cnt, uint8_t max_point_cnt);
+        bool ReadData();
+        bool GetData(esp_lcd_touch_point_data_t *data, uint8_t *point_cnt, uint8_t max_point_cnt);
         bool GetCoordinates(uint16_t *x, uint16_t *y, uint16_t *strength, uint8_t *point_num, uint8_t max_point_num);
-        esp_lcd_touch_handle_t GetHandle() const { return touch_handle_; }
+        
     };
 
 } // namespace wrapper

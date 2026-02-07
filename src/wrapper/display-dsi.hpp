@@ -114,8 +114,8 @@ namespace wrapper
     DsiBus(Logger& logger);
     ~DsiBus();
 
-    esp_err_t Init(const DsiBusConfig& config);
-    esp_err_t Deinit();
+    bool Init(const DsiBusConfig& config);
+    bool Deinit();
 
     Logger& GetLogger();
     esp_lcd_dsi_bus_handle_t GetHandle() const;
@@ -131,8 +131,8 @@ namespace wrapper
   private:
     Logger& logger_;
 
-    esp_err_t InitIo(const DsiBus& bus, const esp_lcd_dbi_io_config_t& config);
-    esp_err_t InitPanel(
+    bool InitIo(const DsiBus& bus, const esp_lcd_dbi_io_config_t& config);
+    bool InitPanel(
       const esp_lcd_panel_dev_config_t& panel_config, 
       std::function<esp_err_t(const esp_lcd_panel_io_handle_t)> custom_init_panel_func = nullptr,
       void* vendor_config = nullptr,
@@ -142,8 +142,8 @@ namespace wrapper
   public:
     DsiDisplay(Logger& logger);
     ~DsiDisplay();
-
-    esp_err_t Init(
+    // Operations
+    bool Init(
       const DsiBus& bus,
       const DsiDisplayConfig& config,
       std::function<esp_err_t(const esp_lcd_panel_io_handle_t, const esp_lcd_panel_dev_config_t*, esp_lcd_panel_handle_t*)> new_panel_func,
@@ -152,7 +152,7 @@ namespace wrapper
       std::function<void(void)> vendor_config_init_func = nullptr
     );
     
-    esp_err_t Deinit();
+    bool Deinit();
   };
 }
 

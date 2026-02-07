@@ -11,7 +11,7 @@ I2cTouch::~I2cTouch()
   Deinit();
 }
 
-esp_err_t I2cTouch::Init(
+bool I2cTouch::Init(
     const I2cBus &bus,
     const I2cTouchConfig &config,
     std::function<esp_err_t(const esp_lcd_panel_io_handle_t, const esp_lcd_touch_config_t *, esp_lcd_touch_handle_t *)> new_touch_func)
@@ -25,7 +25,7 @@ esp_err_t I2cTouch::Init(
   if (bus.GetHandle() == NULL)
   {
     logger_.Error("Bus not initialized");
-    return ESP_ERR_INVALID_STATE;
+    return false;
   }
 
   // 1. Create IO handle
@@ -33,7 +33,7 @@ esp_err_t I2cTouch::Init(
   if (ret != ESP_OK)
   {
     logger_.Error("Failed to create Touch IO handle: %s", esp_err_to_name(ret));
-    return ret;
+    return false;
   }
 
   // 2. Create Touch handle
@@ -44,14 +44,14 @@ esp_err_t I2cTouch::Init(
     logger_.Error("Failed to create Touch handle: %s", esp_err_to_name(ret));
     esp_lcd_panel_io_del(io_handle_);
     io_handle_ = NULL;
-    return ret;
+    return false;
   }
 
   logger_.Info("Touch initialized (Addr: 0x%02X)", config.io_config.dev_addr);
-  return ESP_OK;
+  return true;
 }
 
-esp_err_t I2cTouch::Deinit()
+bool I2cTouch::Deinit()
 {
   esp_err_t ret = ESP_OK;
   if (touch_handle_ != NULL)
@@ -80,26 +80,27 @@ esp_err_t I2cTouch::Deinit()
   if (ret == ESP_OK)
   {
     logger_.Info("Touch deinitialized");
+    return true;
   }
-  return ret;
+  return false;
 }
 
-esp_err_t I2cTouch::ReadData()
+bool I2cTouch::ReadData()
 {
   if (touch_handle_ == NULL)
   {
-    return ESP_ERR_INVALID_STATE;
+    return false;
   }
-  return esp_lcd_touch_read_data(touch_handle_);
+  return esp_lcd_touch_read_data(touch_handle_) == ESP_OK;
 }
 
-esp_err_t I2cTouch::GetData(esp_lcd_touch_point_data_t *data, uint8_t *point_cnt, uint8_t max_point_cnt)
+bool I2cTouch::GetData(esp_lcd_touch_point_data_t *data, uint8_t *point_cnt, uint8_t max_point_cnt)
 {
   if (touch_handle_ == NULL)
   {
-    return ESP_ERR_INVALID_STATE;
+    return false;
   }
-  return esp_lcd_touch_get_data(touch_handle_, data, point_cnt, max_point_cnt);
+  return esp_lcd_touch_get_data(touch_handle_, data, point_cnt, max_point_cnt) == ESP_OK;
 }
 
 bool I2cTouch::GetCoordinates(uint16_t *x, uint16_t *y, uint16_t *strength, uint8_t *point_num, uint8_t max_point_num)
