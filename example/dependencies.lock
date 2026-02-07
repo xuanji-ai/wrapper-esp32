@@ -131,6 +131,13 @@ dependencies:
     source:
       type: idf
     version: 5.5.1
+  jbrilha/esp_lcd_st7789:
+    component_hash: 95b5a7ed16de15546d37d5ab4abce3b1d8b9ed418ec8b6d06ac8890f082e4188
+    dependencies: []
+    source:
+      registry_url: https://components.espressif.com/
+      type: service
+    version: 1.0.2
   lvgl/lvgl:
     component_hash: 17e68bfd21f0edf4c3ee838e2273da840bf3930e5dbc3bfa6c1190c3aed41f9f
     dependencies: []
@@ -151,6 +158,9 @@ dependencies:
     - name: espressif/esp_lcd_ili9341
       public: true
       version: ^2.0.1
+    - name: jbrilha/esp_lcd_st7789
+      public: true
+      version: '*'
     - name: espressif/esp_lcd_touch_ft5x06
       public: true
       version: ^1
@@ -193,7 +203,8 @@ dependencies:
     - esp32p4
     version: 0.1.0
 direct_dependencies:
+- jbrilha/esp_lcd_st7789
 - wrapper-esp32
-manifest_hash: 3e6e3a2dbfe81c8965101774ee73681d4eec61ba2b502bd2a174a231908fc0bd
+manifest_hash: 8b0279a9de62c3fcf876a120e888a46cc922161028cc8b33024fb55bd1fec0f7
 target: esp32s3
 version: 2.0.0

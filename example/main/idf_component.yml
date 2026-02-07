@@ -1,3 +1,4 @@
 dependencies:
   wrapper-esp32:
-    path: "./../../"
+    path: ./../../
+  jbrilha/esp_lcd_st7789: ^1.0.2

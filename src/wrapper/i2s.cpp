@@ -163,6 +163,40 @@ bool I2sBus::ConfigureRxChannel(I2SChanTdmConfig& chan_config)
     return true;
 }
 
+bool I2sBus::ConfigureRxChannel(I2sChanPdmRxConfig& chan_config)
+{
+    if (rx_chan_handle_ == NULL) {
+        logger_.Error("RX Channel handle is NULL. Call Init first.");
+        return false;
+    }
+
+    esp_err_t ret = i2s_channel_init_pdm_rx_mode(rx_chan_handle_, &chan_config);
+    if (ret != ESP_OK) {
+        logger_.Error("Failed to init PDM RX mode: %s", esp_err_to_name(ret));
+        return false;
+    }
+
+    rx_sample_rate_hz_ = chan_config.clk_cfg.sample_rate_hz;
+    return true;
+}
+
+bool I2sBus::ConfigureTxChannel(I2sChanPdmTxConfig& chan_config)
+{
+    if (tx_chan_handle_ == NULL) {
+        logger_.Error("TX Channel handle is NULL. Call Init first.");
+        return false;
+    }
+
+    esp_err_t ret = i2s_channel_init_pdm_tx_mode(tx_chan_handle_, &chan_config);
+    if (ret != ESP_OK) {
+        logger_.Error("Failed to init PDM TX mode: %s", esp_err_to_name(ret));
+        return false;
+    }
+
+    tx_sample_rate_hz_ = chan_config.clk_cfg.sample_rate_hz;
+    return true;
+}
+
 bool I2sBus::Write(const void *src, size_t size, size_t &bytes_written, uint32_t timeout_ms)
 {
     if (tx_chan_handle_ == NULL) {
