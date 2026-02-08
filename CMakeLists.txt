@@ -25,12 +25,18 @@ list(APPEND SOURCES "src/board/m5stack/powerhub.cpp")
 
 # Board specific sources
 if(IDF_TARGET STREQUAL "esp32s3")
+  if( CONFIG_WRAPPER_ESP32_BOARD_M5STACK_CORE_S3 )
     list(APPEND SOURCES "src/board/m5stack/core-s3.cpp")
+  elseif( CONFIG_WRAPPER_ESP32_BOARD_M5STACK_CARDPUTER )
+    list(APPEND SOURCES "src/board/m5stack/cardputer.cpp")
+  endif()
 elseif(IDF_TARGET STREQUAL "esp32p4")
-    list(APPEND SOURCES "src/board/m5stack/tab5.cpp")
     # Add DSI display support for ESP32P4
     list(APPEND SOURCES "src/wrapper/display-dsi.cpp")
     list(APPEND SOURCES "src/device/ili9881c.cpp")
+  if( CONFIG_WRAPPER_ESP32_BOARD_M5STACK_TAB5 )
+    list(APPEND SOURCES "src/board/m5stack/tab5.cpp")
+  endif()
 endif()
 
 idf_component_register(
