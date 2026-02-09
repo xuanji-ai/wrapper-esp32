@@ -9,6 +9,8 @@
 #include "wrapper/audio.hpp"
 #include "wrapper/lvgl.hpp"
 #include "device/pi4ioe5v6408.hpp"
+#include "device/ili9881c.hpp"
+#include "device/gt911.hpp"
 
 namespace wrapper
 {
@@ -39,8 +41,8 @@ namespace wrapper
         LedcChannel& GetLedcChannel();
         LdoRegulator& GetDsiPhyLdo();
         DsiBus& GetDsiBus();
-        DsiDisplay& GetDsiDisplay();
-        I2cTouch& GetGt911Touch();
+        Ili9881c& GetDsiDisplay();
+        Gt911& GetGt911Touch();
         I2sBus& GetI2sBus();
         AudioCodec& GetAudioCodec();
         LvglPort& GetLvglPort();

@@ -2,7 +2,9 @@
 #include "esp_err.h"
 #include "driver/i2s_std.h"
 #include "driver/i2s_tdm.h"
+#include "driver/i2s_pdm.h"
 #include "wrapper/logger.hpp"
+#include <vector>
 
 namespace wrapper
 {
@@ -148,33 +150,111 @@ struct I2SChanTdmConfig : public i2s_tdm_config_t
     }
 };
 
+struct I2sChanPdmRxConfig : public i2s_pdm_rx_config_t
+{
+    I2sChanPdmRxConfig(
+        uint32_t sample_rate_hz,
+        i2s_clock_src_t clk_src,
+        i2s_mclk_multiple_t mclk_multiple,
+        i2s_pdm_dsr_t dn_sample_mode,
+        uint32_t bclk_div,
+        i2s_data_bit_width_t data_bit_width,
+        i2s_slot_bit_width_t slot_bit_width,
+        i2s_slot_mode_t slot_mode,
+        i2s_pdm_slot_mask_t slot_mask,
+        gpio_num_t clk,
+        gpio_num_t din,
+        bool clk_inv = false
+    ) : i2s_pdm_rx_config_t{}
+    {
+        clk_cfg.sample_rate_hz = sample_rate_hz;
+        clk_cfg.clk_src = clk_src;
+        clk_cfg.mclk_multiple = mclk_multiple;
+        clk_cfg.dn_sample_mode = dn_sample_mode;
+        clk_cfg.bclk_div = bclk_div;
+
+        slot_cfg.data_bit_width = data_bit_width;
+        slot_cfg.slot_bit_width = slot_bit_width;
+        slot_cfg.slot_mode = slot_mode;
+        slot_cfg.slot_mask = slot_mask;
+
+        gpio_cfg.clk = clk;
+        gpio_cfg.din = din;
+        gpio_cfg.invert_flags.clk_inv = clk_inv;
+    }
+};
+
+struct I2sChanPdmTxConfig : public i2s_pdm_tx_config_t
+{
+    I2sChanPdmTxConfig(
+        uint32_t sample_rate_hz,
+        i2s_clock_src_t clk_src,
+        i2s_mclk_multiple_t mclk_multiple,
+        uint32_t up_sample_fp, // Changed from i2s_pdm_usr_t up_sample_mode
+        uint32_t bclk_div,
+        i2s_data_bit_width_t data_bit_width,
+        i2s_slot_bit_width_t slot_bit_width,
+        i2s_slot_mode_t slot_mode,
+        // i2s_pdm_slot_mask_t slot_mask, // Removed slot_mask
+        gpio_num_t clk,
+        gpio_num_t dout,
+        bool clk_inv = false
+    ) : i2s_pdm_tx_config_t{}
+    {
+        clk_cfg.sample_rate_hz = sample_rate_hz;
+        clk_cfg.clk_src = clk_src;
+        clk_cfg.mclk_multiple = mclk_multiple;
+        clk_cfg.up_sample_fp = up_sample_fp; // Changed member name
+        clk_cfg.bclk_div = bclk_div;
+
+        slot_cfg.data_bit_width = data_bit_width;
+        slot_cfg.slot_bit_width = slot_bit_width;
+        slot_cfg.slot_mode = slot_mode;
+        // slot_cfg.slot_mask = slot_mask; // Removed
+
+        gpio_cfg.clk = clk;
+        gpio_cfg.dout = dout;
+        gpio_cfg.invert_flags.clk_inv = clk_inv;
+    }
+};
+
 class I2sBus
 {
-    Logger& m_logger;
-    i2s_port_t m_port;
-    i2s_chan_handle_t m_tx_chan_handle = NULL;
-    i2s_chan_handle_t m_rx_chan_handle = NULL;
-    uint32_t m_tx_sample_rate_hz = 0;
-    uint32_t m_rx_sample_rate_hz = 0;
+    Logger& logger_;
+    i2s_port_t port_;
+    i2s_chan_handle_t tx_chan_handle_ = NULL;
+    i2s_chan_handle_t rx_chan_handle_ = NULL;
+    uint32_t tx_sample_rate_hz_ = 0;
+    uint32_t rx_sample_rate_hz_ = 0;
 public:
-    I2sBus(Logger& logger) : m_logger(logger) {}
+    I2sBus(Logger& logger) : logger_(logger) {}
     ~I2sBus();
-    esp_err_t Init(I2sBusConfig& bus_config);
-    esp_err_t ConfigureTxChannel(I2sChanStdConfig& chan_config);
-    esp_err_t ConfigureTxChannel(I2SChanTdmConfig& chan_config);
-    esp_err_t ConfigureRxChannel(I2SChanTdmConfig& chan_config);
-    esp_err_t ConfigureRxChannel(I2sChanStdConfig& chan_config);
+    bool Init(I2sBusConfig& bus_config);
+    bool Deinit();
+    bool ConfigureTxChannel(I2sChanStdConfig& chan_config);
+    bool ConfigureTxChannel(I2SChanTdmConfig& chan_config);
+    bool ConfigureRxChannel(I2SChanTdmConfig& chan_config);
+    bool ConfigureRxChannel(I2sChanStdConfig& chan_config);
+    bool ConfigureRxChannel(I2sChanPdmRxConfig& chan_config);
+    bool ConfigureTxChannel(I2sChanPdmTxConfig& chan_config);
 
-    esp_err_t EnableTxChannel();
-    esp_err_t EnableRxChannel();
-    esp_err_t DisableTxChannel();
-    esp_err_t DisableRxChannel();
+    bool EnableTxChannel();
+    bool EnableRxChannel();
+    bool DisableTxChannel();
+    bool DisableRxChannel();
 
-    i2s_port_t GetPort() const { return m_port; }
-    i2s_chan_handle_t GetTxHandle() const { return m_tx_chan_handle; }
-    i2s_chan_handle_t GetRxHandle() const { return m_rx_chan_handle; }
-    uint32_t GetTxSampleRate() const { return m_tx_sample_rate_hz; }
-    uint32_t GetRxSampleRate() const { return m_rx_sample_rate_hz; }
+    bool Write(const void *src, size_t size, size_t &bytes_written, uint32_t timeout_ms = 1000);
+    bool Read(void *dest, size_t size, size_t &bytes_read, uint32_t timeout_ms = 1000);
+
+    // C++ style overloads
+    bool Write(const std::vector<uint8_t>& data, uint32_t timeout_ms = 1000);
+    bool Read(std::vector<uint8_t>& dest, size_t size, uint32_t timeout_ms = 1000);
+
+    i2s_port_t GetPort() const { return port_; }
+    i2s_chan_handle_t GetTxHandle() const { return tx_chan_handle_; }
+    i2s_chan_handle_t GetRxHandle() const { return rx_chan_handle_; }
+    uint32_t GetTxSampleRate() const { return tx_sample_rate_hz_; }
+    uint32_t GetRxSampleRate() const { return rx_sample_rate_hz_; }
 };
 
 }; // namespace wrapper

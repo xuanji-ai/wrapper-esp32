@@ -57,20 +57,20 @@ struct SpiBusConfig : public spi_bus_config_t
 
 class SpiBus
 {
-    Logger& m_logger;
-    spi_host_device_t m_host_id;
-    bool m_initialized;
-    SpiBusConfig m_config;
+    Logger& logger_;
+    spi_host_device_t host_id_;
+    bool initialized_;
+    SpiBusConfig config_;
 
 public:
     SpiBus(Logger& logger);
     ~SpiBus();
     Logger& GetLogger();
     spi_host_device_t GetHostId() const;
-    
-    esp_err_t Init(const SpiBusConfig& config);
-    esp_err_t Deinit();
-    esp_err_t Reset();
+    // ops
+    bool Init(const SpiBusConfig& config);
+    bool Deinit();
+    bool Reset();
 };
 
 struct SpiDeviceConfig : public spi_device_interface_config_t
@@ -97,25 +97,25 @@ struct SpiDeviceConfig : public spi_device_interface_config_t
 class SpiDevice
 {
 protected:
-    Logger& m_logger;
-    spi_device_handle_t m_dev_handle;
+    Logger& logger_;
+    spi_device_handle_t dev_handle_;
 
 public:
     SpiDevice(Logger& logger);
     ~SpiDevice();
     Logger& GetLogger();
-    
-    esp_err_t Init(const SpiBus& bus, const SpiDeviceConfig& config);
-    esp_err_t Deinit();
+    //ops
+    bool Init(const SpiBus& bus, const SpiDeviceConfig& config);
+    bool Deinit();
     
     // Simple transfer (write and read simultaneously)
-    esp_err_t Transfer(const std::vector<uint8_t>& tx_data, std::vector<uint8_t>& rx_data);
+    bool Transfer(const std::vector<uint8_t>& tx_data, std::vector<uint8_t>& rx_data);
     
     // Write only
-    esp_err_t Write(const std::vector<uint8_t>& data);
+    bool Write(const std::vector<uint8_t>& data);
     
     // Read only (sends dummy data)
-    esp_err_t Read(size_t len, std::vector<uint8_t>& rx_data);
+    bool Read(size_t len, std::vector<uint8_t>& rx_data);
 };
 
 } // namespace wrapper

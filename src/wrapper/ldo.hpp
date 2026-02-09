@@ -24,16 +24,16 @@ namespace wrapper
   class LdoRegulator
   {
   private:
-    Logger &m_logger;
-    esp_ldo_channel_handle_t m_channel_handle;
+    Logger &logger_;
+    esp_ldo_channel_handle_t channel_handle_;
 
   public:
-    LdoRegulator(Logger &logger) : m_logger(logger), m_channel_handle(nullptr) {}
+    LdoRegulator(Logger &logger) : logger_(logger), channel_handle_(nullptr) {}
     ~LdoRegulator() { Deinit(); }
-
-    esp_err_t Init(const LdoChannelConfig &config);
-    esp_err_t Deinit();
-    esp_err_t AdjustVoltage(int voltage_mv);
-    esp_ldo_channel_handle_t GetHandle() const { return m_channel_handle; }
+    // operations
+    bool Init(const LdoChannelConfig &config);
+    bool Deinit();
+    bool AdjustVoltage(int voltage_mv);
+    esp_ldo_channel_handle_t GetHandle() const { return channel_handle_; }
   };
 }

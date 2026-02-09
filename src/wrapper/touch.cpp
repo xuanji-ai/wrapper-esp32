@@ -2,7 +2,7 @@
 
 using namespace wrapper;
 
-I2cTouch::I2cTouch(Logger &logger) : m_logger(logger), m_io_handle(NULL), m_touch_handle(NULL)
+I2cTouch::I2cTouch(Logger &logger) : logger_(logger), io_handle_(NULL), touch_handle_(NULL)
 {
 }
 
@@ -11,100 +11,101 @@ I2cTouch::~I2cTouch()
   Deinit();
 }
 
-esp_err_t I2cTouch::Init(
+bool I2cTouch::Init(
     const I2cBus &bus,
     const I2cTouchConfig &config,
     std::function<esp_err_t(const esp_lcd_panel_io_handle_t, const esp_lcd_touch_config_t *, esp_lcd_touch_handle_t *)> new_touch_func)
 {
-  if (m_io_handle != NULL || m_touch_handle != NULL)
+  if (io_handle_ != NULL || touch_handle_ != NULL)
   {
-    m_logger.Warning("Touch already initialized. Deinitializing first.");
+    logger_.Warning("Touch already initialized. Deinitializing first.");
     Deinit();
   }
 
   if (bus.GetHandle() == NULL)
   {
-    m_logger.Error("Bus not initialized");
-    return ESP_ERR_INVALID_STATE;
+    logger_.Error("Bus not initialized");
+    return false;
   }
 
   // 1. Create IO handle
-  esp_err_t ret = esp_lcd_new_panel_io_i2c(bus.GetHandle(), &config.io_config, &m_io_handle);
+  esp_err_t ret = esp_lcd_new_panel_io_i2c(bus.GetHandle(), &config.io_config, &io_handle_);
   if (ret != ESP_OK)
   {
-    m_logger.Error("Failed to create Touch IO handle: %s", esp_err_to_name(ret));
-    return ret;
+    logger_.Error("Failed to create Touch IO handle: %s", esp_err_to_name(ret));
+    return false;
   }
 
   // 2. Create Touch handle
   // Use the provided factory function to create the specific touch controller handle
-  ret = new_touch_func(m_io_handle, &config.touch_config, &m_touch_handle);
+  ret = new_touch_func(io_handle_, &config.touch_config, &touch_handle_);
   if (ret != ESP_OK)
   {
-    m_logger.Error("Failed to create Touch handle: %s", esp_err_to_name(ret));
-    esp_lcd_panel_io_del(m_io_handle);
-    m_io_handle = NULL;
-    return ret;
+    logger_.Error("Failed to create Touch handle: %s", esp_err_to_name(ret));
+    esp_lcd_panel_io_del(io_handle_);
+    io_handle_ = NULL;
+    return false;
   }
 
-  m_logger.Info("Touch initialized (Addr: 0x%02X)", config.io_config.dev_addr);
-  return ESP_OK;
+  logger_.Info("Touch initialized (Addr: 0x%02X)", config.io_config.dev_addr);
+  return true;
 }
 
-esp_err_t I2cTouch::Deinit()
+bool I2cTouch::Deinit()
 {
   esp_err_t ret = ESP_OK;
-  if (m_touch_handle != NULL)
+  if (touch_handle_ != NULL)
   {
-    esp_err_t r = esp_lcd_touch_del(m_touch_handle);
+    esp_err_t r = esp_lcd_touch_del(touch_handle_);
     if (r != ESP_OK)
     {
-      m_logger.Error("Failed to delete touch handle: %s", esp_err_to_name(r));
+      logger_.Error("Failed to delete touch handle: %s", esp_err_to_name(r));
       ret = r;
     }
-    m_touch_handle = NULL;
+    touch_handle_ = NULL;
   }
 
-  if (m_io_handle != NULL)
+  if (io_handle_ != NULL)
   {
-    esp_err_t r = esp_lcd_panel_io_del(m_io_handle);
+    esp_err_t r = esp_lcd_panel_io_del(io_handle_);
     if (r != ESP_OK)
     {
-      m_logger.Error("Failed to delete IO handle: %s", esp_err_to_name(r));
+      logger_.Error("Failed to delete IO handle: %s", esp_err_to_name(r));
       if (ret == ESP_OK)
         ret = r;
     }
-    m_io_handle = NULL;
+    io_handle_ = NULL;
   }
 
   if (ret == ESP_OK)
   {
-    m_logger.Info("Touch deinitialized");
+    logger_.Info("Touch deinitialized");
+    return true;
   }
-  return ret;
+  return false;
 }
 
-esp_err_t I2cTouch::ReadData()
+bool I2cTouch::ReadData()
 {
-  if (m_touch_handle == NULL)
+  if (touch_handle_ == NULL)
   {
-    return ESP_ERR_INVALID_STATE;
+    return false;
   }
-  return esp_lcd_touch_read_data(m_touch_handle);
+  return esp_lcd_touch_read_data(touch_handle_) == ESP_OK;
 }
 
-esp_err_t I2cTouch::GetData(esp_lcd_touch_point_data_t *data, uint8_t *point_cnt, uint8_t max_point_cnt)
+bool I2cTouch::GetData(esp_lcd_touch_point_data_t *data, uint8_t *point_cnt, uint8_t max_point_cnt)
 {
-  if (m_touch_handle == NULL)
+  if (touch_handle_ == NULL)
   {
-    return ESP_ERR_INVALID_STATE;
+    return false;
   }
-  return esp_lcd_touch_get_data(m_touch_handle, data, point_cnt, max_point_cnt);
+  return esp_lcd_touch_get_data(touch_handle_, data, point_cnt, max_point_cnt) == ESP_OK;
 }
 
 bool I2cTouch::GetCoordinates(uint16_t *x, uint16_t *y, uint16_t *strength, uint8_t *point_num, uint8_t max_point_num)
 {
-  if (m_touch_handle == NULL)
+  if (touch_handle_ == NULL)
   {
     return false;
   }
@@ -112,7 +113,7 @@ bool I2cTouch::GetCoordinates(uint16_t *x, uint16_t *y, uint16_t *strength, uint
   // Use new API and convert to old format for backward compatibility
   esp_lcd_touch_point_data_t data[max_point_num];
   uint8_t cnt = 0;
-  esp_err_t ret = esp_lcd_touch_get_data(m_touch_handle, data, &cnt, max_point_num);
+  esp_err_t ret = esp_lcd_touch_get_data(touch_handle_, data, &cnt, max_point_num);
 
   if (ret != ESP_OK)
   {

@@ -5,6 +5,9 @@ menu "Wrapper-ESP32"
         config WRAPPER_ESP32_BOARD_M5STACK_CORE_S3
             bool "M5Stack Core S3"
             depends on IDF_TARGET_ESP32S3
+        config WRAPPER_ESP32_BOARD_M5STACK_CARDPUTER
+            bool "M5Stack Cardputer"
+            depends on IDF_TARGET_ESP32S3
         config WRAPPER_ESP32_BOARD_M5STACK_TAB5
             bool "M5Stack Tab5"
             depends on IDF_TARGET_ESP32P4

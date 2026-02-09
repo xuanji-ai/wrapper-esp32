@@ -1,29 +1,30 @@
-#include <string>
-#include <vector>
+#include "sdkconfig.h"
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
 #include <nvs_flash.h>
 
+#include <string>
+#include <vector>
+
+#include "wrapper/freertos.hpp"
+
 #if CONFIG_WRAPPER_ESP32_BOARD_M5STACK_CORE_S3
+
 #include "board/m5stack/core-s3.hpp"
 using namespace wrapper;
-static void board_init(void *arg)
-{
+Task board_init("board_init", [](void*) {
   M5StackCoreS3& board = M5StackCoreS3::GetInstance();
-
   board.Init();
   board.GetLvglPort().Test();
-  vTaskDelete(nullptr);
-}
-#endif
+}, nullptr, 8192, 5);
 
-#if CONFIG_WRAPPER_ESP32_BOARD_M5STACK_TAB5
+#elif CONFIG_WRAPPER_ESP32_BOARD_M5STACK_TAB5
+
 #include "board/m5stack/tab5.hpp"
 using namespace wrapper;
-static void board_init(void *arg)
-{
+Task board_init("board_init", [](void*) {
   M5StackTab5& board = M5StackTab5::GetInstance();
-
+  
   board.Init();
   board.SetDisplayBacklight(true);
   board.SetDisplayBrightness(80);
@@ -34,8 +35,22 @@ static void board_init(void *arg)
   lv_label_set_text(label, "Hello, M5Stack Tab5!");
   lv_obj_align(label, LV_ALIGN_CENTER, 0, 0);
   board.GetLvglPort().Unlock();
-  vTaskDelete(nullptr);
-}
+}, nullptr, 8192, 5);
+
+#elif CONFIG_WRAPPER_ESP32_BOARD_M5STACK_CARDPUTER
+
+#include "board/m5stack/cardputer.hpp"
+using namespace wrapper;
+
+Task board_init("board_init", [](void*) {
+  M5StackCardputer& board = M5StackCardputer::GetInstance();
+  board.Init();
+}, nullptr, 8192, 5);
+
+#elif
+using namespace wrapper;
+Task board_init("board_init", [](void*) {
+}, nullptr, 8192, 5);
 #endif
 
 extern "C" void app_main()
@@ -49,5 +64,5 @@ extern "C" void app_main()
   }
   ESP_ERROR_CHECK(err);
 
-  xTaskCreate(board_init, "board_init", 8192, nullptr, 5, nullptr);
+  board_init.Create();
 }

@@ -1,8 +1,7 @@
 #pragma once
 
 #include "esp_lvgl_port.h"
-// #include "wrapper/display.hpp"
-#include "wrapper/display-new.hpp"
+#include "wrapper/display.hpp"
 #include "wrapper/touch.hpp"
 #include "wrapper/logger.hpp"
 
@@ -97,26 +96,27 @@ namespace wrapper
 
   class LvglPort
   {
-    Logger &m_logger;
-    lv_display_t *m_lvgl_display;
-    lv_indev_t *m_lvgl_touch;
-    bool m_initialized;
+    Logger &logger_;
+    lv_display_t *lvgl_display_;
+    lv_indev_t *lvgl_touch_;
+    bool initialized_;
 
   public:
     LvglPort(Logger &logger);
     ~LvglPort();
-    esp_err_t Init(const LvglPortConfig &config);
-    esp_err_t Deinit();
-    esp_err_t AddDisplay(const DisplayBase& display, LvglDisplayConfig& config);
-    esp_err_t AddDisplayDsi(const DisplayBase& display, LvglDisplayConfig& config, const LvglDisplayDsiConfig& dsi_config);
-    esp_err_t AddTouch(const I2cTouch &touch, LvglTouchConfig &config);
+
+    bool IsInitialized() const { return initialized_; }
+    lv_display_t *GetDisplay() const { return lvgl_display_; }
+    lv_indev_t *GetTouch() const { return lvgl_touch_; }
+    
+    // operations
+    bool Init(const LvglPortConfig &config);
+    bool Deinit();
+    bool AddDisplay(const DisplayBase& display, LvglDisplayConfig& config);
+    bool AddDisplayDsi(const DisplayBase& display, LvglDisplayConfig& config, const LvglDisplayDsiConfig& dsi_config);
+    bool AddTouch(const I2cTouch &touch, LvglTouchConfig &config);
     bool Lock(uint32_t timeout_ms);
     void Unlock();
-    bool IsInitialized() const { return m_initialized; }
-    lv_display_t *GetDisplay() const { return m_lvgl_display; }
-    lv_indev_t *GetTouch() const { return m_lvgl_touch; }
-
-    //! Options -----------------------------------------------------------------------------------------------------------
     bool SetRotation(lv_display_rotation_t rotation);
     void Test(bool is_monochrome = false);
   };

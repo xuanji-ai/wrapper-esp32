@@ -28,19 +28,17 @@ public:
 
     Pi4ioe5v6408(Logger &logger);
     ~Pi4ioe5v6408();
-
-    esp_err_t Init(const I2cBus &bus, uint8_t dev_addr);
-    esp_err_t Deinit();
-
-    // Pin configuration
-    esp_err_t SetDirection(uint32_t io_num, uint32_t direction);
-    esp_err_t SetLevel(uint32_t io_num, uint32_t level);
-    esp_err_t GetLevel(uint32_t io_num, uint32_t *level);
-    esp_err_t SetPullupMode(uint32_t io_num, uint32_t pull_mode);
-    esp_err_t SetOutputMode(uint32_t io_num, esp_io_expander_output_mode_t mode);
-    esp_err_t PrintState();
-
     esp_io_expander_handle_t GetHandle() const { return m_handle; }
+
+    // Ops
+    bool Init(const I2cBus &bus, uint8_t dev_addr);
+    bool Deinit();
+    bool SetDirection(uint32_t io_num, uint32_t direction);
+    bool SetLevel(uint32_t io_num, uint32_t level);
+    bool GetLevel(uint32_t io_num, uint32_t *level);
+    bool SetPullupMode(uint32_t io_num, uint32_t pull_mode);
+    bool SetOutputMode(uint32_t io_num, esp_io_expander_output_mode_t mode);
+    bool PrintState();
 };
 
 } // namespace wrapper

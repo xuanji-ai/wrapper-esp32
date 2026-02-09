@@ -49,47 +49,49 @@ namespace wrapper
   class LedcTimer
   {
   private:
-    Logger &m_logger;
-    ledc_mode_t m_speed_mode;
-    ledc_timer_t m_timer_num;
-    bool m_initialized;
+    Logger &logger_;
+    ledc_mode_t speed_mode_;
+    ledc_timer_t timer_num_;
+    bool initialized_;
 
   public:
     LedcTimer(Logger &logger);
     ~LedcTimer();
+    ledc_mode_t GetSpeedMode() const { return speed_mode_; }
+    ledc_timer_t GetTimerNum() const { return timer_num_; }
+    bool IsInitialized() const { return initialized_; }
+    // operations
+    bool Init(const LedcTimerConfig &config);
+    bool Deinit();
+    bool Pause();
+    bool Resume();
+    bool SetFreq(uint32_t freq_hz);
 
-    esp_err_t Init(const LedcTimerConfig &config);
-    esp_err_t Deinit();
-    esp_err_t Pause();
-    esp_err_t Resume();
-    esp_err_t SetFreq(uint32_t freq_hz);
 
-    ledc_mode_t GetSpeedMode() const { return m_speed_mode; }
-    ledc_timer_t GetTimerNum() const { return m_timer_num; }
-    bool IsInitialized() const { return m_initialized; }
   };
 
   class LedcChannel
   {
   private:
-    Logger &m_logger;
-    ledc_mode_t m_speed_mode;
-    ledc_channel_t m_channel;
-    bool m_initialized;
+    Logger &logger_;
+    ledc_mode_t speed_mode_;
+    ledc_channel_t channel_;
+    bool initialized_;
 
   public:
     LedcChannel(Logger &logger);
     ~LedcChannel();
+    ledc_mode_t GetSpeedMode() const { return speed_mode_; }
+    ledc_channel_t GetChannel() const { return channel_; }
+    bool IsInitialized() const { return initialized_; }
+    // operations
+    bool Init(const LedcChannelConfig &config);
+    bool Deinit();
+    bool SetDuty(uint32_t duty);
+    bool SetDutyAndUpdate(uint32_t duty);
+    bool UpdateDuty();
+    bool Stop(uint32_t idle_level);
 
-    esp_err_t Init(const LedcChannelConfig &config);
-    esp_err_t Deinit();
-    esp_err_t SetDuty(uint32_t duty);
-    esp_err_t SetDutyAndUpdate(uint32_t duty);
-    esp_err_t UpdateDuty();
-    esp_err_t Stop(uint32_t idle_level);
 
-    ledc_mode_t GetSpeedMode() const { return m_speed_mode; }
-    ledc_channel_t GetChannel() const { return m_channel; }
-    bool IsInitialized() const { return m_initialized; }
   };
 }

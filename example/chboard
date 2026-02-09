@@ -1,37 +1,52 @@
 #!/bin/bash
 
 # 切换 ESP32 板级配置脚本
-# 用法: ./chboard [cs3|t5]
+# 用法: ./chboard
 
-if [ -z "$1" ]; then
-    echo "错误: 请指定板级配置"
-    echo "用法: $0 [cs3|t5]"
-    echo "  cs3 - 切换到 M5Stack Core S3 配置"
-    echo "  t5  - 切换到 M5Stack Tab5 配置"
-    echo ""
-    if [ -f "$SCRIPT_DIR/crboard" ]; then
-        echo "当前开发板: $(cat "$SCRIPT_DIR/crboard")"
-    fi
-    exit 1
-fi
-
-BOARD="$1"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SDKCONFIG="$SCRIPT_DIR/sdkconfig"
 CRBOARD_FILE="$SCRIPT_DIR/crboard"
 
-case "$BOARD" in
-    cs3)
-        SOURCE_CONFIG="$SCRIPT_DIR/sdkconfig-m5cs3"
+# 显示当前状态
+if [ -f "$CRBOARD_FILE" ]; then
+    CURRENT_ID=$(cat "$CRBOARD_FILE")
+    case "$CURRENT_ID" in
+        cs3) CURRENT_NAME="M5Stack Core S3" ;;
+        t5)  CURRENT_NAME="M5Stack Tab5" ;;
+        *)   CURRENT_NAME="未知 ($CURRENT_ID)" ;;
+    esac
+    echo "当前开发板: $CURRENT_NAME"
+else
+    echo "当前开发板: 未设置"
+fi
+echo "----------------------------------------"
+
+# 交互式菜单
+echo "请选择要切换的开发板:"
+echo "  1) M5Stack Core S3 (cs3)"
+echo "  2) M5Stack Tab5 (t5)"
+echo "  q) 退出"
+echo ""
+
+read -p "请输入选项 [1/2/q]: " CHOICE
+
+case "$CHOICE" in
+    1|cs3)
+        BOARD="cs3"
         BOARD_NAME="M5Stack Core S3"
+        SOURCE_CONFIG="$SCRIPT_DIR/sdkconfig-m5cs3"
         ;;
-    t5)
-        SOURCE_CONFIG="$SCRIPT_DIR/sdkconfig-m5t5"
+    2|t5)
+        BOARD="t5"
         BOARD_NAME="M5Stack Tab5"
+        SOURCE_CONFIG="$SCRIPT_DIR/sdkconfig-m5t5"
+        ;;
+    q|Q)
+        echo "操作已取消"
+        exit 0
         ;;
     *)
-        echo "错误: 未知的板级配置 '$BOARD'"
-        echo "支持的选项: cs3, t5"
+        echo "错误: 无效的输入 '$CHOICE'"
         exit 1
         ;;
 esac
