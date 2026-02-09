@@ -46,13 +46,14 @@ namespace wrapper
     return WriteReg8(Reg::OUTPUTS_CTL, states, 1000) == ESP_OK;
   }
 
-  bool UnitExtio2::GetDigitalInput(int pin)
+  bool UnitExtio2::GetDigitalInput(int pin, bool& state)
   {
-    uint8_t state = 0;
-    if (ReadReg8(REG_DIGITAL_INPUT_IO(pin), state, 1000) == ESP_OK)
+    uint8_t state_ = 0;
+    if (ReadReg8(REG_DIGITAL_INPUT_IO(pin), state_, 1000))
     {
-      GetLogger().Debug("GetDigitalInput Pin %d: %d", pin, state ? 1 : 0);
-      return state != 0;
+      GetLogger().Debug("GetDigitalInput Pin %d: %x", pin, state_);
+      state = (state_ != 0);
+      return true;
     }
     return false;
   }  
