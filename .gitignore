@@ -1,6 +1,5 @@
 example/build
 example/managed_components
-example/nix-wrapper-esp32
 
 # Prerequisites
 *.d
