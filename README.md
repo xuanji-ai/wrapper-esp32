@@ -1,6 +1,6 @@
 # wrapper-esp32
 
-这是一个对原有ESP-IDF组件, 以及ESP-Registry组件进行C++风格封装的组件, 也包含个人常用开发板的一些封装
+这是一个对ESP-IDF本地/在线注册组件进行C++风格封装的组件, 也包含个人常用开发板的一些封装
 
 主要封装代码在wrapper中, device和board是在wrapper之上建立的
 
@@ -15,5 +15,5 @@
 # 主要模块
 
 - wrapper: ESP组件封装
-- device: 继承于wrapper中ESP组件类的, 具体的, 板载外设或板外模块的设备封装
+- device: 继承或依赖注入wrapper中ESP组件类, 具体的板载外设的, 具体的板外模块的, 设备封装
 - board:  集合多个wrapper实例和device实例, 输出board单例, 屏蔽开发板细节
