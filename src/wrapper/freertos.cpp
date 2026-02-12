@@ -116,6 +116,10 @@ namespace wrapper
   }
 
   // Semaphore Implementation
+  Semaphore::Semaphore() : handle_(nullptr)
+  {
+  }
+
   Semaphore::~Semaphore()
   {
     if (handle_ != nullptr)
@@ -265,6 +269,26 @@ namespace wrapper
     if (handle_ == nullptr)
       return 0;
     return xEventGroupSync(handle_, bits_to_set, bits_to_wait_for, wait_ticks);
+  }
+
+  EventGroupHandle_t EventGroup::GetHandle() const
+  {
+    return handle_;
+  }
+
+  bool EventGroup::IsValid() const
+  {
+    return handle_ != nullptr;
+  }
+
+  SemaphoreHandle_t Semaphore::GetHandle() const
+  {
+    return handle_;
+  }
+
+  bool Semaphore::IsValid() const
+  {
+    return handle_ != nullptr;
   }
 
 } // namespace wrapper
