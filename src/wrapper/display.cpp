@@ -7,10 +7,10 @@ bool I2cDisplay::InitIo(const I2cBus &bus, const I2cDisplayConfig &config)
     if (io_handle_ != nullptr)
         return true;
 
-    esp_err_t ret = esp_lcd_new_panel_io_i2c(bus.GetHandle(), &config.io_config, &io_handle_);
-    if (ret != ESP_OK)
+    esp_err_t err = esp_lcd_new_panel_io_i2c(bus.GetHandle(), &config.io_config, &io_handle_);
+    if (err != ESP_OK)
     {
-        logger_.Error("Failed to create I2C panel IO: %s", esp_err_to_name(ret));
+        logger_.Error("Failed to create I2C panel IO: %s", esp_err_to_name(err));
         return false;
     }
     return true;
@@ -61,10 +61,10 @@ bool I2cDisplay::Init(
     if (!InitIo(bus, config))
         return false;
 
-    esp_err_t ret = new_panel_func(io_handle_, &config.panel_config, &panel_handle_);
-    if (ret != ESP_OK)
+    esp_err_t err = new_panel_func(io_handle_, &config.panel_config, &panel_handle_);
+    if (err != ESP_OK)
     {
-        logger_.Error("Failed to create new panel: %s", esp_err_to_name(ret));
+        logger_.Error("Failed to create new panel: %s", esp_err_to_name(err));
         return false;
     }
 
@@ -101,10 +101,10 @@ bool SpiDisplay::InitIo(const SpiBus &bus,
     if (io_handle_ != nullptr)
         return true;
 
-    esp_err_t ret = esp_lcd_new_panel_io_spi(bus.GetHostId(), &config.io_config, &io_handle_);
-    if (ret != ESP_OK)
+    esp_err_t err = esp_lcd_new_panel_io_spi(bus.GetHostId(), &config.io_config, &io_handle_);
+    if (err != ESP_OK)
     {
-        logger_.Error("Failed to create SPI panel IO: %s", esp_err_to_name(ret));
+        logger_.Error("Failed to create SPI panel IO: %s", esp_err_to_name(err));
         return false;
     }
     return true;
@@ -112,27 +112,31 @@ bool SpiDisplay::InitIo(const SpiBus &bus,
 
 bool SpiDisplay::InitPanel(const SpiDisplayConfig &config, std::function<esp_err_t(const esp_lcd_panel_io_handle_t)> custom_init_panel_func)
 {
+    esp_err_t err = ESP_OK;
+
     if (custom_init_panel_func != nullptr)
     {
-        esp_err_t ret = custom_init_panel_func(io_handle_);
-        if (ret != ESP_OK)
+        err = custom_init_panel_func(io_handle_);
+        if (err != ESP_OK)
         {
-            logger_.Error("Failed to custom init panel: %s", esp_err_to_name(ret));
+            logger_.Error("Failed to custom init panel: %s", esp_err_to_name(err));
+            return false;
+        }
+    }
+    else
+    {
+        err = esp_lcd_panel_init(panel_handle_);
+        if (err != ESP_OK)
+        {
+            logger_.Error("Failed to init panel: %s", esp_err_to_name(err));
             return false;
         }
     }
 
-    esp_err_t ret = esp_lcd_panel_reset(panel_handle_);
-    if (ret != ESP_OK)
+    err = esp_lcd_panel_reset(panel_handle_);
+    if (err != ESP_OK)
     {
-        logger_.Error("Failed to reset panel: %s", esp_err_to_name(ret));
-        return false;
-    }
-
-    ret = esp_lcd_panel_init(panel_handle_);
-    if (ret != ESP_OK)
-    {
-        logger_.Error("Failed to init panel: %s", esp_err_to_name(ret));
+        logger_.Error("Failed to reset panel: %s", esp_err_to_name(err));
         return false;
     }
 
@@ -148,10 +152,10 @@ bool SpiDisplay::Init(
     if (!InitIo(bus, config))
         return false;
 
-    esp_err_t ret = new_panel_func(io_handle_, &config.panel_config, &panel_handle_);
-    if (ret != ESP_OK)
+    esp_err_t err = new_panel_func(io_handle_, &config.panel_config, &panel_handle_);
+    if (err != ESP_OK)
     {
-        logger_.Error("Failed to create new panel: %s", esp_err_to_name(ret));
+        logger_.Error("Failed to create new panel: %s", esp_err_to_name(err));
         return false;
     }
 
