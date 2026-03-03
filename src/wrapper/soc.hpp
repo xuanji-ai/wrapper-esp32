@@ -2,6 +2,7 @@
 #include <nvs_flash.h>
 #include <esp_event.h>
 #include <esp_wifi.h>
+#include <esp_mac.h>
 #include <string>
 #include <string_view>
 #include "wrapper/logger.hpp"
@@ -64,5 +65,39 @@ public:
     // Diagnostics
     bool Dump(FILE* file);
 };
+
+#include <esp_efuse.h> 
+
+struct SocMac
+{
+    uint8_t byte_[6];
+
+    uint8_t GetByte(size_t index) const
+    {
+        if (index >= 6) {
+            return 0;
+        }
+        return byte_[index];
+    }
+
+    std::string GetString() const
+    {
+        char buffer[18];
+        snprintf(buffer, sizeof(buffer), "%02X:%02X:%02X:%02X:%02X:%02X",
+                 byte_[0], byte_[1], byte_[2], byte_[3], byte_[4], byte_[5]);
+        return std::string(buffer);
+    }
+};
+
+inline bool SocGetBaseMac(SocMac& base_mac)
+{
+    uint8_t mac[6];
+    esp_err_t err = esp_base_mac_addr_get(mac);
+    if (err != ESP_OK) {
+        return false;
+    }
+    std::copy(mac, mac + 6, base_mac.byte_);
+    return true;
+}
 
 } // namespace wrapper
