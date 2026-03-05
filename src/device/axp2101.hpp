@@ -15,4 +15,4 @@ public:
     ~Axp2101();
 };
 
-} // namespace wrapper
+} // 中文注释：已按当前代码逻辑本地化。

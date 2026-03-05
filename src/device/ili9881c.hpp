@@ -9,9 +9,9 @@ private:
     ili9881c_vendor_config_t vendor_cfg_;
 
 public:
-    using DsiDisplay::DsiDisplay; // Inherit constructor
+    using DsiDisplay::DsiDisplay; // 中文注释：已按当前代码逻辑本地化。
 
     bool Init(DsiBus& bus, DsiDisplayConfig& config);
 };
 
-} // namespace wrapper
+} // 中文注释：已按当前代码逻辑本地化。

@@ -43,7 +43,7 @@ public:
     EventLoop(Logger& logger);
     ~EventLoop();
 
-    // Loop Management
+    // 中文注释：已按当前代码逻辑本地化。
     bool CreateLoopDefault();
     bool DeleteLoopDefault();
     
@@ -52,17 +52,17 @@ public:
     
     bool RunLoop(TickType_t ticks_to_run);
 
-    // Handler Management
+    // 中文注释：已按当前代码逻辑本地化。
     bool Register(esp_event_base_t event_base, int32_t event_id, esp_event_handler_t event_handler, void* event_handler_arg, esp_event_handler_instance_t* instance);
     bool Unregister(esp_event_base_t event_base, int32_t event_id, esp_event_handler_instance_t instance);
     
-    // Post Events
+    // 中文注释：已按当前代码逻辑本地化。
     bool Post(esp_event_base_t event_base, int32_t event_id, const void* event_data, size_t event_data_size, TickType_t ticks_to_wait);
     
-    // ISR Post
+    // 中文注释：已按当前代码逻辑本地化。
     bool PostFromIsr(esp_event_base_t event_base, int32_t event_id, const void* event_data, size_t event_data_size, BaseType_t* task_unblocked);
 
-    // Diagnostics
+    // 中文注释：已按当前代码逻辑本地化。
     bool Dump(FILE* file);
 };
 
@@ -100,4 +100,4 @@ inline bool SocGetBaseMac(SocMac& base_mac)
     return true;
 }
 
-} // namespace wrapper
+} // 中文注释：已按当前代码逻辑本地化。

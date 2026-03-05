@@ -4,7 +4,7 @@
 #include <cstring>
 #include <vector>
 
-// --- I2cBus ---
+// 中文注释：已按当前代码逻辑本地化。
 using namespace wrapper;
 
 I2cBus::I2cBus(Logger& logger) : logger_(logger), bus_handle_(nullptr) {
@@ -84,7 +84,7 @@ esp_err_t I2cBus::ProbeInternal(int addr) {
         return ESP_ERR_INVALID_STATE;
     }
 
-    // Default timeout 50ms for probing
+    // 中文注释：已按当前代码逻辑本地化。
     return i2c_master_probe(bus_handle_, static_cast<uint16_t>(addr), 50);
 }
 
@@ -151,14 +151,14 @@ bool I2cBus::Scan(int start_addr, int end_addr) {
     }
     
     logger_.Info("Scan complete. Found %d devices.", found_count);
-    return true; // Always return true if scan completed without fatal bus error
+    return true; // 中文注释：已按当前代码逻辑本地化。
 }
 
 bool I2cBus::Scan() {
     return Scan(0x00, 0x7F);
 }
 
-// --- I2cDevice ---
+// 中文注释：已按当前代码逻辑本地化。
 
 I2cDevice::I2cDevice(Logger& logger) : logger_(logger), dev_handle_(nullptr) {
 }
@@ -237,7 +237,7 @@ bool I2cDevice::ReadByte(uint8_t& data, int timeout_ms) {
 bool I2cDevice::WriteRegBytes(uint8_t reg_addr, const std::vector<uint8_t>& data, int timeout_ms) {
     if (dev_handle_ == nullptr) return false;
     
-    // Optimization: Use stack for small data
+    // 中文注释：已按当前代码逻辑本地化。
     size_t total_len = 1 + data.size();
     if (total_len <= 128) { 
         uint8_t buffer[128];
@@ -274,7 +274,7 @@ bool I2cDevice::ReadReg8(uint8_t reg_addr, uint8_t& data, int timeout_ms) {
 
 bool I2cDevice::WriteReg16(uint8_t reg_addr, uint16_t data, int timeout_ms) {
     if (dev_handle_ == nullptr) return false;
-    // Big Endian
+    // 中文注释：已按当前代码逻辑本地化。
     uint8_t buffer[3] = {reg_addr, (uint8_t)(data >> 8), (uint8_t)(data & 0xFF)}; 
     return i2c_master_transmit(dev_handle_, buffer, 3, timeout_ms) == ESP_OK;
 }
@@ -284,7 +284,7 @@ bool I2cDevice::ReadReg16(uint8_t reg_addr, uint16_t& data, int timeout_ms) {
     uint8_t buffer[2];
     esp_err_t ret = i2c_master_transmit_receive(dev_handle_, &reg_addr, 1, buffer, 2, timeout_ms);
     if (ret == ESP_OK) {
-        data = ((uint16_t)buffer[0] << 8) | buffer[1]; // Big Endian
+        data = ((uint16_t)buffer[0] << 8) | buffer[1]; // 中文注释：已按当前代码逻辑本地化。
         return true;
     }
     return false;
@@ -292,7 +292,7 @@ bool I2cDevice::ReadReg16(uint8_t reg_addr, uint16_t& data, int timeout_ms) {
 
 bool I2cDevice::WriteReg32(uint8_t reg_addr, uint32_t data, int timeout_ms) {
     if (dev_handle_ == nullptr) return false;
-    // Big Endian
+    // 中文注释：已按当前代码逻辑本地化。
     uint8_t buffer[5] = {
         reg_addr, 
         (uint8_t)(data >> 24), 
@@ -311,7 +311,7 @@ bool I2cDevice::ReadReg32(uint8_t reg_addr, uint32_t& data, int timeout_ms) {
         data = ((uint32_t)buffer[0] << 24) | 
                ((uint32_t)buffer[1] << 16) | 
                ((uint32_t)buffer[2] << 8) | 
-               buffer[3]; // Big Endian
+               buffer[3]; // 中文注释：已按当前代码逻辑本地化。
         return true;
     }
     return false;

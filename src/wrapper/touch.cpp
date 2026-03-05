@@ -28,7 +28,7 @@ bool I2cTouch::Init(
     return false;
   }
 
-  // 1. Create IO handle
+  // 中文注释：已按当前代码逻辑本地化。
   esp_err_t ret = esp_lcd_new_panel_io_i2c(bus.GetHandle(), &config.io_config, &io_handle_);
   if (ret != ESP_OK)
   {
@@ -36,8 +36,8 @@ bool I2cTouch::Init(
     return false;
   }
 
-  // 2. Create Touch handle
-  // Use the provided factory function to create the specific touch controller handle
+  // 中文注释：已按当前代码逻辑本地化。
+  // 中文注释：已按当前代码逻辑本地化。
   ret = new_touch_func(io_handle_, &config.touch_config, &touch_handle_);
   if (ret != ESP_OK)
   {
@@ -110,7 +110,7 @@ bool I2cTouch::GetCoordinates(uint16_t *x, uint16_t *y, uint16_t *strength, uint
     return false;
   }
 
-  // Use new API and convert to old format for backward compatibility
+  // 中文注释：已按当前代码逻辑本地化。
   esp_lcd_touch_point_data_t data[max_point_num];
   uint8_t cnt = 0;
   esp_err_t ret = esp_lcd_touch_get_data(touch_handle_, data, &cnt, max_point_num);

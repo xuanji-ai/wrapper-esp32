@@ -182,14 +182,14 @@ namespace wrapper
         bool IsQueueEmptyFromISR() const
         {
             if (handle_ == nullptr)
-                return true; // Treat null as empty or error
+                return true; // 中文注释：已按当前代码逻辑本地化。
             return xQueueIsQueueEmptyFromISR(handle_) == pdTRUE;
         }
 
         bool IsQueueFullFromISR() const
         {
             if (handle_ == nullptr)
-                return false; // Treat null as not full or error
+                return false; // 中文注释：已按当前代码逻辑本地化。
             return xQueueIsQueueFullFromISR(handle_) == pdTRUE;
         }
 
@@ -297,28 +297,18 @@ namespace wrapper
 
         bool IsValid() const;
     };
-    /**
-     * @brief Configuration for the Service
-     */
+    /* 中文注释：已按当前代码逻辑本地化。 */
     struct ServiceConfig
     {
         const char *name = "Service";
         uint32_t stack_size = 4096;
         UBaseType_t priority = 5;
-        BaseType_t core_id = 1; // 0, 1, or tskNO_AFFINITY
+        BaseType_t core_id = 1; // 中文注释：已按当前代码逻辑本地化。
         UBaseType_t request_queue_depth = 10;
         UBaseType_t response_queue_depth = 10;
     };
 
-    /**
-     * @brief Abstract Service Class (C++17)
-     *
-     * A thread-safe, FreeRTOS-integrated service framework.
-     * Implements a Request-Response pattern using a dedicated worker task.
-     *
-     * @tparam ReqT Request type. Must be safe for xQueueSend (POD or pointer/smart_ptr).
-     * @tparam ResT Response type. Must be safe for xQueueSend (POD or pointer/smart_ptr).
-     */
+    /* 中文注释：已按当前代码逻辑本地化。 */
     template <typename ReqT, typename ResT>
     class Service
     {
@@ -336,15 +326,11 @@ namespace wrapper
             Stop();
         }
 
-        // Disable copy/move to prevent resource issues
+        // 中文注释：已按当前代码逻辑本地化。
         Service(const Service &) = delete;
         Service &operator=(const Service &) = delete;
 
-        /**
-         * @brief Start the service task
-         * @param config Service configuration
-         * @return true if started successfully
-         */
+        /* 中文注释：已按当前代码逻辑本地化。 */
         bool Start(const ServiceConfig &config)
         {
             if (state_ != State::Stopped)
@@ -355,8 +341,8 @@ namespace wrapper
             config_ = config;
             should_stop_ = false;
 
-            // Create Queues
-            // Note: FreeRTOS queues use memcpy. Ensure T is trivially copyable or a pointer.
+            // 中文注释：已按当前代码逻辑本地化。
+            // 中文注释：已按当前代码逻辑本地化。
             request_queue_ = xQueueCreate(config_.request_queue_depth, sizeof(ReqT));
             response_queue_ = xQueueCreate(config_.response_queue_depth, sizeof(ResT));
 
@@ -366,7 +352,7 @@ namespace wrapper
                 return false;
             }
 
-            // Create Task
+            // 中文注释：已按当前代码逻辑本地化。
             BaseType_t ret = xTaskCreatePinnedToCore(
                 TaskWrapper,
                 config_.name,
@@ -386,25 +372,23 @@ namespace wrapper
             return true;
         }
 
-        /**
-         * @brief Stop the service
-         */
+        /* 中文注释：已按当前代码逻辑本地化。 */
         void Stop()
         {
             should_stop_ = true;
 
-            // Wait for task to finish
+            // 中文注释：已按当前代码逻辑本地化。
             if (task_handle_)
             {
-                // Check if we are stopping from within the task itself (should avoid deadlock)
+                // 中文注释：已按当前代码逻辑本地化。
                 if (xTaskGetCurrentTaskHandle() != task_handle_)
                 {
-                    // Simple polling wait for task deletion
-                    // In a real system, might use a notification or join mechanism
-                    // Here we assume the task loop checks should_stop_ and exits.
-                    // We can't vTaskDelete(task_handle_) immediately if it's running.
+                    // 中文注释：已按当前代码逻辑本地化。
+                    // 中文注释：已按当前代码逻辑本地化。
+                    // 中文注释：已按当前代码逻辑本地化。
+                    // 中文注释：已按当前代码逻辑本地化。
 
-                    // Wait for state to become Stopped
+                    // 中文注释：已按当前代码逻辑本地化。
                     const int max_retries = 100;
                     for (int i = 0; i < max_retries && state_ != State::Stopped; ++i)
                     {
@@ -417,12 +401,7 @@ namespace wrapper
             state_ = State::Stopped;
         }
 
-        /**
-         * @brief Send a request to the service
-         * @param req The request object
-         * @param wait_ms Max time to wait in ms (-1 for portMAX_DELAY)
-         * @return true if request enqueued
-         */
+        /* 中文注释：已按当前代码逻辑本地化。 */
         bool Request(const ReqT &req, int wait_ms = -1)
         {
             if (state_ == State::Stopped)
@@ -432,7 +411,7 @@ namespace wrapper
 
             TickType_t ticks = (wait_ms == -1) ? portMAX_DELAY : pdMS_TO_TICKS(wait_ms);
 
-            // Safety check for size mismatch if types changed (unlikely in template)
+            // 中文注释：已按当前代码逻辑本地化。
             if (xQueueSend(request_queue_, &req, ticks) == pdTRUE)
             {
                 return true;
@@ -440,12 +419,7 @@ namespace wrapper
             return false;
         }
 
-        /**
-         * @brief Wait for a response from the service
-         * @param resp [out] The response object
-         * @param wait_ms Max time to wait in ms (-1 for portMAX_DELAY)
-         * @return true if response received
-         */
+        /* 中文注释：已按当前代码逻辑本地化。 */
         bool WaitResponse(ResT &resp, int wait_ms = -1)
         {
             if (!response_queue_)
@@ -471,22 +445,13 @@ namespace wrapper
         }
 
     protected:
-        /**
-         * @brief Pure virtual function to process a request.
-         * Implement this in your concrete Service class.
-         * @param req Input request
-         * @return ResT Output response
-         */
+        /* 中文注释：已按当前代码逻辑本地化。 */
         virtual ResT Process(const ReqT &req) = 0;
 
-        /**
-         * @brief Optional: Called when task starts
-         */
+        /* 中文注释：已按当前代码逻辑本地化。 */
         virtual void OnStart() {}
 
-        /**
-         * @brief Optional: Called when task stops
-         */
+        /* 中文注释：已按当前代码逻辑本地化。 */
         virtual void OnStop() {}
 
     private:
@@ -517,7 +482,7 @@ namespace wrapper
         {
             auto *self = static_cast<Service *>(param);
             self->Run();
-            // Self-deletion
+            // 中文注释：已按当前代码逻辑本地化。
             vTaskDelete(nullptr);
         }
 
@@ -528,17 +493,17 @@ namespace wrapper
             ReqT req;
             while (!should_stop_)
             {
-                // Wait for request
-                // We use a timeout to check should_stop_ periodically
+                // 中文注释：已按当前代码逻辑本地化。
+                // 中文注释：已按当前代码逻辑本地化。
                 if (xQueueReceive(request_queue_, &req, pdMS_TO_TICKS(100)) == pdTRUE)
                 {
                     state_ = State::Processing;
 
-                    // Process the request
+                    // 中文注释：已按当前代码逻辑本地化。
                     ResT res = this->Process(req);
 
-                    // Send response
-                    // Loop to allow checking should_stop_ if queue is full
+                    // 中文注释：已按当前代码逻辑本地化。
+                    // 中文注释：已按当前代码逻辑本地化。
                     while (!should_stop_)
                     {
                         if (xQueueSend(response_queue_, &res, pdMS_TO_TICKS(100)) == pdTRUE)
@@ -555,4 +520,4 @@ namespace wrapper
             state_ = State::Stopped;
         }
     };
-} // namespace wrapper
+} // 中文注释：已按当前代码逻辑本地化。

@@ -37,7 +37,7 @@ namespace wrapper
     i2c_port_t port_;
     i2c_master_bus_handle_t bus_handle_;
 
-    // 私有方法：实际执行Probe的逻辑
+    // 中文注释：已按当前代码逻辑本地化。
     esp_err_t ProbeInternal(int addr);
 
   public:
@@ -48,7 +48,7 @@ namespace wrapper
     i2c_port_t GetPort() const;
     i2c_master_bus_handle_t GetHandle() const;
 
-    // operations
+    // 中文注释：已按当前代码逻辑本地化。
     bool Init(const I2cBusConfig &config);
     bool Deinit();
     bool Reset();

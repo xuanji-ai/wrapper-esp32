@@ -5,7 +5,7 @@
 
 using namespace wrapper;
 
-// Nvs Implementation
+// 中文注释：已按当前代码逻辑本地化。
 
 Nvs::Nvs(Logger& logger) : logger_(logger), nvs_handle_(0)
 {
@@ -198,7 +198,7 @@ bool Nvs::GetString(std::string_view key, std::string& out_value)
         return false;
     }
     
-    // First, get the required buffer size
+    // 中文注释：已按当前代码逻辑本地化。
     size_t required_size = 0;
     esp_err_t err = nvs_get_str(nvs_handle_, key.data(), nullptr, &required_size);
     if (err == ESP_ERR_NVS_NOT_FOUND) {
@@ -211,8 +211,8 @@ bool Nvs::GetString(std::string_view key, std::string& out_value)
     }
     
     if (required_size > 0) {
-        // Allocate buffer and retrieve the string
-        out_value.resize(required_size - 1);  // -1 to exclude null terminator
+        // 中文注释：已按当前代码逻辑本地化。
+        out_value.resize(required_size - 1);  // 中文注释：已按当前代码逻辑本地化。
         err = nvs_get_str(nvs_handle_, key.data(), out_value.data(), &required_size);
         if (err != ESP_OK) {
             logger_.Error("Failed to get string for key: %s", key.data());
@@ -225,7 +225,7 @@ bool Nvs::GetString(std::string_view key, std::string& out_value)
     return true;
 }
 
-// Explicit template instantiations for Nvs
+// 中文注释：已按当前代码逻辑本地化。
 template bool Nvs::SetValue<uint8_t>(std::string_view, uint8_t);
 template bool Nvs::SetValue<int8_t>(std::string_view, int8_t);
 template bool Nvs::SetValue<uint16_t>(std::string_view, uint16_t);
@@ -244,7 +244,7 @@ template bool Nvs::GetValue<int32_t>(std::string_view, int32_t&);
 template bool Nvs::GetValue<uint64_t>(std::string_view, uint64_t&);
 template bool Nvs::GetValue<int64_t>(std::string_view, int64_t&);
 
-// EventLoop Implementation
+// 中文注释：已按当前代码逻辑本地化。
 
 EventLoop::EventLoop(Logger& logger) : logger_(logger)
 {

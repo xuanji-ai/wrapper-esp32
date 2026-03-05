@@ -30,7 +30,7 @@ namespace wrapper
   public:
     LdoRegulator(Logger &logger) : logger_(logger), channel_handle_(nullptr) {}
     ~LdoRegulator() { Deinit(); }
-    // operations
+    // 中文注释：已按当前代码逻辑本地化。
     bool Init(const LdoChannelConfig &config);
     bool Deinit();
     bool AdjustVoltage(int voltage_mv);

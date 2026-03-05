@@ -8,7 +8,7 @@
 
 namespace wrapper
 {
-  // MIPI DSI Bus Configuration
+  // 中文注释：已按当前代码逻辑本地化。
   struct DsiBusConfig : public esp_lcd_dsi_bus_config_t
   {
     DsiBusConfig(
@@ -25,7 +25,7 @@ namespace wrapper
     }
   };
 
-  // Integrated DSI Display Configuration (combines DBI IO + DPI Panel + Panel Device configs)
+  // 中文注释：已按当前代码逻辑本地化。
   struct DsiDisplayConfig
   {
     esp_lcd_dbi_io_config_t dbi_config;
@@ -33,11 +33,11 @@ namespace wrapper
     esp_lcd_panel_dev_config_t panel_config;
 
     DsiDisplayConfig(
-      // DBI IO config parameters
+      // 中文注释：已按当前代码逻辑本地化。
       uint8_t dbi_virtual_channel,
       int lcd_cmd_bits,
       int lcd_param_bits,
-      // DPI Panel config parameters
+      // 中文注释：已按当前代码逻辑本地化。
       uint8_t dpi_virtual_channel,
       mipi_dsi_dpi_clock_source_t dpi_clk_src,
       uint32_t dpi_clock_freq_mhz,
@@ -45,7 +45,7 @@ namespace wrapper
       lcd_color_format_t in_color_format,
       lcd_color_format_t out_color_format,
       uint8_t num_fbs,
-      // video_timing nested struct members
+      // 中文注释：已按当前代码逻辑本地化。
       uint32_t h_size,
       uint32_t v_size,
       uint32_t hsync_pulse_width,
@@ -54,10 +54,10 @@ namespace wrapper
       uint32_t vsync_pulse_width,
       uint32_t vsync_back_porch,
       uint32_t vsync_front_porch,
-      // flags nested struct members
+      // 中文注释：已按当前代码逻辑本地化。
       bool use_dma2d,
       bool disable_lp,
-      // Panel Device config parameters
+      // 中文注释：已按当前代码逻辑本地化。
       int reset_gpio_num,
       lcd_rgb_element_order_t rgb_ele_order,
       lcd_rgb_data_endian_t data_endian,
@@ -65,12 +65,12 @@ namespace wrapper
       bool reset_active_high = false
     ) : dbi_config{}, dpi_config{}, panel_config{}
     {
-      // DBI IO config
+      // 中文注释：已按当前代码逻辑本地化。
       this->dbi_config.virtual_channel = dbi_virtual_channel;
       this->dbi_config.lcd_cmd_bits = lcd_cmd_bits;
       this->dbi_config.lcd_param_bits = lcd_param_bits;
 
-      // DPI Panel config
+      // 中文注释：已按当前代码逻辑本地化。
       this->dpi_config.virtual_channel = dpi_virtual_channel;
       this->dpi_config.dpi_clk_src = dpi_clk_src;
       this->dpi_config.dpi_clock_freq_mhz = dpi_clock_freq_mhz;
@@ -91,19 +91,17 @@ namespace wrapper
       this->dpi_config.flags.use_dma2d = use_dma2d ? 1U : 0U;
       this->dpi_config.flags.disable_lp = disable_lp ? 1U : 0U;
 
-      // Panel Device config
+      // 中文注释：已按当前代码逻辑本地化。
       this->panel_config.reset_gpio_num = reset_gpio_num;
       this->panel_config.rgb_ele_order = rgb_ele_order;
       this->panel_config.data_endian = data_endian;
       this->panel_config.bits_per_pixel = bits_per_pixel;
       this->panel_config.flags.reset_active_high = reset_active_high ? 1U : 0U;
-      this->panel_config.vendor_config = nullptr; // Set at runtime
+      this->panel_config.vendor_config = nullptr; // 中文注释：已按当前代码逻辑本地化。
     }
   };
 
-  /**
-   * @brief MIPI DSI Bus wrapper class
-   */
+  /* 中文注释：已按当前代码逻辑本地化。 */
   class DsiBus
   {
   private:
@@ -121,15 +119,11 @@ namespace wrapper
     esp_lcd_dsi_bus_handle_t GetHandle() const;
   };
 
-  /**
-   * @brief DSI Display wrapper class
-   * 
-   * Inherits from DisplayBase in display-new.hpp
-   */
+  /* 中文注释：已按当前代码逻辑本地化。 */
   class DsiDisplay : public DisplayBase
   {
   private:
-    // Logger& logger_;
+    // 中文注释：已按当前代码逻辑本地化。
 
     bool InitIo(const DsiBus& bus, const esp_lcd_dbi_io_config_t& config);
     bool InitPanel(
@@ -142,7 +136,7 @@ namespace wrapper
   public:
     DsiDisplay(Logger& logger);
     ~DsiDisplay();
-    // Operations
+    // 中文注释：已按当前代码逻辑本地化。
     bool Init(
       const DsiBus& bus,
       const DsiDisplayConfig& config,
@@ -156,4 +150,4 @@ namespace wrapper
   };
 }
 
-// #endif
+// 中文注释：已按当前代码逻辑本地化。

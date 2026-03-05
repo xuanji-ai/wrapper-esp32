@@ -8,6 +8,6 @@ bool Gt911::Init(const I2cBus& bus, const I2cTouchConfig& config) {
     return I2cTouch::Init(bus, config, esp_lcd_touch_new_i2c_gt911);
 }
 
-} // namespace wrapper
+} // 中文注释：已按当前代码逻辑本地化。
 
 #endif

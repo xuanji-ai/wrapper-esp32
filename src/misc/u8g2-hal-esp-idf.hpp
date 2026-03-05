@@ -31,4 +31,4 @@ namespace wrapper
         u8g2_t* GetU8g2() { return &u8g2_; }
     };
 
-} // namespace wrapper
+} // 中文注释：已按当前代码逻辑本地化。

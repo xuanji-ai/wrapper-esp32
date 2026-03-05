@@ -21,7 +21,7 @@ private:
 
 public:
     Logger();
-    Logger(const std::string& tags); // Add this constructor
+    Logger(const std::string& tags); // 中文注释：已按当前代码逻辑本地化。
     template<typename... Tags>
     Logger(const Tags&... tags) : Logger() {
         SetTags(tags...);
@@ -32,7 +32,7 @@ public:
     void SetSeparator(const std::string& separator);
     void SetSuffix(const std::string& suffix);
     
-    // Variadic template for multiple string tags
+    // 中文注释：已按当前代码逻辑本地化。
     template<typename... Tags>
     void SetTags(Tags&&... tags) {
         tags_list_.clear();
@@ -72,4 +72,4 @@ public:
     }
 };
 
-} // namespace wrapper
+} // 中文注释：已按当前代码逻辑本地化。

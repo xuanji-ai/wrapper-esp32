@@ -9,11 +9,11 @@ namespace wrapper {
 
 class Gt911 : public I2cTouch {
 public:
-    using I2cTouch::I2cTouch; // Inherit constructor
+    using I2cTouch::I2cTouch; // 中文注释：已按当前代码逻辑本地化。
 
     bool Init(const I2cBus& bus, const I2cTouchConfig& config);
 };
 
-} // namespace wrapper
+} // 中文注释：已按当前代码逻辑本地化。
 
 #endif

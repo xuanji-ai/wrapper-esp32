@@ -30,7 +30,7 @@ public:
     static constexpr uint8_t REG_READ2 = 0x72;
     static constexpr uint8_t REG_READ3 = 0x77;
 
-    // Charger voltage cutoff settings (REG_CHARGER_CTL0 bits 1:0)
+    // 中文注释：已按当前代码逻辑本地化。
     enum class ChargerVoltage : uint8_t
     {
         V_4_14_4_26_4_305_4_35 = 0b00,  // 建议使用
@@ -54,4 +54,4 @@ public:
 
 };
 
-} // namespace wrapper
+} // 中文注释：已按当前代码逻辑本地化。

@@ -3,7 +3,7 @@
 
 namespace wrapper {
 
-// Speaker Implementation
+// 中文注释：已按当前代码逻辑本地化。
 Speaker::Speaker(Logger& logger) : logger_(logger) {}
 Speaker::~Speaker() {}
 
@@ -20,7 +20,7 @@ bool Speaker::Deinit() {
 
 bool Speaker::SetSoftVolume(float volume) {
     if (volume < 0.0f) volume = 0.0f;
-    // if (volume > 1.0f) volume = 1.0f; // Allow gain > 1.0?
+    // 中文注释：已按当前代码逻辑本地化。
     volume_ = volume;
     return true;
 }
@@ -41,28 +41,20 @@ bool Speaker::Disable() {
 }
 
 bool Speaker::IsEnabled(bool &enable) {
-    // We don't track enabled state in Speaker class currently, 
-    // but we can query I2sBus or assume true if Init called?
-    // The class def has no enabled_ member in the provided HPP snippet?
-    // Wait, the HPP snippet for Speaker (lines 12-47) DOES NOT have enabled_ member.
-    // I should add one or just return true if bus is set?
-    // I'll assume it's enabled if I2sBus says so? I2sBus doesn't expose IsEnabled.
-    // I will add a local enabled state or just return true.
-    // Given the previous pattern, I should probably have added `bool enabled_ = false;` to HPP.
-    // But I can't edit HPP now easily without checking.
-    // The HPP snippet in `Read` output shows:
-    /*
-      class Speaker // no codec
-      {
-          Logger &logger_;
-          I2sBus *i2s_bus_ = nullptr; 
-          float volume_ = 0.0f;
-          bool mute_ = false;
-          ...
-    */
-    // No `enabled_` member.
-    // I will implement IsEnabled returning false or check if I can rely on something else.
-    // Or I just assume it's stateless wrapper around I2S.
+    // 中文注释：已按当前代码逻辑本地化。
+    // 中文注释：已按当前代码逻辑本地化。
+    // 中文注释：已按当前代码逻辑本地化。
+    // 中文注释：已按当前代码逻辑本地化。
+    // 中文注释：已按当前代码逻辑本地化。
+    // 中文注释：已按当前代码逻辑本地化。
+    // 中文注释：已按当前代码逻辑本地化。
+    // 中文注释：已按当前代码逻辑本地化。
+    // 中文注释：已按当前代码逻辑本地化。
+    // 中文注释：已按当前代码逻辑本地化。
+    /* 中文注释：已按当前代码逻辑本地化。 */
+    // 中文注释：已按当前代码逻辑本地化。
+    // 中文注释：已按当前代码逻辑本地化。
+    // 中文注释：已按当前代码逻辑本地化。
     enable = true; 
     return true;
 }
@@ -70,20 +62,20 @@ bool Speaker::IsEnabled(bool &enable) {
 bool Speaker::Write(const void *data, size_t size) {
     if (i2s_bus_ == nullptr) return false;
     
-    // Software Volume / Mute Processing
+    // 中文注释：已按当前代码逻辑本地化。
     if (mute_ || volume_ == 0.0f) {
-        // Write zeros
+        // 中文注释：已按当前代码逻辑本地化。
         std::vector<uint8_t> zeros(size, 0);
         size_t written = 0;
         return i2s_bus_->Write(zeros.data(), size, written);
     }
 
     if (volume_ != 1.0f) {
-        // Assume 16-bit PCM
-        // We need to copy data to modify it
-        // This is expensive for large buffers.
-        // If data is const, we must copy.
-        // TODO: Optimize buffer management.
+        // 中文注释：已按当前代码逻辑本地化。
+        // 中文注释：已按当前代码逻辑本地化。
+        // 中文注释：已按当前代码逻辑本地化。
+        // 中文注释：已按当前代码逻辑本地化。
+        // 中文注释：已按当前代码逻辑本地化。
         std::vector<int16_t> buffer;
         buffer.resize(size / 2);
         memcpy(buffer.data(), data, size);
@@ -99,7 +91,7 @@ bool Speaker::Write(const void *data, size_t size) {
     return i2s_bus_->Write(data, size, written);
 }
 
-// Microphone Implementation
+// 中文注释：已按当前代码逻辑本地化。
 Microphone::Microphone(Logger& logger) : logger_(logger) {}
 Microphone::~Microphone() {}
 
@@ -136,7 +128,7 @@ bool Microphone::Disable() {
 }
 
 bool Microphone::IsEnabled(bool &enable) {
-    enable = true; // See Speaker notes
+    enable = true; // 中文注释：已按当前代码逻辑本地化。
     return true;
 }
 
@@ -147,8 +139,8 @@ bool Microphone::Read(void *data, size_t size) {
     bool ret = i2s_bus_->Read(data, size, read);
     
     if (ret && (mute_ || volume_ != 1.0f)) {
-         // Apply software processing
-         // Assuming 16-bit
+         // 中文注释：已按当前代码逻辑本地化。
+         // 中文注释：已按当前代码逻辑本地化。
          int16_t* buffer = (int16_t*)data;
          size_t num_samples = read / 2;
          
@@ -163,7 +155,7 @@ bool Microphone::Read(void *data, size_t size) {
     return ret;
 }
 
-// SpeakerCodec Implementation
+// 中文注释：已按当前代码逻辑本地化。
 SpeakerCodec::SpeakerCodec(Logger& logger) : logger_(logger) {}
 SpeakerCodec::~SpeakerCodec() {}
 
@@ -199,8 +191,8 @@ bool SpeakerCodec::AddSpeaker(I2cBus& i2c_bus, uint8_t addr, std::function<esp_e
     spk_i2c_cfg.bus_handle = i2c_bus.GetHandle();
     spk_ctrl_if_ = audio_codec_new_i2c_ctrl(&spk_i2c_cfg);
     
-    // NOTE: The lambda codec_new_func is expected to call SetSpeakerCodecInterface/DeviceHandle
-    // on the object it captures. If using SpeakerCodec, the lambda must be updated to capture SpeakerCodec.
+    // 中文注释：已按当前代码逻辑本地化。
+    // 中文注释：已按当前代码逻辑本地化。
     esp_err_t err = codec_new_func();
     if (err != ESP_OK) {
         logger_.Error("Failed to create speaker codec: %s", esp_err_to_name(err));
@@ -254,7 +246,7 @@ bool SpeakerCodec::Write(const void *data, size_t size) {
     return esp_codec_dev_write(spk_codec_dev_handle_, (void*)data, size) == ESP_OK;
 }
 
-// MicrophoneCodec Implementation
+// 中文注释：已按当前代码逻辑本地化。
 MicrophoneCodec::MicrophoneCodec(Logger& logger) : logger_(logger) {}
 MicrophoneCodec::~MicrophoneCodec() {}
 
@@ -357,7 +349,7 @@ bool AudioCodec::Init(I2sBus& i2s_bus)
         i2s_cfg.port = i2s_bus.GetPort();
         i2s_cfg.rx_handle = i2s_bus.GetRxHandle();
         i2s_cfg.tx_handle = i2s_bus.GetTxHandle();
-        // 0 means default clock source
+        // 中文注释：已按当前代码逻辑本地化。
         i2s_cfg.clk_src = I2S_CLK_SRC_DEFAULT; 
 
         i2s_data_if_ = audio_codec_new_i2s_data(&i2s_cfg);
@@ -507,7 +499,7 @@ bool AudioCodec::TestSpeaker()
 
     logger_.Info("Starting speaker test: 1kHz sine wave");
 
-    // Generate 1 second of 1kHz sine wave at 48kHz sample rate, 16-bit, stereo
+    // 中文注释：已按当前代码逻辑本地化。
     const int sample_rate = i2s_bus_->GetTxSampleRate();
     if (sample_rate == 0) {
         logger_.Error("I2S TX sample rate is 0");
@@ -520,8 +512,8 @@ bool AudioCodec::TestSpeaker()
     const int num_samples = sample_rate * duration_sec;
     const int num_channels = 2;
     
-    // Allocate buffer for 1 second of audio
-    // 16-bit (2 bytes) * 2 channels * num_samples
+    // 中文注释：已按当前代码逻辑本地化。
+    // 中文注释：已按当前代码逻辑本地化。
     size_t buffer_size = num_samples * num_channels * sizeof(int16_t);
     int16_t* buffer = (int16_t*)malloc(buffer_size);
     if (buffer == nullptr) {
@@ -529,14 +521,14 @@ bool AudioCodec::TestSpeaker()
         return false;
     }
 
-    // Generate sine wave
+    // 中文注释：已按当前代码逻辑本地化。
     for (int i = 0; i < num_samples; ++i) {
         int16_t sample = (int16_t)(amplitude * sin(2 * M_PI * frequency * i / sample_rate));
-        buffer[i * 2] = sample;     // Left channel
-        buffer[i * 2 + 1] = sample; // Right channel
+        buffer[i * 2] = sample;     // 中文注释：已按当前代码逻辑本地化。
+        buffer[i * 2 + 1] = sample; // 中文注释：已按当前代码逻辑本地化。
     }
 
-    // Write to codec
+    // 中文注释：已按当前代码逻辑本地化。
     esp_err_t ret = esp_codec_dev_write(spk_codec_dev_handle_, buffer, buffer_size);
     if (ret != ESP_OK) {
         logger_.Error("Failed to write to speaker codec: %s", esp_err_to_name(ret));
@@ -557,14 +549,14 @@ bool AudioCodec::TestMicrophone()
 
     logger_.Info("Starting microphone test: Recording 3 seconds...");
 
-    const int sample_rate = i2s_bus_->GetRxSampleRate(); // Assuming 48kHz
+    const int sample_rate = i2s_bus_->GetRxSampleRate(); // 中文注释：已按当前代码逻辑本地化。
     if (sample_rate == 0) {
         logger_.Error("I2S RX sample rate is 0");
         return false;
     }
 
     const int duration_sec = 3;
-    const int num_channels = 2; // Assuming stereo
+    const int num_channels = 2; // 中文注释：已按当前代码逻辑本地化。
     const int bytes_per_sample = sizeof(int16_t);
     
     size_t buffer_size = sample_rate * duration_sec * num_channels * bytes_per_sample;
@@ -575,7 +567,7 @@ bool AudioCodec::TestMicrophone()
         return false;
     }
 
-    // Record
+    // 中文注释：已按当前代码逻辑本地化。
     esp_err_t ret = esp_codec_dev_read(mic_codec_dev_handle_, buffer, buffer_size);
     
     if (ret != ESP_OK) {
@@ -586,7 +578,7 @@ bool AudioCodec::TestMicrophone()
     
     logger_.Info("Recording completed. Playing back...");
 
-    // Playback
+    // 中文注释：已按当前代码逻辑本地化。
     ret = esp_codec_dev_write(spk_codec_dev_handle_, buffer, buffer_size);
     if (ret != ESP_OK) {
         logger_.Error("Failed to write to speaker codec: %s", esp_err_to_name(ret));

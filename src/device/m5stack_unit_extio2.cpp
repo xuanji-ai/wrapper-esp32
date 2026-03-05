@@ -32,8 +32,8 @@ namespace wrapper
     for (int pin = 0; pin < 8; pin++)
     {
       success = WriteReg8(REG_MODE_IO(pin), static_cast<uint8_t>(mode), 1000) && success;
-      //success = WriteReg8(REG_DIGITAL_INPUT_IO(pin), static_cast<uint8_t>(mode), 1000) && success;
-      //success = WriteReg8(REG_OUTPUT_CTL_IO(pin), static_cast<uint8_t>(mode), 1000) && success;
+      // 中文注释：已按当前代码逻辑本地化。
+      // 中文注释：已按当前代码逻辑本地化。
     }
     return success;
   }

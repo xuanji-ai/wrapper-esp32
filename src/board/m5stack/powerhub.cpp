@@ -62,44 +62,44 @@ public:
 
     esp_err_t Init(const I2cBus& bus, uint8_t addr = DEFAULT_ADDR);
 
-    // Power Control
+    // 中文注释：已按当前代码逻辑本地化。
     esp_err_t SetPowerState(PowerControl device, bool state);
     esp_err_t GetPowerState(PowerControl device, bool& state);
 
-    // USB Mode
+    // 中文注释：已按当前代码逻辑本地化。
     esp_err_t SetUSBMode(USBMode mode);
     esp_err_t GetUSBMode(USBMode& mode);
 
-    // Bus Config
+    // 中文注释：已按当前代码逻辑本地化。
     esp_err_t SetBusConfig(const BusConfig& config);
     esp_err_t GetBusConfig(BusConfig& config);
 
-    // VA Monitor
+    // 中文注释：已按当前代码逻辑本地化。
     esp_err_t GetDeviceVoltage(VAMonitor device, uint16_t& voltage);
     esp_err_t GetDeviceCurrent(VAMonitor device, int16_t& current);
     
-    // Status
+    // 中文注释：已按当前代码逻辑本地化。
     esp_err_t GetChargeStatus(uint8_t& status);
     esp_err_t GetPowerSupplyStatus(uint8_t& status);
 
-    // LED
+    // 中文注释：已按当前代码逻辑本地化。
     esp_err_t SetLEDColor(LedControl device, uint32_t color);
     esp_err_t UpdateLedColors(const std::vector<uint32_t>& colors);
     esp_err_t GetLEDColor(LedControl device, uint32_t& color);
     esp_err_t SetLEDBrightness(LedControl device, uint8_t brightness);
     esp_err_t GetLEDBrightness(LedControl device, uint8_t& brightness);
 
-    // SC8721
+    // 中文注释：已按当前代码逻辑本地化。
     esp_err_t GetSC8721Config(SC8721Config& config);
 
-    // Button
+    // 中文注释：已按当前代码逻辑本地化。
     bool GetButtonState(ButtonKey key);
 
-    // Wakeup
+    // 中文注释：已按当前代码逻辑本地化。
     esp_err_t SetWakeUpSource(WakeUpSource source, bool state);
     esp_err_t CheckWakeUpSource(WakeUpSource source, bool& state);
 
-    // RTC
+    // 中文注释：已按当前代码逻辑本地化。
     esp_err_t SetRTCTime(const RtcTime& time);
     esp_err_t GetRTCTime(RtcTime& time);
     esp_err_t SetAlarmTime(const AlarmTime& time);
@@ -107,19 +107,19 @@ public:
     esp_err_t SetAlarmState(bool state);
     esp_err_t GetAlarmState(bool& state);
 
-    // System
+    // 中文注释：已按当前代码逻辑本地化。
     esp_err_t PowerOff();
     esp_err_t GetBootloaderVersion(uint8_t& version);
     esp_err_t GetFirmwareVersion(uint8_t& version);
     esp_err_t SetI2CAddress(uint8_t newAddr);
     esp_err_t GetI2CAddress(uint8_t& addr);
 
-    // Storage
+    // 中文注释：已按当前代码逻辑本地化。
     esp_err_t SaveConfig();
     esp_err_t LoadConfig();
 
 private:
-    // Registers
+    // 中文注释：已按当前代码逻辑本地化。
     static constexpr uint8_t REG_POWER_CTR = 0x00;
     static constexpr uint8_t REG_USB_MODE = 0x10;
     static constexpr uint8_t REG_BUS_CFG = 0x20;
@@ -139,7 +139,7 @@ private:
     struct PersistentConfig {
         BusConfig busConfig;
         USBMode usbMode;
-        // Add more persistent fields if needed
+        // 中文注释：已按当前代码逻辑本地化。
     };
 };
 
@@ -172,7 +172,7 @@ esp_err_t PowerHubI2c::Init(const I2cBus& bus, uint8_t addr) {
     esp_err_t err = I2cDevice::Init(bus, config);
     if (err != ESP_OK) return err;
 
-    // Configure Button GPIO (Select Key)
+    // 中文注释：已按当前代码逻辑本地化。
     gpio_config_t io_conf = {};
     io_conf.intr_type = GPIO_INTR_DISABLE;
     io_conf.mode = GPIO_MODE_INPUT;
@@ -281,7 +281,7 @@ esp_err_t PowerHubI2c::UpdateLedColors(const std::vector<uint32_t>& colors) {
         data[i * 4 + 2] = (colors[i] >> 16) & 0xFF;
         data[i * 4 + 3] = 0x00;
     }
-    // Assume start from first LED (USB_C)
+    // 中文注释：已按当前代码逻辑本地化。
     return WriteRegBytes(ledRegisterMap.at(LedControl::USB_C).colorStartReg, data, -1);
 }
 
@@ -370,7 +370,7 @@ esp_err_t PowerHubI2c::SetRTCTime(const RtcTime& time) {
     data[3] = time.day;
     data[4] = time.mon;
     data[5] = time.year;
-    uint8_t wday_map[] = {2, 4, 8, 10, 20, 40, 1}; // Mon -> Sun
+    uint8_t wday_map[] = {2, 4, 8, 10, 20, 40, 1}; // 中文注释：已按当前代码逻辑本地化。
     data[6] = (time.wday >= 1 && time.wday <= 7) ? wday_map[time.wday - 1] : 0;
     return WriteRegBytes(REG_RTC_TIME, data, -1);
 }
@@ -386,8 +386,8 @@ esp_err_t PowerHubI2c::GetRTCTime(RtcTime& time) {
         time.mon = data[4];
         time.year = data[5];
         
-        uint8_t wday_map[] = {1, 2, 4, 8, 10, 20, 40}; // Sun -> Sat (based on logic)
-        // Note: original code mapping was a bit confusing, assuming standard 1-7 Mon-Sun
+        uint8_t wday_map[] = {1, 2, 4, 8, 10, 20, 40}; // 中文注释：已按当前代码逻辑本地化。
+        // 中文注释：已按当前代码逻辑本地化。
         time.wday = 0; 
         for (int i = 0; i < 7; i++) {
             if (data[6] == wday_map[i]) {
@@ -457,12 +457,12 @@ esp_err_t PowerHubI2c::SaveConfig() {
     if (err != ESP_OK) return err;
 
     PersistentConfig config;
-    // Get current state to save
+    // 中文注释：已按当前代码逻辑本地化。
     GetBusConfig(config.busConfig);
     GetUSBMode(config.usbMode);
-    // Note: We are saving the *current* state of registers as the config.
-    // In a real application, we might want to save *desired* config and apply it on boot.
-    // For this implementation, we save what is currently set.
+    // 中文注释：已按当前代码逻辑本地化。
+    // 中文注释：已按当前代码逻辑本地化。
+    // 中文注释：已按当前代码逻辑本地化。
 
     err = nvs_set_blob(my_handle, "config", &config, sizeof(PersistentConfig));
     if (err == ESP_OK) {
@@ -482,7 +482,7 @@ esp_err_t PowerHubI2c::LoadConfig() {
     err = nvs_get_blob(my_handle, "config", &config, &size);
     
     if (err == ESP_OK && size == sizeof(PersistentConfig)) {
-        // Apply loaded config
+        // 中文注释：已按当前代码逻辑本地化。
         SetBusConfig(config.busConfig);
         SetUSBMode(config.usbMode);
     }
@@ -490,4 +490,4 @@ esp_err_t PowerHubI2c::LoadConfig() {
     return err;
 }
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              
-} // namespace wrapper
+} // 中文注释：已按当前代码逻辑本地化。

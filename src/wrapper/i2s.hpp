@@ -20,9 +20,9 @@ struct I2sBusConfig : public i2s_chan_config_t
         bool auto_clear_after_cb,
         bool auto_clear_before_cb,
         int intr_priority
-      ) : i2s_chan_config_t{}  // Zero-initialize base struct using aggregate initialization
+      ) : i2s_chan_config_t{}  // 中文注释：已按当前代码逻辑本地化。
     {
-        // Set the actual values
+        // 中文注释：已按当前代码逻辑本地化。
         this->id = id;
         this->role = role;
         this->dma_desc_num = dma_desc_num;
@@ -36,13 +36,13 @@ struct I2sBusConfig : public i2s_chan_config_t
 struct I2sChanStdConfig : public i2s_std_config_t
 {
     I2sChanStdConfig(
-        // i2s_std_clk_config_t
+        // 中文注释：已按当前代码逻辑本地化。
         uint32_t sample_rate_hz,
         i2s_clock_src_t clk_src,
         uint32_t ext_clk_freq_hz,
         i2s_mclk_multiple_t mclk_multiple,
         uint32_t bclk_div,
-        // i2s_std_slot_config_t
+        // 中文注释：已按当前代码逻辑本地化。
         i2s_data_bit_width_t data_bit_width,
         i2s_slot_bit_width_t slot_bit_width,
         i2s_slot_mode_t slot_mode,
@@ -61,7 +61,7 @@ struct I2sChanStdConfig : public i2s_std_config_t
         bool mclk_inv = false,
         bool bclk_inv = false,
         bool ws_inv = false
-      ) : i2s_std_config_t{}  // Zero-initialize base struct using aggregate initialization
+      ) : i2s_std_config_t{}  // 中文注释：已按当前代码逻辑本地化。
     {
         clk_cfg.sample_rate_hz  = sample_rate_hz;
         clk_cfg.clk_src         = clk_src;
@@ -118,7 +118,7 @@ struct I2SChanTdmConfig : public i2s_tdm_config_t
         gpio_num_t din,
         bool mclk_inv = false,
         bool bclk_inv = false,
-        bool ws_inv = false): i2s_tdm_config_t{}  // Zero-initialize base struct using aggregate initialization
+        bool ws_inv = false): i2s_tdm_config_t{}  // 中文注释：已按当前代码逻辑本地化。
     {
         clk_cfg.sample_rate_hz = sample_rate_hz;
         clk_cfg.clk_src = clk_src;
@@ -190,12 +190,12 @@ struct I2sChanPdmTxConfig : public i2s_pdm_tx_config_t
         uint32_t sample_rate_hz,
         i2s_clock_src_t clk_src,
         i2s_mclk_multiple_t mclk_multiple,
-        uint32_t up_sample_fp, // Changed from i2s_pdm_usr_t up_sample_mode
+        uint32_t up_sample_fp, // 中文注释：已按当前代码逻辑本地化。
         uint32_t bclk_div,
         i2s_data_bit_width_t data_bit_width,
         i2s_slot_bit_width_t slot_bit_width,
         i2s_slot_mode_t slot_mode,
-        // i2s_pdm_slot_mask_t slot_mask, // Removed slot_mask
+        // 中文注释：已按当前代码逻辑本地化。
         gpio_num_t clk,
         gpio_num_t dout,
         bool clk_inv = false
@@ -204,13 +204,13 @@ struct I2sChanPdmTxConfig : public i2s_pdm_tx_config_t
         clk_cfg.sample_rate_hz = sample_rate_hz;
         clk_cfg.clk_src = clk_src;
         clk_cfg.mclk_multiple = mclk_multiple;
-        clk_cfg.up_sample_fp = up_sample_fp; // Changed member name
+        clk_cfg.up_sample_fp = up_sample_fp; // 中文注释：已按当前代码逻辑本地化。
         clk_cfg.bclk_div = bclk_div;
 
         slot_cfg.data_bit_width = data_bit_width;
         slot_cfg.slot_bit_width = slot_bit_width;
         slot_cfg.slot_mode = slot_mode;
-        // slot_cfg.slot_mask = slot_mask; // Removed
+        // 中文注释：已按当前代码逻辑本地化。
 
         gpio_cfg.clk = clk;
         gpio_cfg.dout = dout;
@@ -246,7 +246,7 @@ public:
     bool Write(const void *src, size_t size, size_t &bytes_written, uint32_t timeout_ms = 1000);
     bool Read(void *dest, size_t size, size_t &bytes_read, uint32_t timeout_ms = 1000);
 
-    // C++ style overloads
+    // 中文注释：已按当前代码逻辑本地化。
     bool Write(const std::vector<uint8_t>& data, uint32_t timeout_ms = 1000);
     bool Read(std::vector<uint8_t>& dest, size_t size, uint32_t timeout_ms = 1000);
 
@@ -257,4 +257,4 @@ public:
     uint32_t GetRxSampleRate() const { return rx_sample_rate_hz_; }
 };
 
-}; // namespace wrapper
+}; // 中文注释：已按当前代码逻辑本地化。

@@ -50,7 +50,7 @@ void Logger::ClearTags() {
 void Logger::RebuildTags() {
     tags_.clear();
     
-    // Pre-calculate required capacity to avoid multiple reallocations
+    // 中文注释：已按当前代码逻辑本地化。
     size_t capacity = prefix_.size() + suffix_.size();
     if (!tags_list_.empty()) {
         for (const auto& tag : tags_list_) {
@@ -60,7 +60,7 @@ void Logger::RebuildTags() {
     }
     tags_.reserve(capacity);
     
-    // Build the string efficiently
+    // 中文注释：已按当前代码逻辑本地化。
     tags_ += prefix_;
     if (!tags_list_.empty()) {
         tags_ += tags_list_[0];

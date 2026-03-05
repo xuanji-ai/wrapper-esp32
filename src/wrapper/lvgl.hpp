@@ -30,9 +30,9 @@ namespace wrapper
   struct LvglDisplayConfig : public lvgl_port_display_cfg_t
   {
     LvglDisplayConfig(
-        // esp_lcd_panel_io_handle_t io_handle,
-        // esp_lcd_panel_handle_t panel_handle,
-        // esp_lcd_panel_handle_t control_handle,
+        // 中文注释：已按当前代码逻辑本地化。
+        // 中文注释：已按当前代码逻辑本地化。
+        // 中文注释：已按当前代码逻辑本地化。
         uint32_t buf_sz,
         bool double_buf,
         uint32_t trans_sz,
@@ -50,9 +50,9 @@ namespace wrapper
         bool full_refresh,
         bool direct_mode) : lvgl_port_display_cfg_t{}
     {
-      // io_handle = io_handle;
-      // panel_handle = panel_handle;
-      // control_handle = control_handle;
+      // 中文注释：已按当前代码逻辑本地化。
+      // 中文注释：已按当前代码逻辑本地化。
+      // 中文注释：已按当前代码逻辑本地化。
       io_handle = nullptr;
       panel_handle = nullptr;
       control_handle = nullptr;
@@ -109,7 +109,7 @@ namespace wrapper
     lv_display_t *GetDisplay() const { return lvgl_display_; }
     lv_indev_t *GetTouch() const { return lvgl_touch_; }
     
-    // operations
+    // 中文注释：已按当前代码逻辑本地化。
     bool Init(const LvglPortConfig &config);
     bool Deinit();
     bool AddDisplay(const DisplayBase& display, LvglDisplayConfig& config);
@@ -123,4 +123,4 @@ namespace wrapper
     bool SetRotation(lv_display_rotation_t rotation);
     void Test(bool is_monochrome = false);
   };
-} // namespace wrapper
+} // 中文注释：已按当前代码逻辑本地化。

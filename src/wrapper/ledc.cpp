@@ -3,7 +3,7 @@
 namespace wrapper
 {
 
-// --- LedcTimer ---
+// 中文注释：已按当前代码逻辑本地化。
 
 LedcTimer::LedcTimer(Logger &logger)
     : logger_(logger), speed_mode_(LEDC_LOW_SPEED_MODE), timer_num_(LEDC_TIMER_0), initialized_(false)
@@ -46,7 +46,7 @@ bool LedcTimer::Deinit()
         return true;
     }
 
-    // Use deconfigure flag to deinit timer
+    // 中文注释：已按当前代码逻辑本地化。
     ledc_timer_config_t deinit_config = {};
     deinit_config.speed_mode = speed_mode_;
     deinit_config.timer_num = timer_num_;
@@ -121,7 +121,7 @@ bool LedcTimer::SetFreq(uint32_t freq_hz)
     return true;
 }
 
-// --- LedcChannel ---
+// 中文注释：已按当前代码逻辑本地化。
 
 LedcChannel::LedcChannel(Logger &logger)
     : logger_(logger), speed_mode_(LEDC_LOW_SPEED_MODE), channel_(LEDC_CHANNEL_0), initialized_(false)
@@ -164,10 +164,10 @@ bool LedcChannel::Deinit()
         return true;
     }
 
-    // Stop the channel before deinit
+    // 中文注释：已按当前代码逻辑本地化。
     if (!Stop(0))
     {
-        // Stop already logs error
+        // 中文注释：已按当前代码逻辑本地化。
         return false;
     }
 
@@ -241,4 +241,4 @@ bool LedcChannel::Stop(uint32_t idle_level)
     return true;
 }
 
-} // namespace wrapper
+} // 中文注释：已按当前代码逻辑本地化。

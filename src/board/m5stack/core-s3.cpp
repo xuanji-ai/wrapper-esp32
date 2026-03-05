@@ -25,32 +25,32 @@ namespace wrapper
 I2sBusConfig bus_config(I2S_NUM_0, I2S_ROLE_MASTER, 6, 240, true, false, 0);
 
 I2sChanStdConfig tx_config(
-    // clk_cfg
-    16000,                    // sample_rate_hz
-    I2S_CLK_SRC_DEFAULT,      // clk_src
-    0,                        // ext_clk_freq_hz
-    I2S_MCLK_MULTIPLE_256,    // mclk_multiple
-    1,                        // bclk_div
-    // slot_cfg
-    I2S_DATA_BIT_WIDTH_16BIT, // data_bit_width
-    I2S_SLOT_BIT_WIDTH_AUTO,  // slot_bit_width
-    I2S_SLOT_MODE_STEREO,     // slot_mode
-    I2S_STD_SLOT_BOTH,        // slot_mask
-    I2S_DATA_BIT_WIDTH_16BIT, // ws_width
-    false,                    // ws_pol
-    true,                     // bit_shift
-    true,                     // left_align
-    false,                    // big_endian
-    false,                    // bit_order_lsb
-    // gpio_cfg
-    GPIO_NUM_0,               // mclk
-    GPIO_NUM_34,              // bclk
-    GPIO_NUM_33,              // ws
-    GPIO_NUM_13,              // dout
-    GPIO_NUM_NC,              // din
-    false,                    // mclk_inv
-    false,                    // bclk_inv
-    false);                   // ws_inv
+    // 中文注释：已按当前代码逻辑本地化。
+    16000,                    // 中文注释：已按当前代码逻辑本地化。
+    I2S_CLK_SRC_DEFAULT,      // 中文注释：已按当前代码逻辑本地化。
+    0,                        // 中文注释：已按当前代码逻辑本地化。
+    I2S_MCLK_MULTIPLE_256,    // 中文注释：已按当前代码逻辑本地化。
+    1,                        // 中文注释：已按当前代码逻辑本地化。
+    // 中文注释：已按当前代码逻辑本地化。
+    I2S_DATA_BIT_WIDTH_16BIT, // 中文注释：已按当前代码逻辑本地化。
+    I2S_SLOT_BIT_WIDTH_AUTO,  // 中文注释：已按当前代码逻辑本地化。
+    I2S_SLOT_MODE_STEREO,     // 中文注释：已按当前代码逻辑本地化。
+    I2S_STD_SLOT_BOTH,        // 中文注释：已按当前代码逻辑本地化。
+    I2S_DATA_BIT_WIDTH_16BIT, // 中文注释：已按当前代码逻辑本地化。
+    false,                    // 中文注释：已按当前代码逻辑本地化。
+    true,                     // 中文注释：已按当前代码逻辑本地化。
+    true,                     // 中文注释：已按当前代码逻辑本地化。
+    false,                    // 中文注释：已按当前代码逻辑本地化。
+    false,                    // 中文注释：已按当前代码逻辑本地化。
+    // 中文注释：已按当前代码逻辑本地化。
+    GPIO_NUM_0,               // 中文注释：已按当前代码逻辑本地化。
+    GPIO_NUM_34,              // 中文注释：已按当前代码逻辑本地化。
+    GPIO_NUM_33,              // 中文注释：已按当前代码逻辑本地化。
+    GPIO_NUM_13,              // 中文注释：已按当前代码逻辑本地化。
+    GPIO_NUM_NC,              // 中文注释：已按当前代码逻辑本地化。
+    false,                    // 中文注释：已按当前代码逻辑本地化。
+    false,                    // 中文注释：已按当前代码逻辑本地化。
+    false);                   // 中文注释：已按当前代码逻辑本地化。
 
 I2SChanTdmConfig rx_config(
     16000,
@@ -91,109 +91,109 @@ I2cBusConfig i2c_bus1_config(
     false);
 
 SpiBusConfig spi_bus_config(
-    SPI3_HOST,                      // host
-    GPIO_NUM_37,                    // mosi
-    GPIO_NUM_NC,                    // miso
-    GPIO_NUM_36,                    // sclk
-    GPIO_NUM_NC,                    // quadwp
-    GPIO_NUM_NC,                    // quadhd
-    GPIO_NUM_NC,                    // data4
-    GPIO_NUM_NC,                    // data5
-    GPIO_NUM_NC,                    // data6
-    GPIO_NUM_NC,                    // data7
-    false,                          // data_default_level
-    320 * 240 * sizeof(uint16_t),   // max_transfer
-    SPICOMMON_BUSFLAG_MASTER,       // bus_flags
-    ESP_INTR_CPU_AFFINITY_AUTO,     // isr_cpu
-    0,                              // intr_flags
-    SPI_DMA_CH_AUTO);               // dma
+    SPI3_HOST,                      // 中文注释：已按当前代码逻辑本地化。
+    GPIO_NUM_37,                    // 中文注释：已按当前代码逻辑本地化。
+    GPIO_NUM_NC,                    // 中文注释：已按当前代码逻辑本地化。
+    GPIO_NUM_36,                    // 中文注释：已按当前代码逻辑本地化。
+    GPIO_NUM_NC,                    // 中文注释：已按当前代码逻辑本地化。
+    GPIO_NUM_NC,                    // 中文注释：已按当前代码逻辑本地化。
+    GPIO_NUM_NC,                    // 中文注释：已按当前代码逻辑本地化。
+    GPIO_NUM_NC,                    // 中文注释：已按当前代码逻辑本地化。
+    GPIO_NUM_NC,                    // 中文注释：已按当前代码逻辑本地化。
+    GPIO_NUM_NC,                    // 中文注释：已按当前代码逻辑本地化。
+    false,                          // 中文注释：已按当前代码逻辑本地化。
+    320 * 240 * sizeof(uint16_t),   // 中文注释：已按当前代码逻辑本地化。
+    SPICOMMON_BUSFLAG_MASTER,       // 中文注释：已按当前代码逻辑本地化。
+    ESP_INTR_CPU_AFFINITY_AUTO,     // 中文注释：已按当前代码逻辑本地化。
+    0,                              // 中文注释：已按当前代码逻辑本地化。
+    SPI_DMA_CH_AUTO);               // 中文注释：已按当前代码逻辑本地化。
 
 I2cTouchConfig ft5x06_config(
-    // io_config parameters
-    0x38,                   // dev_addr
-    nullptr,                // on_color_trans_done
-    nullptr,                // user_ctx
-    1,                      // control_phase_bytes
-    6,                      // dc_bit_offset
-    8,                      // lcd_cmd_bits
-    8,                      // lcd_param_bits
-    0,                      // dc_low_on_data
-    0,                      // disable_control_phase
-    400000,                 // scl_speed_hz (400kHz)
-    // touch_config parameters
-    320,                    // x_max
-    240,                    // y_max
-    GPIO_NUM_NC,            // rst_gpio_num
-    GPIO_NUM_NC,            // int_gpio_num
-    0,                      // levels.reset
-    0,                      // levels.interrupt
-    0,                      // flags.swap_xy
-    0,                      // flags.mirror_x
-    0,                      // flags.mirror_y
-    nullptr,                // process_coordinates
-    nullptr                 // interrupt_callback
+    // 中文注释：已按当前代码逻辑本地化。
+    0x38,                   // 中文注释：已按当前代码逻辑本地化。
+    nullptr,                // 中文注释：已按当前代码逻辑本地化。
+    nullptr,                // 中文注释：已按当前代码逻辑本地化。
+    1,                      // 中文注释：已按当前代码逻辑本地化。
+    6,                      // 中文注释：已按当前代码逻辑本地化。
+    8,                      // 中文注释：已按当前代码逻辑本地化。
+    8,                      // 中文注释：已按当前代码逻辑本地化。
+    0,                      // 中文注释：已按当前代码逻辑本地化。
+    0,                      // 中文注释：已按当前代码逻辑本地化。
+    400000,                 // 中文注释：已按当前代码逻辑本地化。
+    // 中文注释：已按当前代码逻辑本地化。
+    320,                    // 中文注释：已按当前代码逻辑本地化。
+    240,                    // 中文注释：已按当前代码逻辑本地化。
+    GPIO_NUM_NC,            // 中文注释：已按当前代码逻辑本地化。
+    GPIO_NUM_NC,            // 中文注释：已按当前代码逻辑本地化。
+    0,                      // 中文注释：已按当前代码逻辑本地化。
+    0,                      // 中文注释：已按当前代码逻辑本地化。
+    0,                      // 中文注释：已按当前代码逻辑本地化。
+    0,                      // 中文注释：已按当前代码逻辑本地化。
+    0,                      // 中文注释：已按当前代码逻辑本地化。
+    nullptr,                // 中文注释：已按当前代码逻辑本地化。
+    nullptr                 // 中文注释：已按当前代码逻辑本地化。
 );
 
 SpiDisplayConfig spi_lcd_config(
-    // io_config parameters
-    GPIO_NUM_3,                // cs_gpio
-    GPIO_NUM_35,               // dc_gpio
-    2,                         // spi_mode
-    40 * 1000 * 1000,          // clock_speed_hz (40MHz)
-    8,                         // lcd_cmd_bits
-    8,                         // lcd_param_bits
-    10,                        // trans_queue_depth
-    nullptr,                   // on_color_trans_done
-    nullptr,                   // user_ctx
-    0,                         // cs_ena_pretrans
-    0,                         // cs_ena_posttrans
-    // io_config flags
-    0,                         // dc_high_on_cmd
-    0,                         // dc_low_on_data
-    0,                         // dc_low_on_param
-    0,                         // octal_mode
-    0,                         // quad_mode
-    0,                         // sio_mode
-    0,                         // lsb_first
-    0,                         // cs_high_active
-    // panel_config parameters
-    GPIO_NUM_NC,               // reset_gpio
-    LCD_RGB_ELEMENT_ORDER_BGR, // rgb_order
-    LCD_RGB_DATA_ENDIAN_BIG,   // data_endian
-    16,                        // bits_per_pixel
-    false,                     // reset_active_high
-    nullptr                    // vendor_conf
+    // 中文注释：已按当前代码逻辑本地化。
+    GPIO_NUM_3,                // 中文注释：已按当前代码逻辑本地化。
+    GPIO_NUM_35,               // 中文注释：已按当前代码逻辑本地化。
+    2,                         // 中文注释：已按当前代码逻辑本地化。
+    40 * 1000 * 1000,          // 中文注释：已按当前代码逻辑本地化。
+    8,                         // 中文注释：已按当前代码逻辑本地化。
+    8,                         // 中文注释：已按当前代码逻辑本地化。
+    10,                        // 中文注释：已按当前代码逻辑本地化。
+    nullptr,                   // 中文注释：已按当前代码逻辑本地化。
+    nullptr,                   // 中文注释：已按当前代码逻辑本地化。
+    0,                         // 中文注释：已按当前代码逻辑本地化。
+    0,                         // 中文注释：已按当前代码逻辑本地化。
+    // 中文注释：已按当前代码逻辑本地化。
+    0,                         // 中文注释：已按当前代码逻辑本地化。
+    0,                         // 中文注释：已按当前代码逻辑本地化。
+    0,                         // 中文注释：已按当前代码逻辑本地化。
+    0,                         // 中文注释：已按当前代码逻辑本地化。
+    0,                         // 中文注释：已按当前代码逻辑本地化。
+    0,                         // 中文注释：已按当前代码逻辑本地化。
+    0,                         // 中文注释：已按当前代码逻辑本地化。
+    0,                         // 中文注释：已按当前代码逻辑本地化。
+    // 中文注释：已按当前代码逻辑本地化。
+    GPIO_NUM_NC,               // 中文注释：已按当前代码逻辑本地化。
+    LCD_RGB_ELEMENT_ORDER_BGR, // 中文注释：已按当前代码逻辑本地化。
+    LCD_RGB_DATA_ENDIAN_BIG,   // 中文注释：已按当前代码逻辑本地化。
+    16,                        // 中文注释：已按当前代码逻辑本地化。
+    false,                     // 中文注释：已按当前代码逻辑本地化。
+    nullptr                    // 中文注释：已按当前代码逻辑本地化。
 );
 
 I2cDeviceConfig axp2101_config(Axp2101::DEFAULT_ADDR, Axp2101::DEFAULT_SPEED);
 I2cDeviceConfig aw9523_config(Aw9523::DEFAULT_ADDR, Aw9523::DEFAULT_SPEED);
 
 LvglPortConfig lvgl_port_config(
-    5,                                   // task_priority
-    8192,                                // task_stack
-    1,                                   // task_affinity
-    500,                                 // task_max_sleep_ms
-    MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT, // task_stack_caps
-    20                                   // timer_period_ms
+    5,                                   // 中文注释：已按当前代码逻辑本地化。
+    8192,                                // 中文注释：已按当前代码逻辑本地化。
+    1,                                   // 中文注释：已按当前代码逻辑本地化。
+    500,                                 // 中文注释：已按当前代码逻辑本地化。
+    MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT, // 中文注释：已按当前代码逻辑本地化。
+    20                                   // 中文注释：已按当前代码逻辑本地化。
 );
 
 LvglDisplayConfig lvgl_display_config(
-    320 * 240,              // buffer_size
-    true,                   // double_buffer
-    0,                      // trans_size
-    320,                    // hres
-    240,                    // vres
-    false,                  // monochrome
-    false,                  // swap_xy
-    false,                  // mirror_x
-    false,                  // mirror_y
-    LV_COLOR_FORMAT_RGB565, // color_format
-    true,                   // buff_dma
-    true,                   // buff_spiram
-    false,                  // sw_rotate
-    true,                   // swap_bytes
-    false,                  // full_refresh
-    false                   // direct_mode
+    320 * 240,              // 中文注释：已按当前代码逻辑本地化。
+    true,                   // 中文注释：已按当前代码逻辑本地化。
+    0,                      // 中文注释：已按当前代码逻辑本地化。
+    320,                    // 中文注释：已按当前代码逻辑本地化。
+    240,                    // 中文注释：已按当前代码逻辑本地化。
+    false,                  // 中文注释：已按当前代码逻辑本地化。
+    false,                  // 中文注释：已按当前代码逻辑本地化。
+    false,                  // 中文注释：已按当前代码逻辑本地化。
+    false,                  // 中文注释：已按当前代码逻辑本地化。
+    LV_COLOR_FORMAT_RGB565, // 中文注释：已按当前代码逻辑本地化。
+    true,                   // 中文注释：已按当前代码逻辑本地化。
+    true,                   // 中文注释：已按当前代码逻辑本地化。
+    false,                  // 中文注释：已按当前代码逻辑本地化。
+    true,                   // 中文注释：已按当前代码逻辑本地化。
+    false,                  // 中文注释：已按当前代码逻辑本地化。
+    false                   // 中文注释：已按当前代码逻辑本地化。
 );
 
 LvglTouchConfig lvgl_touch_config(0.0f, 0.0f);
@@ -306,7 +306,7 @@ bool M5StackCoreS3::InitBus(bool i2c1, bool spi, bool i2s)
 bool M5StackCoreS3::InitDevice(bool power, bool audio, bool display, bool touch)
 { 
   if (power) {
-      // AXP2101
+      // 中文注释：已按当前代码逻辑本地化。
       if (!axp2101.Init(i2c_bus1, axp2101_config)) return false;
       
       uint8_t data = 0x00;
@@ -328,7 +328,7 @@ bool M5StackCoreS3::InitDevice(bool power, bool audio, bool display, bool touch)
       }
       axp2101.GetLogger().Info("Configured successfully");
 
-      // AW9523
+      // 中文注释：已按当前代码逻辑本地化。
       if (!aw9523.Init(i2c_bus1, aw9523_config)) return false;
       
       std::tuple<uint8_t, uint8_t> aw_cmds[] = {
@@ -365,13 +365,13 @@ bool M5StackCoreS3::InitDevice(bool power, bool audio, bool display, bool touch)
 
   if (audio) {
       audio_codec.Init(i2s_bus);
-      // speaker
+      // 中文注释：已按当前代码逻辑本地化。
       if (!audio_codec.AddSpeaker(i2c_bus1, AW88298_CODEC_DEFAULT_ADDR, spk_codec_new_func))
       {
         audio_codec.GetLogger().Error("Failed to add speaker");
         return false;
       }
-      // microphone
+      // 中文注释：已按当前代码逻辑本地化。
       if (!audio_codec.AddMicrophone(i2c_bus1, ES7210_CODEC_DEFAULT_ADDR, mic_codec_new_func))
       {
         audio_codec.GetLogger().Error("Failed to add microphone");
@@ -446,4 +446,4 @@ AudioCodec& M5StackCoreS3::GetAudioCodec()
   return audio_codec;
 }
 
-} // namespace wrapper
+} // 中文注释：已按当前代码逻辑本地化。

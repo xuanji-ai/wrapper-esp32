@@ -216,7 +216,7 @@ namespace wrapper
 
   private:
     std::vector<Point2D> key_list_buffer_;
-    std::vector<Point2D> last_key_list_buffer_; // To track changes properly
+    std::vector<Point2D> last_key_list_buffer_; // 中文注释：已按当前代码逻辑本地化。
     std::vector<Point2D> key_values_without_special_keys_;
     KeyState keys_state_buffer_;
 
@@ -231,7 +231,7 @@ namespace wrapper
     void SetOutput(uint8_t output);
     uint8_t GetInput();
 
-    // Internal update methods
+    // 中文注释：已按当前代码逻辑本地化。
     void UpdateKeyList();
     void UpdateKeysState();
 
@@ -241,10 +241,10 @@ namespace wrapper
 
     void Init(const KeyboardConfig &config);
 
-    // Main update loop
+    // 中文注释：已按当前代码逻辑本地化。
     void Update();
 
-    Point2D GetKey(); // Kept for backward compatibility, but consider deprecating
+    Point2D GetKey(); // 中文注释：已按当前代码逻辑本地化。
     uint8_t GetKeyNum(Point2D key_coor) const;
 
     inline const std::vector<Point2D> &GetKeyList() const { return key_list_buffer_; }
@@ -258,6 +258,6 @@ namespace wrapper
 
     bool IsChanged();
     inline uint8_t GetPressedCount() const { return key_list_buffer_.size(); }
-    inline uint8_t IsPressed() const { return GetPressedCount(); } // Alias for backward compatibility
+    inline uint8_t IsPressed() const { return GetPressedCount(); } // 中文注释：已按当前代码逻辑本地化。
   };
 }

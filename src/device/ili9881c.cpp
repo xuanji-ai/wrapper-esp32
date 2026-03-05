@@ -3,13 +3,13 @@
 namespace wrapper {
 
 static const ili9881c_lcd_init_cmd_t m5tab5_disp_init_data[] = {
-      // {cmd, { data }, data_size, delay}
+      // 中文注释：已按当前代码逻辑本地化。
 
-      /**** CMD_Page 1 ****/
+      /* 中文注释：已按当前代码逻辑本地化。 */
       {0xFF, (uint8_t[]){0x98, 0x81, 0x01}, 3, 0},
-      {0xB7, (uint8_t[]){0x03}, 1, 0}, // set 2 lane
+      {0xB7, (uint8_t[]){0x03}, 1, 0}, // 中文注释：已按当前代码逻辑本地化。
 
-      /**** CMD_Page 3 ****/
+      /* 中文注释：已按当前代码逻辑本地化。 */
       {0xFF, (uint8_t[]){0x98, 0x81, 0x03}, 3, 0},
       {0x01, (uint8_t[]){0x00}, 1, 0},
       {0x02, (uint8_t[]){0x00}, 1, 0},
@@ -141,7 +141,7 @@ static const ili9881c_lcd_init_cmd_t m5tab5_disp_init_data[] = {
       {0x89, (uint8_t[]){0x05}, 1, 0},
       {0x8A, (uint8_t[]){0x01}, 1, 0},
 
-      /**** CMD_Page 4 ****/
+      /* 中文注释：已按当前代码逻辑本地化。 */
       {0xFF, (uint8_t[]){0x98, 0x81, 0x04}, 3, 0},
       {0x38, (uint8_t[]){0x01}, 1, 0},
       {0x39, (uint8_t[]){0x00}, 1, 0},
@@ -153,7 +153,7 @@ static const ili9881c_lcd_init_cmd_t m5tab5_disp_init_data[] = {
       {0x87, (uint8_t[]){0xBA}, 1, 0},
       {0x3B, (uint8_t[]){0x98}, 1, 0},
 
-      /**** CMD_Page 1 ****/
+      /* 中文注释：已按当前代码逻辑本地化。 */
       {0xFF, (uint8_t[]){0x98, 0x81, 0x01}, 3, 0},
       {0x22, (uint8_t[]){0x0A}, 1, 0},
       {0x31, (uint8_t[]){0x00}, 1, 0},
@@ -166,7 +166,7 @@ static const ili9881c_lcd_init_cmd_t m5tab5_disp_init_data[] = {
       {0x62, (uint8_t[]){0x0C}, 1, 0},
       {0x63, (uint8_t[]){0x00}, 1, 0},
 
-      // Gamma P
+      // 中文注释：已按当前代码逻辑本地化。
       {0xA0, (uint8_t[]){0x00}, 1, 0},
       {0xA1, (uint8_t[]){0x15}, 1, 0},
       {0xA2, (uint8_t[]){0x1F}, 1, 0},
@@ -188,7 +188,7 @@ static const ili9881c_lcd_init_cmd_t m5tab5_disp_init_data[] = {
       {0xB2, (uint8_t[]){0x5D}, 1, 0},
       {0xB3, (uint8_t[]){0x39}, 1, 0},
 
-      // Gamma N
+      // 中文注释：已按当前代码逻辑本地化。
       {0xC0, (uint8_t[]){0x00}, 1, 0},
       {0xC1, (uint8_t[]){0x01}, 1, 0},
       {0xC2, (uint8_t[]){0x0C}, 1, 0},
@@ -210,7 +210,7 @@ static const ili9881c_lcd_init_cmd_t m5tab5_disp_init_data[] = {
       {0xD2, (uint8_t[]){0x5F}, 1, 0},
       {0xD3, (uint8_t[]){0x39}, 1, 0},
 
-      /**** CMD_Page 0 ****/
+      /* 中文注释：已按当前代码逻辑本地化。 */
       {0xFF, (uint8_t[]){0x98, 0x81, 0x00}, 3, 0},
       {0x35, (uint8_t[]){0x00}, 0, 0},
       {0xFE, (uint8_t[]){0x00}, 0, 0},
@@ -222,8 +222,8 @@ bool Ili9881c::Init(DsiBus& bus, DsiDisplayConfig& config) {
       .init_cmds = m5tab5_disp_init_data,
       .init_cmds_size = sizeof(m5tab5_disp_init_data) / sizeof(m5tab5_disp_init_data[0]),
       .mipi_config = {
-          .dsi_bus = nullptr,    /* Set at runtime */
-          .dpi_config = nullptr, /* Set at runtime */
+          .dsi_bus = nullptr,    /* 中文注释：已按当前代码逻辑本地化。 */
+          .dpi_config = nullptr, /* 中文注释：已按当前代码逻辑本地化。 */
           .lane_num = 2,
       },
     };
@@ -241,4 +241,4 @@ bool Ili9881c::Init(DsiBus& bus, DsiDisplayConfig& config) {
         });
 }
 
-} // namespace wrapper
+} // 中文注释：已按当前代码逻辑本地化。

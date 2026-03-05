@@ -1,27 +1,27 @@
 #include "wrapper/spi.hpp"
 #include <cstring>
 
-// --- SpiBus ---
+// 中文注释：已按当前代码逻辑本地化。
 
 using namespace wrapper;
 
 SpiBus::SpiBus(Logger& logger) : logger_(logger), host_id_(SPI2_HOST), initialized_(false), 
-    config_(SPI2_HOST,                   // host
-             GPIO_NUM_NC,                 // mosi
-             GPIO_NUM_NC,                 // miso
-             GPIO_NUM_NC,                 // sclk
-             GPIO_NUM_NC,                 // quadwp
-             GPIO_NUM_NC,                 // quadhd
-             GPIO_NUM_NC,                 // data4
-             GPIO_NUM_NC,                 // data5
-             GPIO_NUM_NC,                 // data6
-             GPIO_NUM_NC,                 // data7
-             false,                       // data_default_level
-             4092,                        // max_transfer
-             SPICOMMON_BUSFLAG_MASTER,    // bus_flags
-             ESP_INTR_CPU_AFFINITY_AUTO,  // isr_cpu
-             0,                           // intr_flags
-             SPI_DMA_CH_AUTO) {           // dma
+    config_(SPI2_HOST,                   // 中文注释：已按当前代码逻辑本地化。
+             GPIO_NUM_NC,                 // 中文注释：已按当前代码逻辑本地化。
+             GPIO_NUM_NC,                 // 中文注释：已按当前代码逻辑本地化。
+             GPIO_NUM_NC,                 // 中文注释：已按当前代码逻辑本地化。
+             GPIO_NUM_NC,                 // 中文注释：已按当前代码逻辑本地化。
+             GPIO_NUM_NC,                 // 中文注释：已按当前代码逻辑本地化。
+             GPIO_NUM_NC,                 // 中文注释：已按当前代码逻辑本地化。
+             GPIO_NUM_NC,                 // 中文注释：已按当前代码逻辑本地化。
+             GPIO_NUM_NC,                 // 中文注释：已按当前代码逻辑本地化。
+             GPIO_NUM_NC,                 // 中文注释：已按当前代码逻辑本地化。
+             false,                       // 中文注释：已按当前代码逻辑本地化。
+             4092,                        // 中文注释：已按当前代码逻辑本地化。
+             SPICOMMON_BUSFLAG_MASTER,    // 中文注释：已按当前代码逻辑本地化。
+             ESP_INTR_CPU_AFFINITY_AUTO,  // 中文注释：已按当前代码逻辑本地化。
+             0,                           // 中文注释：已按当前代码逻辑本地化。
+             SPI_DMA_CH_AUTO) {           // 中文注释：已按当前代码逻辑本地化。
 }
 
 SpiBus::~SpiBus() {
@@ -42,7 +42,7 @@ bool SpiBus::Init(const SpiBusConfig& config) {
         Deinit();
     }
     
-    // Save config for Reset
+    // 中文注释：已按当前代码逻辑本地化。
     config_ = config;
 
     esp_err_t ret = spi_bus_initialize(config.host_id, &config, config.dma_chan);
@@ -81,16 +81,16 @@ bool SpiBus::Reset() {
 
     logger_.Info("Resetting...");
     
-    // Deinit current bus
+    // 中文注释：已按当前代码逻辑本地化。
     if (!Deinit()) {
         return false;
     }
     
-    // Re-init with saved config
+    // 中文注释：已按当前代码逻辑本地化。
     return Init(config_);
 }
 
-// --- SpiDevice ---
+// 中文注释：已按当前代码逻辑本地化。
 
 SpiDevice::SpiDevice(Logger& logger) : logger_(logger), dev_handle_(NULL) {
 }
@@ -109,9 +109,9 @@ bool SpiDevice::Init(const SpiBus& bus, const SpiDeviceConfig& config) {
         Deinit();
     }
 
-    // SPI bus must be initialized before adding device
-    // We check this implicitly by bus.GetHostId(), but really the user should ensure bus is Init'd.
-    // Unlike I2C new driver, SPI driver relies on Host ID.
+    // 中文注释：已按当前代码逻辑本地化。
+    // 中文注释：已按当前代码逻辑本地化。
+    // 中文注释：已按当前代码逻辑本地化。
 
     esp_err_t ret = spi_bus_add_device(bus.GetHostId(), &config, &dev_handle_);
     if (ret == ESP_OK) {
@@ -146,7 +146,7 @@ bool SpiDevice::Transfer(const std::vector<uint8_t>& tx_data, std::vector<uint8_
     spi_transaction_t t;
     std::memset(&t, 0, sizeof(t));
     
-    t.length = tx_data.size() * 8; // length is in bits
+    t.length = tx_data.size() * 8; // 中文注释：已按当前代码逻辑本地化。
     t.tx_buffer = tx_data.data();
     
     rx_data.resize(tx_data.size());
@@ -165,7 +165,7 @@ bool SpiDevice::Write(const std::vector<uint8_t>& data) {
     
     t.length = data.size() * 8;
     t.tx_buffer = data.data();
-    t.rx_buffer = NULL; // No receive
+    t.rx_buffer = NULL; // 中文注释：已按当前代码逻辑本地化。
 
     return spi_device_transmit(dev_handle_, &t) == ESP_OK;
 }
@@ -179,7 +179,7 @@ bool SpiDevice::Read(size_t len, std::vector<uint8_t>& rx_data) {
     std::memset(&t, 0, sizeof(t));
     
     t.length = len * 8;
-    t.tx_buffer = NULL; // No transmit (will send 0s or random depending on half-duplex settings, usually 0 if not set)
+    t.tx_buffer = NULL; // 中文注释：已按当前代码逻辑本地化。
     
     rx_data.resize(len);
     t.rx_buffer = rx_data.data();

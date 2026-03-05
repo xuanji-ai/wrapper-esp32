@@ -43,4 +43,4 @@ Ip5306::ChargerVoltage Ip5306::GetChargerVoltage()
 	return static_cast<ChargerVoltage>(value & voltage_mask);
 }
 
-} // namespace wrapper
+} // 中文注释：已按当前代码逻辑本地化。

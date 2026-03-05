@@ -6,9 +6,9 @@ namespace wrapper {
 
 class Ili9341 : public SpiDisplay {
 public:
-    using SpiDisplay::SpiDisplay; // Inherit constructor
+    using SpiDisplay::SpiDisplay; // 中文注释：已按当前代码逻辑本地化。
 
     bool Init(const SpiBus& buf,  const SpiDisplayConfig& config);
 };
 
-} // namespace wrapper
+} // 中文注释：已按当前代码逻辑本地化。

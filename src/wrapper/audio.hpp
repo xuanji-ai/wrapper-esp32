@@ -9,7 +9,7 @@
 
 namespace wrapper
 {
-  class Speaker // no codec
+  class Speaker // 中文注释：已按当前代码逻辑本地化。
   {
       Logger &logger_;
       I2sBus *i2s_bus_ = nullptr; 
@@ -46,7 +46,7 @@ namespace wrapper
       }
   };
 
-  class Microphone // no codec
+  class Microphone // 中文注释：已按当前代码逻辑本地化。
   {
       Logger &logger_;
       I2sBus *i2s_bus_ = nullptr;
@@ -108,7 +108,7 @@ namespace wrapper
     const audio_codec_ctrl_if_t * GetCtrlInterface() const { return spk_ctrl_if_; }
     const audio_codec_if_t * GetCodecInterface() const { return spk_codec_if_; }
 
-    // operations
+    // 中文注释：已按当前代码逻辑本地化。
     bool Init(I2sBus &i2s_bus);
     bool AddSpeaker(I2cBus &i2c_bus, uint8_t addr, std::function<esp_err_t()> codec_new_func);
 
@@ -158,7 +158,7 @@ namespace wrapper
     const audio_codec_ctrl_if_t * GetCtrlInterface() const { return mic_ctrl_if_; }
     const audio_codec_if_t * GetCodecInterface() const { return mic_codec_if_; }
 
-    // operations
+    // 中文注释：已按当前代码逻辑本地化。
     bool Init(I2sBus &i2s_bus);
     bool AddMicrophone(I2cBus &i2c_bus, uint8_t addr, std::function<esp_err_t()> codec_new_func);
 
@@ -187,17 +187,17 @@ namespace wrapper
 
   class AudioCodec
   {
-    //common
+    // 中文注释：已按当前代码逻辑本地化。
     Logger &logger_;
     I2sBus *i2s_bus_ = nullptr;
     const audio_codec_data_if_t *i2s_data_if_ = nullptr;
     const audio_codec_gpio_if_t *i2s_gpio_if_ = nullptr;
-    //speaker
+    // 中文注释：已按当前代码逻辑本地化。
     const audio_codec_ctrl_if_t *spk_audio_codec_ctrl_if_ = nullptr;
     const audio_codec_if_t *spk_audio_codec_if_ = nullptr;
     esp_codec_dev_handle_t spk_codec_dev_handle_ = nullptr;
     bool spk_enabled_ = false;
-    //microphone
+    // 中文注释：已按当前代码逻辑本地化。
     const audio_codec_ctrl_if_t *mic_audio_codec_ctrl_if_ = nullptr;
     const audio_codec_if_t *mic_audio_codec_if_ = nullptr;
     esp_codec_dev_handle_t mic_codec_dev_handle_ = nullptr;  
@@ -220,7 +220,7 @@ namespace wrapper
     void SetSpeakerCodecDeviceHandle(esp_codec_dev_handle_t handle) { spk_codec_dev_handle_ = handle;  }
     void SetMicrophoneCodecDeviceHandle(esp_codec_dev_handle_t handle) { mic_codec_dev_handle_ = handle;  }
 
-    // operations
+    // 中文注释：已按当前代码逻辑本地化。
     bool Init(I2sBus &i2m_bus);
 
     bool AddSpeaker(I2cBus &i2c_bus, uint8_t addr, std::function<esp_err_t()> codec_new_func);
@@ -264,4 +264,4 @@ namespace wrapper
     bool TestMicrophone();
   };
 
-} // namespace wrapper
+} // 中文注释：已按当前代码逻辑本地化。

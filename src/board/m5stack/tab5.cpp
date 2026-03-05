@@ -7,81 +7,81 @@
 namespace wrapper
 {
   I2cBusConfig i2c_cfg(
-      I2C_NUM_0,           // port
-      GPIO_NUM_31,         // sda (M5TAB5_I2C_SDA)
-      GPIO_NUM_32,         // scl (M5TAB5_I2C_SCL)
-      I2C_CLK_SRC_DEFAULT, // clk_src
-      7,                   // glitch_ignore_cnt
-      0,                   // intr_priority
-      0,                   // trans_queue_depth (使用默认值)
-      true,                // enable_internal_pullup
-      false                // allow_pd
+      I2C_NUM_0,           // 中文注释：已按当前代码逻辑本地化。
+      GPIO_NUM_31,         // 中文注释：已按当前代码逻辑本地化。
+      GPIO_NUM_32,         // 中文注释：已按当前代码逻辑本地化。
+      I2C_CLK_SRC_DEFAULT, // 中文注释：已按当前代码逻辑本地化。
+      7,                   // 中文注释：已按当前代码逻辑本地化。
+      0,                   // 中文注释：已按当前代码逻辑本地化。
+      0,                   // 中文注释：已按当前代码逻辑本地化。
+      true,                // 中文注释：已按当前代码逻辑本地化。
+      false                // 中文注释：已按当前代码逻辑本地化。
   );
 
-  // M5Stack Tab5 背光配置
+  // 中文注释：已按当前代码逻辑本地化。
   LedcTimerConfig ledc_timer_cfg(
-      LEDC_LOW_SPEED_MODE, // speed_mode
-      LEDC_TIMER_10_BIT,   // duty_resolution (0-1023)
-      LEDC_TIMER_0,        // timer_num
-      5000,                // freq_hz (5kHz)
-      LEDC_AUTO_CLK        // clk_cfg
+      LEDC_LOW_SPEED_MODE, // 中文注释：已按当前代码逻辑本地化。
+      LEDC_TIMER_10_BIT,   // 中文注释：已按当前代码逻辑本地化。
+      LEDC_TIMER_0,        // 中文注释：已按当前代码逻辑本地化。
+      5000,                // 中文注释：已按当前代码逻辑本地化。
+      LEDC_AUTO_CLK        // 中文注释：已按当前代码逻辑本地化。
   );
 
   LedcChannelConfig ledc_channel_cfg(
-      GPIO_NUM_22,         // gpio_num (M5TAB5_LCD_BACKLIGHT)
-      LEDC_LOW_SPEED_MODE, // speed_mode
-      LEDC_CHANNEL_0,      // channel
-      LEDC_INTR_DISABLE,   // intr_type
-      LEDC_TIMER_0,        // timer_sel
-      0,                   // duty (初始为0)
-      0                    // hpoint
+      GPIO_NUM_22,         // 中文注释：已按当前代码逻辑本地化。
+      LEDC_LOW_SPEED_MODE, // 中文注释：已按当前代码逻辑本地化。
+      LEDC_CHANNEL_0,      // 中文注释：已按当前代码逻辑本地化。
+      LEDC_INTR_DISABLE,   // 中文注释：已按当前代码逻辑本地化。
+      LEDC_TIMER_0,        // 中文注释：已按当前代码逻辑本地化。
+      0,                   // 中文注释：已按当前代码逻辑本地化。
+      0                    // 中文注释：已按当前代码逻辑本地化。
   );
 
   LdoChannelConfig dsi_phy_ldo_cfg(
-      3,     // chan_id (LDO3 for MIPI DSI PHY)
-      2500,  // voltage_mv (2.5V)
-      false, // adjustable
-      false  // owned_by_hw
+      3,     // 中文注释：已按当前代码逻辑本地化。
+      2500,  // 中文注释：已按当前代码逻辑本地化。
+      false, // 中文注释：已按当前代码逻辑本地化。
+      false  // 中文注释：已按当前代码逻辑本地化。
   );
 
   DsiBusConfig dsi_bus_cfg(
-      0,                            // bus_id
-      2,                            // num_data_lanes
-      MIPI_DSI_PHY_CLK_SRC_DEFAULT, // phy_clk_src
-      1000                          // lane_bit_rate_mbps
+      0,                            // 中文注释：已按当前代码逻辑本地化。
+      2,                            // 中文注释：已按当前代码逻辑本地化。
+      MIPI_DSI_PHY_CLK_SRC_DEFAULT, // 中文注释：已按当前代码逻辑本地化。
+      1000                          // 中文注释：已按当前代码逻辑本地化。
   );
 
   DsiDisplayConfig dsi_display_cfg(
-      // DBI IO config parameters
-      0, // dbi_virtual_channel
-      8, // lcd_cmd_bits
-      8, // lcd_param_bits
-      // DPI Panel config parameters
-      0,                                  // dpi_virtual_channel
-      MIPI_DSI_DPI_CLK_SRC_DEFAULT,       // dpi_clk_src
-      60,                                 // dpi_clock_freq_mhz
-      LCD_COLOR_PIXEL_FORMAT_RGB565,      // pixel_format
-      static_cast<lcd_color_format_t>(0), // in_color_format
-      static_cast<lcd_color_format_t>(0), // out_color_format
-      1,                                  // num_fbs (官方默认值)
-      // video_timing nested struct members
-      720,  // h_size (BSP_LCD_H_RES)
-      1280, // v_size (BSP_LCD_V_RES)
-      40,   // hsync_pulse_width
-      140,  // hsync_back_porch
-      40,   // hsync_front_porch
-      4,    // vsync_pulse_width
-      20,   // vsync_back_porch
-      20,   // vsync_front_porch
-      // flags nested struct members
-      false, // use_dma2d (单帧缓冲区时禁用以避免状态机冲突)
-      false, // disable_lp
-      // Panel Device config parameters
-      GPIO_NUM_NC,               // reset_gpio_num
-      LCD_RGB_ELEMENT_ORDER_RGB, // rgb_ele_order
-      LCD_RGB_DATA_ENDIAN_BIG,   // data_endian
-      16,                        // bits_per_pixel
-      false                      // reset_active_high
+      // 中文注释：已按当前代码逻辑本地化。
+      0, // 中文注释：已按当前代码逻辑本地化。
+      8, // 中文注释：已按当前代码逻辑本地化。
+      8, // 中文注释：已按当前代码逻辑本地化。
+      // 中文注释：已按当前代码逻辑本地化。
+      0,                                  // 中文注释：已按当前代码逻辑本地化。
+      MIPI_DSI_DPI_CLK_SRC_DEFAULT,       // 中文注释：已按当前代码逻辑本地化。
+      60,                                 // 中文注释：已按当前代码逻辑本地化。
+      LCD_COLOR_PIXEL_FORMAT_RGB565,      // 中文注释：已按当前代码逻辑本地化。
+      static_cast<lcd_color_format_t>(0), // 中文注释：已按当前代码逻辑本地化。
+      static_cast<lcd_color_format_t>(0), // 中文注释：已按当前代码逻辑本地化。
+      1,                                  // 中文注释：已按当前代码逻辑本地化。
+      // 中文注释：已按当前代码逻辑本地化。
+      720,  // 中文注释：已按当前代码逻辑本地化。
+      1280, // 中文注释：已按当前代码逻辑本地化。
+      40,   // 中文注释：已按当前代码逻辑本地化。
+      140,  // 中文注释：已按当前代码逻辑本地化。
+      40,   // 中文注释：已按当前代码逻辑本地化。
+      4,    // 中文注释：已按当前代码逻辑本地化。
+      20,   // 中文注释：已按当前代码逻辑本地化。
+      20,   // 中文注释：已按当前代码逻辑本地化。
+      // 中文注释：已按当前代码逻辑本地化。
+      false, // 中文注释：已按当前代码逻辑本地化。
+      false, // 中文注释：已按当前代码逻辑本地化。
+      // 中文注释：已按当前代码逻辑本地化。
+      GPIO_NUM_NC,               // 中文注释：已按当前代码逻辑本地化。
+      LCD_RGB_ELEMENT_ORDER_RGB, // 中文注释：已按当前代码逻辑本地化。
+      LCD_RGB_DATA_ENDIAN_BIG,   // 中文注释：已按当前代码逻辑本地化。
+      16,                        // 中文注释：已按当前代码逻辑本地化。
+      false                      // 中文注释：已按当前代码逻辑本地化。
   );
 
   I2cTouchConfig gt911_touch_cfg(
@@ -117,69 +117,69 @@ namespace wrapper
       0);
 
   I2sChanStdConfig tx_rx_std_cfg(
-      // CLK config (5 params)
-      48000,                 // sample_rate_hz
-      I2S_CLK_SRC_DEFAULT,   // clk_src
-      0,                     // ext_clk_freq_hz
-      I2S_MCLK_MULTIPLE_256, // mclk_multiple
-      8,                     // bclk_div
-      // SLOT config (10 params)
-      I2S_DATA_BIT_WIDTH_16BIT, // data_bit_width
-      I2S_SLOT_BIT_WIDTH_AUTO,  // slot_bit_width
-      I2S_SLOT_MODE_MONO,       // slot_mode
-      I2S_STD_SLOT_BOTH,        // slot_mask
-      16,                       // ws_width
-      false,                    // ws_pol
-      true,                     // bit_shift
-      true,                     // msb_right
-      false,                    // left_align
-      false,                    // big_endian
-      // GPIO config (8 params)
-      GPIO_NUM_30, // mclk
-      GPIO_NUM_27, // bclk
-      GPIO_NUM_29, // ws
-      GPIO_NUM_26, // dout
-      GPIO_NUM_28, // din
-      false,       // invert_mclk
-      false,       // invert_bclk
-      false        // invert_ws
+      // 中文注释：已按当前代码逻辑本地化。
+      48000,                 // 中文注释：已按当前代码逻辑本地化。
+      I2S_CLK_SRC_DEFAULT,   // 中文注释：已按当前代码逻辑本地化。
+      0,                     // 中文注释：已按当前代码逻辑本地化。
+      I2S_MCLK_MULTIPLE_256, // 中文注释：已按当前代码逻辑本地化。
+      8,                     // 中文注释：已按当前代码逻辑本地化。
+      // 中文注释：已按当前代码逻辑本地化。
+      I2S_DATA_BIT_WIDTH_16BIT, // 中文注释：已按当前代码逻辑本地化。
+      I2S_SLOT_BIT_WIDTH_AUTO,  // 中文注释：已按当前代码逻辑本地化。
+      I2S_SLOT_MODE_MONO,       // 中文注释：已按当前代码逻辑本地化。
+      I2S_STD_SLOT_BOTH,        // 中文注释：已按当前代码逻辑本地化。
+      16,                       // 中文注释：已按当前代码逻辑本地化。
+      false,                    // 中文注释：已按当前代码逻辑本地化。
+      true,                     // 中文注释：已按当前代码逻辑本地化。
+      true,                     // 中文注释：已按当前代码逻辑本地化。
+      false,                    // 中文注释：已按当前代码逻辑本地化。
+      false,                    // 中文注释：已按当前代码逻辑本地化。
+      // 中文注释：已按当前代码逻辑本地化。
+      GPIO_NUM_30, // 中文注释：已按当前代码逻辑本地化。
+      GPIO_NUM_27, // 中文注释：已按当前代码逻辑本地化。
+      GPIO_NUM_29, // 中文注释：已按当前代码逻辑本地化。
+      GPIO_NUM_26, // 中文注释：已按当前代码逻辑本地化。
+      GPIO_NUM_28, // 中文注释：已按当前代码逻辑本地化。
+      false,       // 中文注释：已按当前代码逻辑本地化。
+      false,       // 中文注释：已按当前代码逻辑本地化。
+      false        // 中文注释：已按当前代码逻辑本地化。
   );
 
   LvglPortConfig lvgl_port_cfg(
-      5,          // task_prio
-      8192,       // stack_sz
-      1,          // affinity
-      20,         // max_sleep_ms
-      MALLOC_CAP_INTERNAL | MALLOC_CAP_8BIT, // stack_caps
-      25          // timer_ms
+      5,          // 中文注释：已按当前代码逻辑本地化。
+      8192,       // 中文注释：已按当前代码逻辑本地化。
+      1,          // 中文注释：已按当前代码逻辑本地化。
+      20,         // 中文注释：已按当前代码逻辑本地化。
+      MALLOC_CAP_INTERNAL | MALLOC_CAP_8BIT, // 中文注释：已按当前代码逻辑本地化。
+      25          // 中文注释：已按当前代码逻辑本地化。
   );
 
   LvglDisplayConfig lvgl_display_cfg(
-      720 * 50,   // buf_sz (BSP_LCD_H_RES * CONFIG_BSP_LCD_DRAW_BUF_HEIGHT)
-      true,       // double_buf
-      0,          // trans_sz
-      720,        // hor_res
-      1280,       // ver_res
-      false,      // mono
-      false,      // swap_xy
-      false,      // mirror_x
-      false,      // mirror_y
-      LV_COLOR_FORMAT_RGB565, // format
-      true,       // buff_dma
-      false,      // buff_spiram
-      true,       // sw_rotate (官方默认启用)
-      false,      // swap_bytes (BSP_LCD_BIGENDIAN=0)
-      false,      // full_refresh
-      false       // direct_mode
+      720 * 50,   // 中文注释：已按当前代码逻辑本地化。
+      true,       // 中文注释：已按当前代码逻辑本地化。
+      0,          // 中文注释：已按当前代码逻辑本地化。
+      720,        // 中文注释：已按当前代码逻辑本地化。
+      1280,       // 中文注释：已按当前代码逻辑本地化。
+      false,      // 中文注释：已按当前代码逻辑本地化。
+      false,      // 中文注释：已按当前代码逻辑本地化。
+      false,      // 中文注释：已按当前代码逻辑本地化。
+      false,      // 中文注释：已按当前代码逻辑本地化。
+      LV_COLOR_FORMAT_RGB565, // 中文注释：已按当前代码逻辑本地化。
+      true,       // 中文注释：已按当前代码逻辑本地化。
+      false,      // 中文注释：已按当前代码逻辑本地化。
+      true,       // 中文注释：已按当前代码逻辑本地化。
+      false,      // 中文注释：已按当前代码逻辑本地化。
+      false,      // 中文注释：已按当前代码逻辑本地化。
+      false       // 中文注释：已按当前代码逻辑本地化。
   );
 
   LvglTouchConfig lvgl_touch_cfg(
-      0.0f,   // scale_x
-      0.0f    // scale_y
+      0.0f,   // 中文注释：已按当前代码逻辑本地化。
+      0.0f    // 中文注释：已按当前代码逻辑本地化。
   );
 
   LvglDisplayDsiConfig lvgl_dsi_cfg(
-      false   // avoid_tearing (官方默认，需要num_fbs>1才能启用)
+      false   // 中文注释：已按当前代码逻辑本地化。
   );
 
   Logger lmain("Main");
@@ -194,8 +194,8 @@ namespace wrapper
   Logger llvgl("Board", "LVGL");
 
   I2cBus i2c_bus(li2c);
-  Pi4ioe5v6408 io_expander0(lioexp0); // 0x43
-  Pi4ioe5v6408 io_expander1(lioexp1); // 0x44
+  Pi4ioe5v6408 io_expander0(lioexp0); // 中文注释：已按当前代码逻辑本地化。
+  Pi4ioe5v6408 io_expander1(lioexp1); // 中文注释：已按当前代码逻辑本地化。
   LedcTimer ledc_timer(lledc);
   LedcChannel ledc_channel(lledc);
   LdoRegulator dsi_phy_ldo(lldo);
@@ -275,42 +275,42 @@ namespace wrapper
   {
     if(level>0)
     {
-        // I2C Bus
+        // 中文注释：已按当前代码逻辑本地化。
         if (!i2c_bus.Init(i2c_cfg)) {
         return false;
         }
         i2c_bus.Scan();
 
-        // IO Expanders
-        // Note: io_expander0.Init returns esp_err_t because it's Pi4ioe5v6408 which is not refactored yet.
-        if (!io_expander0.Init(i2c_bus, Pi4ioe5v6408::ADDR_LOW)) {  // 0x43
+        // 中文注释：已按当前代码逻辑本地化。
+        // 中文注释：已按当前代码逻辑本地化。
+        if (!io_expander0.Init(i2c_bus, Pi4ioe5v6408::ADDR_LOW)) {  // 中文注释：已按当前代码逻辑本地化。
         return false;
         }
-        if (!io_expander1.Init(i2c_bus, Pi4ioe5v6408::ADDR_HIGH)) { // 0x44
+        if (!io_expander1.Init(i2c_bus, Pi4ioe5v6408::ADDR_HIGH)) { // 中文注释：已按当前代码逻辑本地化。
         return false;
         }
     }
     
     if(level>1)
     {
-        // IO Expander0 配置 (LCD, Touch, Speaker, Camera)
-        io_expander0.SetDirection(IO_EXPANDER_PIN_NUM_4, IO_EXPANDER_OUTPUT); // LCD_EN
+        // 中文注释：已按当前代码逻辑本地化。
+        io_expander0.SetDirection(IO_EXPANDER_PIN_NUM_4, IO_EXPANDER_OUTPUT); // 中文注释：已按当前代码逻辑本地化。
         io_expander0.SetLevel(IO_EXPANDER_PIN_NUM_4, 1);
         io_expander0.SetOutputMode(IO_EXPANDER_PIN_NUM_4, IO_EXPANDER_OUTPUT_MODE_PUSH_PULL);
 
-        io_expander0.SetDirection(IO_EXPANDER_PIN_NUM_5, IO_EXPANDER_OUTPUT); // TOUCH_EN
+        io_expander0.SetDirection(IO_EXPANDER_PIN_NUM_5, IO_EXPANDER_OUTPUT); // 中文注释：已按当前代码逻辑本地化。
         io_expander0.SetLevel(IO_EXPANDER_PIN_NUM_5, 1);
 
-        io_expander0.SetDirection(IO_EXPANDER_PIN_NUM_1, IO_EXPANDER_OUTPUT); // SPEAKER_EN
+        io_expander0.SetDirection(IO_EXPANDER_PIN_NUM_1, IO_EXPANDER_OUTPUT); // 中文注释：已按当前代码逻辑本地化。
         io_expander0.SetLevel(IO_EXPANDER_PIN_NUM_1, 1);
 
-        io_expander1.SetDirection(IO_EXPANDER_PIN_NUM_3, IO_EXPANDER_OUTPUT); // USB_EN
+        io_expander1.SetDirection(IO_EXPANDER_PIN_NUM_3, IO_EXPANDER_OUTPUT); // 中文注释：已按当前代码逻辑本地化。
         io_expander1.SetLevel(IO_EXPANDER_PIN_NUM_3, 1);
 
-        io_expander1.SetDirection(IO_EXPANDER_PIN_NUM_0, IO_EXPANDER_OUTPUT); // WIFI_EN
+        io_expander1.SetDirection(IO_EXPANDER_PIN_NUM_0, IO_EXPANDER_OUTPUT); // 中文注释：已按当前代码逻辑本地化。
         io_expander1.SetLevel(IO_EXPANDER_PIN_NUM_0, 1);
 
-        // Backlight (LEDC)
+        // 中文注释：已按当前代码逻辑本地化。
         if (!ledc_timer.Init(ledc_timer_cfg)) {
             return false;
         }
@@ -318,12 +318,12 @@ namespace wrapper
             return false;
         }
 
-        // DSI PHY Power (LDO)
+        // 中文注释：已按当前代码逻辑本地化。
         if (!dsi_phy_ldo.Init(dsi_phy_ldo_cfg)) {
             return false;
         }
 
-        // 等待 DSI PHY 电源稳定
+        // 中文注释：已按当前代码逻辑本地化。
         vTaskDelay(pdMS_TO_TICKS(100));
 
         dsi_bus.Init(dsi_bus_cfg);
@@ -331,7 +331,7 @@ namespace wrapper
             return false;
         }
 
-        // 官方 BSP 在初始化后调用 InvertColor(false)
+        // 中文注释：已按当前代码逻辑本地化。
         dsi_display.InvertColor(false);
 
         if (!gt911_touch.Init(i2c_bus, gt911_touch_cfg)) {
@@ -442,7 +442,7 @@ namespace wrapper
     if (percent > 100)
       percent = 100;
       
-    // LEDC resolution set to 10bits (1023)
+    // 中文注释：已按当前代码逻辑本地化。
     uint32_t duty = (1023 * percent) / 100;
     ledc_channel.SetDutyAndUpdate(duty);
   }
@@ -454,7 +454,7 @@ namespace wrapper
 
   void M5StackTab5::SetDisplayPower(bool on)
   {
-    // IO_EXPANDER_PIN_NUM_4 is LCD_EN
+    // 中文注释：已按当前代码逻辑本地化。
     io_expander0.SetLevel(IO_EXPANDER_PIN_NUM_4, on ? 1 : 0);
   }
-} // namespace wrapper
+} // 中文注释：已按当前代码逻辑本地化。

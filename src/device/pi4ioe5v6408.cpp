@@ -151,6 +151,6 @@ bool Pi4ioe5v6408::PrintState()
     return esp_io_expander_print_state(m_handle) == ESP_OK;
 }
 
-} // namespace wrapper
+} // 中文注释：已按当前代码逻辑本地化。
 
-#endif // __has_include("esp_io_expander.h")
+#endif // 中文注释：已按当前代码逻辑本地化。

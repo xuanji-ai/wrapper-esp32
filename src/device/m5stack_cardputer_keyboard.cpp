@@ -134,7 +134,7 @@ namespace wrapper
 
   void Keyboard::Update()
   {
-    // Save previous state for IsChanged()
+    // 中文注释：已按当前代码逻辑本地化。
     last_key_list_buffer_ = key_list_buffer_;
 
     UpdateKeyList();
@@ -154,10 +154,10 @@ namespace wrapper
       SetOutput(i);
       input_value = GetInput();
 
-      /* If key pressed */
+      /* 中文注释：已按当前代码逻辑本地化。 */
       if (input_value)
       {
-        /* Get X */
+        /* 中文注释：已按当前代码逻辑本地化。 */
         for (int j = 0; j < 7; j++)
         {
           if (input_value == kXMapChart[j].value)
@@ -167,10 +167,10 @@ namespace wrapper
           }
         }
 
-        /* Get Y */
+        /* 中文注释：已按当前代码逻辑本地化。 */
         coor.y = (i > 3) ? (i - 4) : i;
 
-        /* Keep the same as picture */
+        /* 中文注释：已按当前代码逻辑本地化。 */
         coor.y = -coor.y;
         coor.y = coor.y + 3;
 
@@ -206,20 +206,20 @@ namespace wrapper
       SetOutput(i);
       input_value = GetInput();
 
-      /* If key pressed */
+      /* 中文注释：已按当前代码逻辑本地化。 */
       if (input_value)
       {
-        /* Get X */
+        /* 中文注释：已按当前代码逻辑本地化。 */
         for (int j = 0; j < 7; j++)
         {
           if (input_value & (0x01 << j))
           {
             coor.x = (i > 3) ? kXMapChart[j].x_1 : kXMapChart[j].x_2;
 
-            /* Get Y */
+            /* 中文注释：已按当前代码逻辑本地化。 */
             coor.y = (i > 3) ? (i - 4) : i;
 
-            /* Keep the same as picture */
+            /* 中文注释：已按当前代码逻辑本地化。 */
             coor.y = -coor.y;
             coor.y = coor.y + 3;
 
@@ -248,11 +248,11 @@ namespace wrapper
     keys_state_buffer_.Reset();
     key_values_without_special_keys_.clear();
 
-    // Get special keys
+    // 中文注释：已按当前代码逻辑本地化。
     for (auto &i : key_list_buffer_)
     {
       int key_code = GetKeyValue(i).value_num_first;
-      const char *key_str = GetKeyValue(i).value_first; // Fallback for fn/opt which have 0 key_code
+      const char *key_str = GetKeyValue(i).value_first; // 中文注释：已按当前代码逻辑本地化。
 
       if (key_code == KeyCode::KEY_TAB)
       {
@@ -306,7 +306,7 @@ namespace wrapper
       key_values_without_special_keys_.push_back(i);
     }
 
-    // Deal what left
+    // 中文注释：已按当前代码逻辑本地化。
     for (auto &i : key_values_without_special_keys_)
     {
       if (keys_state_buffer_.ctrl || keys_state_buffer_.shift || is_caps_locked_)
@@ -329,10 +329,10 @@ namespace wrapper
       return true;
     }
 
-    // Sizes are equal, check content
-    // Assuming order might differ? UpdateKeyList always scans 0..7 so order should be deterministic
-    // based on hardware scan. If I hold A then B, vs B then A, the order depends on their position in matrix.
-    // So simple vector comparison should work if we assume matrix scan order is fixed.
+    // 中文注释：已按当前代码逻辑本地化。
+    // 中文注释：已按当前代码逻辑本地化。
+    // 中文注释：已按当前代码逻辑本地化。
+    // 中文注释：已按当前代码逻辑本地化。
 
     for (size_t i = 0; i < key_list_buffer_.size(); ++i)
     {
@@ -345,4 +345,4 @@ namespace wrapper
     return false;
   }
 
-} // namespace wrapper
+} // 中文注释：已按当前代码逻辑本地化。

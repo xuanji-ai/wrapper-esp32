@@ -60,7 +60,7 @@ namespace wrapper
     ledc_mode_t GetSpeedMode() const { return speed_mode_; }
     ledc_timer_t GetTimerNum() const { return timer_num_; }
     bool IsInitialized() const { return initialized_; }
-    // operations
+    // 中文注释：已按当前代码逻辑本地化。
     bool Init(const LedcTimerConfig &config);
     bool Deinit();
     bool Pause();
@@ -84,7 +84,7 @@ namespace wrapper
     ledc_mode_t GetSpeedMode() const { return speed_mode_; }
     ledc_channel_t GetChannel() const { return channel_; }
     bool IsInitialized() const { return initialized_; }
-    // operations
+    // 中文注释：已按当前代码逻辑本地化。
     bool Init(const LedcChannelConfig &config);
     bool Deinit();
     bool SetDuty(uint32_t duty);

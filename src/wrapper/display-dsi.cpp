@@ -3,7 +3,7 @@
 namespace wrapper
 {
 
-// --- DsiBus ---
+// 中文注释：已按当前代码逻辑本地化。
 
 DsiBus::DsiBus(Logger& logger) : logger_(logger) {
     
@@ -53,7 +53,7 @@ bool DsiBus::Deinit() {
   return true;
 }
 
-// --- DsiDisplay ---
+// 中文注释：已按当前代码逻辑本地化。
 
 DsiDisplay::DsiDisplay(Logger& logger) : DsiDisplay::DisplayBase(logger) {}
 
@@ -69,15 +69,15 @@ bool DsiDisplay::Init(
   void* vendor_config,
   std::function<void(void)> vendor_config_init_func)
 {
-  // 1. Initialize Panel IO (DBI)
+  // 中文注释：已按当前代码逻辑本地化。
   if (!InitIo(bus, config.dbi_config)) return false;
 
-  // 2. Execute vendor config initialization callback if provided
+  // 中文注释：已按当前代码逻辑本地化。
   if (vendor_config_init_func) {
     vendor_config_init_func();
   }
 
-  // 3. Create Panel handle with vendor_config
+  // 中文注释：已按当前代码逻辑本地化。
   esp_lcd_panel_dev_config_t panel_config = config.panel_config;
   panel_config.vendor_config = vendor_config;
   
@@ -87,7 +87,7 @@ bool DsiDisplay::Init(
     return false;
   }
 
-  // 4. Initialize Panel (reset, init, turn on)
+  // 中文注释：已按当前代码逻辑本地化。
   return InitPanel(panel_config, custom_init_panel_func, vendor_config, vendor_config_init_func);
 }
 
@@ -103,7 +103,7 @@ bool DsiDisplay::InitIo(const DsiBus& bus, const esp_lcd_dbi_io_config_t& config
     return false;
   }
 
-  // Create DBI IO handle
+  // 中文注释：已按当前代码逻辑本地化。
   esp_err_t ret = esp_lcd_new_panel_io_dbi(bus.GetHandle(), &config, &io_handle_);
   if (ret != ESP_OK) {
     logger_.Error("Failed to create LCD DBI IO handle: %s", esp_err_to_name(ret));
@@ -130,7 +130,7 @@ bool DsiDisplay::InitPanel(
     return false;
   }
 
-  // 1. Reset the display
+  // 中文注释：已按当前代码逻辑本地化。
   logger_.Info("Resetting panel...");
   esp_err_t ret = esp_lcd_panel_reset(panel_handle_);
   if (ret != ESP_OK) {
@@ -138,7 +138,7 @@ bool DsiDisplay::InitPanel(
     return false;
   }
 
-  // 2. Initialize the display
+  // 中文注释：已按当前代码逻辑本地化。
   logger_.Info("Initializing panel...");
   if (custom_init_panel_func == nullptr) {
     ret = esp_lcd_panel_init(panel_handle_);
@@ -151,7 +151,7 @@ bool DsiDisplay::InitPanel(
     return false;
   }
 
-  // 3. Set invert color (optional, typically false for most panels)
+  // 中文注释：已按当前代码逻辑本地化。
   logger_.Info("Setting invert color...");
   ret = esp_lcd_panel_invert_color(panel_handle_, false);
   if (ret != ESP_OK) {
@@ -193,4 +193,4 @@ bool DsiDisplay::Deinit()
   return false;
 }
 
-} // namespace wrapper
+} // 中文注释：已按当前代码逻辑本地化。

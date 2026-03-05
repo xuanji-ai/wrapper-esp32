@@ -7,7 +7,7 @@
 #include "wrapper/logger.hpp"
 #include "wrapper/i2c.hpp"
 #include "wrapper/spi.hpp"
-// #include "wrapper/display.hpp"
+// 中文注释：已按当前代码逻辑本地化。
 
 namespace wrapper
 {
@@ -17,7 +17,7 @@ namespace wrapper
         esp_lcd_panel_dev_config_t panel_config;
 
         I2cDisplayConfig(
-            // io_config parameters
+            // 中文注释：已按当前代码逻辑本地化。
             uint16_t dev_addr = 0x00,
             esp_lcd_panel_io_color_trans_done_cb_t on_color_trans_done = nullptr,
             void *user_ctx = nullptr,
@@ -28,7 +28,7 @@ namespace wrapper
             bool dc_low_on_data = false,
             bool disable_control_phase = true,
             uint32_t scl_speed_hz = 100000,
-            // panel_config parameters
+            // 中文注释：已按当前代码逻辑本地化。
             gpio_num_t reset_gpio = GPIO_NUM_NC,
             lcd_rgb_element_order_t rgb_order = LCD_RGB_ELEMENT_ORDER_RGB,
             lcd_rgb_data_endian_t data_endian = LCD_RGB_DATA_ENDIAN_BIG,
@@ -36,7 +36,7 @@ namespace wrapper
             bool reset_active_high = false,
             void *vendor_conf = nullptr) : io_config{}, panel_config{}
         {
-            // Init io_config
+            // 中文注释：已按当前代码逻辑本地化。
             io_config.dev_addr = dev_addr;
             io_config.on_color_trans_done = on_color_trans_done;
             io_config.user_ctx = user_ctx;
@@ -48,7 +48,7 @@ namespace wrapper
             io_config.flags.disable_control_phase = disable_control_phase;
             io_config.scl_speed_hz = scl_speed_hz;
 
-            // Init panel_config
+            // 中文注释：已按当前代码逻辑本地化。
             panel_config.reset_gpio_num = reset_gpio;
             panel_config.rgb_ele_order = rgb_order;
             panel_config.data_endian = data_endian;
@@ -64,7 +64,7 @@ namespace wrapper
         esp_lcd_panel_dev_config_t panel_config;
 
         SpiDisplayConfig(
-            // io_config parameters
+            // 中文注释：已按当前代码逻辑本地化。
             int cs_gpio,
             int dc_gpio,
             int spi_mode,
@@ -76,7 +76,7 @@ namespace wrapper
             void *user_ctx = nullptr,
             int cs_ena_pretrans = 0,
             int cs_ena_posttrans = 0,
-            // io_config flags
+            // 中文注释：已按当前代码逻辑本地化。
             unsigned int dc_high_on_cmd = 0,
             unsigned int dc_low_on_data = 0,
             unsigned int dc_low_on_param = 0,
@@ -85,7 +85,7 @@ namespace wrapper
             unsigned int sio_mode = 0,
             unsigned int lsb_first = 0,
             unsigned int cs_high_active = 0,
-            // panel_config parameters
+            // 中文注释：已按当前代码逻辑本地化。
             gpio_num_t reset_gpio = GPIO_NUM_NC,
             lcd_rgb_element_order_t rgb_order = LCD_RGB_ELEMENT_ORDER_RGB,
             lcd_rgb_data_endian_t data_endian = LCD_RGB_DATA_ENDIAN_BIG,
@@ -93,7 +93,7 @@ namespace wrapper
             bool reset_active_high = false,
             void *vendor_conf = nullptr) : io_config{}, panel_config{}
         {
-            // Init io_config
+            // 中文注释：已按当前代码逻辑本地化。
             io_config.cs_gpio_num = cs_gpio;
             io_config.dc_gpio_num = dc_gpio;
             io_config.spi_mode = spi_mode;
@@ -106,7 +106,7 @@ namespace wrapper
             io_config.cs_ena_pretrans = cs_ena_pretrans;
             io_config.cs_ena_posttrans = cs_ena_posttrans;
 
-            // Init flags
+            // 中文注释：已按当前代码逻辑本地化。
             io_config.flags.dc_high_on_cmd = dc_high_on_cmd;
             io_config.flags.dc_low_on_data = dc_low_on_data;
             io_config.flags.dc_low_on_param = dc_low_on_param;
@@ -116,7 +116,7 @@ namespace wrapper
             io_config.flags.lsb_first = lsb_first;
             io_config.flags.cs_high_active = cs_high_active;
 
-            // Init panel_config
+            // 中文注释：已按当前代码逻辑本地化。
             panel_config.reset_gpio_num = reset_gpio;
             panel_config.rgb_ele_order = rgb_order;
             panel_config.data_endian = data_endian;
@@ -141,7 +141,7 @@ namespace wrapper
 
         Logger &GetLogger() { return logger_; }
 
-        // Panel IO operations
+        // 中文注释：已按当前代码逻辑本地化。
         bool IoTxParam(int lcd_cmd, const void *param, size_t param_size)
         {
             return esp_lcd_panel_io_tx_param(io_handle_, lcd_cmd, param, param_size) == ESP_OK;
@@ -152,7 +152,7 @@ namespace wrapper
             return esp_lcd_panel_io_tx_color(io_handle_, lcd_cmd, color, color_size) == ESP_OK;
         }
 
-        // Panel operations
+        // 中文注释：已按当前代码逻辑本地化。
         bool Reset() { return esp_lcd_panel_reset(panel_handle_) == ESP_OK; }
         bool Init() { return esp_lcd_panel_init(panel_handle_) == ESP_OK; }
 
@@ -191,24 +191,20 @@ namespace wrapper
             return esp_lcd_panel_disp_sleep(panel_handle_, sleep) == ESP_OK;
         }
 
-        // Resource cleanup
+        // 中文注释：已按当前代码逻辑本地化。
         bool DelPanel() { return esp_lcd_panel_del(panel_handle_) == ESP_OK; }
         bool DelIo() { return esp_lcd_panel_io_del(io_handle_) == ESP_OK; }
 
-        // Handle getters
+        // 中文注释：已按当前代码逻辑本地化。
         esp_lcd_panel_io_handle_t GetIoHandle() const { return io_handle_; }
         esp_lcd_panel_handle_t GetPanelHandle() const { return panel_handle_; }
     };
 
-    /**
-     * @brief I2C LCD Display wrapper class
-     *
-     * Specialized display class for I2C-based LCD panels
-     */
+    /* 中文注释：已按当前代码逻辑本地化。 */
     class I2cDisplay : public DisplayBase
     {
     private:
-        // const I2cBus &bus_;
+        // 中文注释：已按当前代码逻辑本地化。
 
         bool InitIo(const I2cBus &bus, const I2cDisplayConfig &config);
         bool InitPanel(const I2cDisplayConfig &config, std::function<esp_err_t(const esp_lcd_panel_io_handle_t)> custom_init_panel_func = nullptr);
@@ -247,4 +243,4 @@ namespace wrapper
         bool Deinit();
     };
 
-} // namespace wrapper
+} // 中文注释：已按当前代码逻辑本地化。

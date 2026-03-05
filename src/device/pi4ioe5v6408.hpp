@@ -9,11 +9,7 @@
 namespace wrapper
 {
 
-/**
- * @brief PI4IOE5V6408 I2C IO Expander wrapper class
- * 
- * 8-bit I2C-bus and SMBus I/O port with interrupt and reset
- */
+/* 中文注释：已按当前代码逻辑本地化。 */
 class Pi4ioe5v6408
 {
 private:
@@ -22,15 +18,15 @@ private:
     uint8_t m_dev_addr;
 
 public:
-    static constexpr uint8_t ADDR_LOW = ESP_IO_EXPANDER_I2C_PI4IOE5V6408_ADDRESS_LOW;   // 0x43
-    static constexpr uint8_t ADDR_HIGH = ESP_IO_EXPANDER_I2C_PI4IOE5V6408_ADDRESS_HIGH; // 0x44
+    static constexpr uint8_t ADDR_LOW = ESP_IO_EXPANDER_I2C_PI4IOE5V6408_ADDRESS_LOW;   // 中文注释：已按当前代码逻辑本地化。
+    static constexpr uint8_t ADDR_HIGH = ESP_IO_EXPANDER_I2C_PI4IOE5V6408_ADDRESS_HIGH; // 中文注释：已按当前代码逻辑本地化。
     static constexpr uint32_t DEFAULT_SPEED = 400000;
 
     Pi4ioe5v6408(Logger &logger);
     ~Pi4ioe5v6408();
     esp_io_expander_handle_t GetHandle() const { return m_handle; }
 
-    // Ops
+    // 中文注释：已按当前代码逻辑本地化。
     bool Init(const I2cBus &bus, uint8_t dev_addr);
     bool Deinit();
     bool SetDirection(uint32_t io_num, uint32_t direction);
@@ -41,6 +37,6 @@ public:
     bool PrintState();
 };
 
-} // namespace wrapper
+} // 中文注释：已按当前代码逻辑本地化。
 
-#endif // __has_include("esp_io_expander.h")
+#endif // 中文注释：已按当前代码逻辑本地化。

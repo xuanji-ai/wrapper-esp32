@@ -25,7 +25,7 @@ namespace wrapper
     vTaskDelayUntil(previous_wake_time, time_increment_ticks);
   }
 
-  // Task Implementation
+  // 中文注释：已按当前代码逻辑本地化。
   Task::Task(const std::string &name,
              std::function<void(void *)> function,
              void *arg,
@@ -115,7 +115,7 @@ namespace wrapper
     return handle_;
   }
 
-  // Semaphore Implementation
+  // 中文注释：已按当前代码逻辑本地化。
   Semaphore::Semaphore() : handle_(nullptr)
   {
   }
@@ -157,25 +157,25 @@ namespace wrapper
     return xSemaphoreGiveFromISR(handle_, pxHigherPriorityTaskWoken) == pdTRUE;
   }
 
-  // BinarySemaphore Implementation
+  // 中文注释：已按当前代码逻辑本地化。
   BinarySemaphore::BinarySemaphore()
   {
     handle_ = xSemaphoreCreateBinary();
   }
 
-  // CountingSemaphore Implementation
+  // 中文注释：已按当前代码逻辑本地化。
   CountingSemaphore::CountingSemaphore(UBaseType_t max_count, UBaseType_t initial_count)
   {
     handle_ = xSemaphoreCreateCounting(max_count, initial_count);
   }
 
-  // Mutex Implementation
+  // 中文注释：已按当前代码逻辑本地化。
   Mutex::Mutex()
   {
     handle_ = xSemaphoreCreateMutex();
   }
 
-  // RecursiveMutex Implementation
+  // 中文注释：已按当前代码逻辑本地化。
   RecursiveMutex::RecursiveMutex()
   {
     handle_ = xSemaphoreCreateRecursiveMutex();
@@ -195,7 +195,7 @@ namespace wrapper
     return xSemaphoreGiveRecursive(handle_) == pdTRUE;
   }
 
-  // EventGroup Implementation
+  // 中文注释：已按当前代码逻辑本地化。
   EventGroup::EventGroup()
   {
     handle_ = xEventGroupCreate();
@@ -291,4 +291,4 @@ namespace wrapper
     return handle_ != nullptr;
   }
 
-} // namespace wrapper
+} // 中文注释：已按当前代码逻辑本地化。

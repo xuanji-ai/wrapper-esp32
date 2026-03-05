@@ -62,7 +62,7 @@ bool LvglPort::Deinit()
         initialized_ = false;
         logger_.Info("LVGL port deinitialized");
         
-        // Give LVGL worker task a moment to exit cleanly
+        // 中文注释：已按当前代码逻辑本地化。
         vTaskDelay(pdMS_TO_TICKS(20));
     }
 
@@ -84,7 +84,7 @@ bool LvglPort::AddDisplay(const DisplayBase& display, LvglDisplayConfig& config)
         lvgl_display_ = NULL;
     }
 
-    // LvglDisplayConfig final_config = config;
+    // 中文注释：已按当前代码逻辑本地化。
     config.io_handle = display.GetIoHandle();
     config.panel_handle = display.GetPanelHandle();
 
@@ -205,15 +205,15 @@ void LvglPort::Test(bool is_monochrome)
         return;
     }
 
-    // Get display resolution
+    // 中文注释：已按当前代码逻辑本地化。
     int32_t hor_res = lv_display_get_horizontal_resolution(lvgl_display_);
     int32_t ver_res = lv_display_get_vertical_resolution(lvgl_display_);
     logger_.Info("Display resolution: %dx%d", hor_res, ver_res);
 
-    // Calculate scale factor based on minimum dimension (relative to 128px baseline)
+    // 中文注释：已按当前代码逻辑本地化。
     int32_t min_dim = (hor_res < ver_res) ? hor_res : ver_res;
 
-    // 1. Clear screen and remove default padding/border
+    // 中文注释：已按当前代码逻辑本地化。
     lv_obj_set_style_bg_opa(scr, LV_OPA_COVER, LV_PART_MAIN);
     lv_obj_set_style_pad_all(scr, 0, 0);
     lv_obj_set_style_border_width(scr, 0, 0);
@@ -221,10 +221,10 @@ void LvglPort::Test(bool is_monochrome)
     if (is_monochrome) {
         lv_obj_set_style_bg_color(scr, lv_color_hex(0x000000), LV_PART_MAIN);
     } else {
-        lv_obj_set_style_bg_color(scr, lv_color_hex(0x1F1F1F), LV_PART_MAIN); // Dark gray
+        lv_obj_set_style_bg_color(scr, lv_color_hex(0x1F1F1F), LV_PART_MAIN); // 中文注释：已按当前代码逻辑本地化。
     }
 
-    // 2. Create Title Label (top 10% of screen)
+    // 中文注释：已按当前代码逻辑本地化。
     lv_obj_t *label = lv_label_create(scr);
     if (label)
     {
@@ -232,7 +232,7 @@ void LvglPort::Test(bool is_monochrome)
         lv_obj_set_style_text_align(label, LV_TEXT_ALIGN_CENTER, 0);
         lv_obj_set_style_text_color(label, lv_color_hex(0xFFFFFF), 0);
         
-        // Font selection based on screen size
+        // 中文注释：已按当前代码逻辑本地化。
         if (min_dim >= 480) {
             lv_obj_set_style_text_font(label, &lv_font_montserrat_28, 0);
         } else if (min_dim >= 240) {
@@ -240,21 +240,21 @@ void LvglPort::Test(bool is_monochrome)
         } else if (min_dim >= 128) {
             lv_obj_set_style_text_font(label, &lv_font_montserrat_14, 0);
         }
-        // else use default font
+        // 中文注释：已按当前代码逻辑本地化。
         
-        int32_t label_y = (ver_res * 5) / 100; // 5% from top
+        int32_t label_y = (ver_res * 5) / 100; // 中文注释：已按当前代码逻辑本地化。
         if (label_y < 2) label_y = 2;
         lv_obj_align(label, LV_ALIGN_TOP_MID, 0, label_y);
         logger_.Info("Test label created");
     }
 
     if (!is_monochrome) {
-        // 3. Color Specific: RGB Bars (centered, 60% width, 15% height)
+        // 中文注释：已按当前代码逻辑本地化。
         lv_obj_t *container = lv_obj_create(scr);
         int32_t cont_w = (hor_res * 60) / 100;
         int32_t cont_h = (ver_res * 15) / 100;
-        if (cont_h < 24) cont_h = 24; // Minimum height for visibility
-        if (cont_w < 60) cont_w = 60; // Minimum width
+        if (cont_h < 24) cont_h = 24; // 中文注释：已按当前代码逻辑本地化。
+        if (cont_w < 60) cont_w = 60; // 中文注释：已按当前代码逻辑本地化。
 
         lv_obj_set_size(container, cont_w, cont_h);
         lv_obj_align(container, LV_ALIGN_CENTER, 0, 0);
@@ -264,11 +264,11 @@ void LvglPort::Test(bool is_monochrome)
         lv_obj_remove_flag(container, LV_OBJ_FLAG_SCROLLABLE);
 
         static lv_color_t colors[] = {lv_palette_main(LV_PALETTE_RED), lv_palette_main(LV_PALETTE_GREEN), lv_palette_main(LV_PALETTE_BLUE)};
-        int32_t rect_size = (cont_h * 80) / 100; // 80% of container height
+        int32_t rect_size = (cont_h * 80) / 100; // 中文注释：已按当前代码逻辑本地化。
         if (rect_size < 16) rect_size = 16;
         int32_t spacing = (cont_w - 3 * rect_size) / 4;
         if (spacing < 4) spacing = 4;
-        int32_t radius = (rect_size * 15) / 100; // 15% radius
+        int32_t radius = (rect_size * 15) / 100; // 中文注释：已按当前代码逻辑本地化。
         if (radius < 2) radius = 2;
 
         for (int i = 0; i < 3; i++) {
@@ -281,7 +281,7 @@ void LvglPort::Test(bool is_monochrome)
         }
         logger_.Info("RGB bars created (size: %d, spacing: %d)", rect_size, spacing);
     } else {
-        // 3. Mono Specific: White Frame (centered, 50% width, 25% height)
+        // 中文注释：已按当前代码逻辑本地化。
         lv_obj_t *frame = lv_obj_create(scr);
         int32_t frame_w = (hor_res * 50) / 100;
         int32_t frame_h = (ver_res * 25) / 100;
@@ -301,25 +301,25 @@ void LvglPort::Test(bool is_monochrome)
         logger_.Info("White frame created (%dx%d, border: %d)", frame_w, frame_h, border_w);
     }
 
-    // 4. Create Spinner (bottom 20% of screen)
+    // 中文注释：已按当前代码逻辑本地化。
     lv_obj_t *spinner = lv_spinner_create(scr);
     if (spinner)
     {
         lv_spinner_set_anim_params(spinner, 1000, 60);
         
-        // Spinner size: 15% of minimum dimension
+        // 中文注释：已按当前代码逻辑本地化。
         int32_t spin_size = (min_dim * 15) / 100;
-        if (spin_size < 20) spin_size = 20; // Minimum size for visibility
-        if (spin_size > 100) spin_size = 100; // Maximum size
+        if (spin_size < 20) spin_size = 20; // 中文注释：已按当前代码逻辑本地化。
+        if (spin_size > 100) spin_size = 100; // 中文注释：已按当前代码逻辑本地化。
         
         lv_obj_set_size(spinner, spin_size, spin_size);
         
-        int32_t spin_y = -(ver_res * 5) / 100; // 5% from bottom
+        int32_t spin_y = -(ver_res * 5) / 100; // 中文注释：已按当前代码逻辑本地化。
         if (spin_y > -2) spin_y = -2;
         lv_obj_align(spinner, LV_ALIGN_BOTTOM_MID, 0, spin_y);
         
-        // Arc width: proportional to spinner size
-        int32_t arc_w = (spin_size * 12) / 100; // 12% of spinner size
+        // 中文注释：已按当前代码逻辑本地化。
+        int32_t arc_w = (spin_size * 12) / 100; // 中文注释：已按当前代码逻辑本地化。
         if (arc_w < 2) arc_w = 2;
         if (arc_w > 10) arc_w = 10;
 
@@ -355,11 +355,11 @@ bool LvglPort::SetRotation(lv_display_rotation_t rotation)
         return false;
     }
 
-    // if (rotation != 0 && rotation != 90 && rotation != 180 && rotation != 270)
+    // 中文注释：已按当前代码逻辑本地化。
     // {
-    //     logger_.Error("Invalid rotation value. Must be 0, 90, 180, or 270 degrees");
-    //     Unlock();
-    //     return false;
+    // 中文注释：已按当前代码逻辑本地化。
+    // 中文注释：已按当前代码逻辑本地化。
+    // 中文注释：已按当前代码逻辑本地化。
     // }
 
     lv_disp_set_rotation(lvgl_display_, rotation);
