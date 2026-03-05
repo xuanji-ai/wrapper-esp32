@@ -15,7 +15,7 @@ namespace wrapper
     esp_lcd_touch_config_t touch_config;
 
     I2cTouchConfig(
-        // 中文注释：已按当前代码逻辑本地化。
+        // 总线输入输出配置参数
         uint16_t dev_addr,
         esp_lcd_panel_io_color_trans_done_cb_t on_color_trans_done,
         void *user_ctx,
@@ -26,7 +26,7 @@ namespace wrapper
         unsigned int dc_low_on_data,
         unsigned int disable_control_phase,
         uint32_t scl_speed_hz,
-        // 中文注释：已按当前代码逻辑本地化。
+        // 触摸参数配置
         uint16_t x_max,
         uint16_t y_max,
         gpio_num_t rst_gpio_num,
@@ -39,7 +39,7 @@ namespace wrapper
         void (*process_coordinates)(esp_lcd_touch_handle_t tp, uint16_t *x, uint16_t *y, uint16_t *strength, uint8_t *point_num, uint8_t max_point_num),
         esp_lcd_touch_interrupt_callback_t interrupt_callback) : io_config{}, touch_config{}
     {
-      // 中文注释：已按当前代码逻辑本地化。
+      // 初始化总线输入输出配置
       this->io_config.dev_addr = dev_addr;
       this->io_config.on_color_trans_done = on_color_trans_done;
       this->io_config.user_ctx = user_ctx;
@@ -51,7 +51,7 @@ namespace wrapper
       this->io_config.flags.disable_control_phase = disable_control_phase;
       this->io_config.scl_speed_hz = scl_speed_hz;
 
-      // 中文注释：已按当前代码逻辑本地化。
+      // 初始化触摸配置
       this->touch_config.x_max = x_max;
       this->touch_config.y_max = y_max;
       this->touch_config.rst_gpio_num = rst_gpio_num;
@@ -76,7 +76,7 @@ namespace wrapper
     I2cTouch(Logger &logger);
     ~I2cTouch();
     esp_lcd_touch_handle_t GetHandle() const { return touch_handle_; }
-    // 中文注释：已按当前代码逻辑本地化。
+    // 操作接口
     bool Init(
         const I2cBus &bus,
         const I2cTouchConfig &config,
@@ -88,4 +88,4 @@ namespace wrapper
     bool GetCoordinates(uint16_t *x, uint16_t *y, uint16_t *strength, uint8_t *point_num, uint8_t max_point_num);
   };
 
-} // 中文注释：已按当前代码逻辑本地化。
+} // 命名空间结束

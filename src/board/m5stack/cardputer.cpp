@@ -138,14 +138,14 @@ Microphone mic(logger_mic);
 
 bool M5StackCardputer::Init()
 {
-  i2c_bus.Init(i2c_bus_config);// 中文注释：已按当前代码逻辑本地化。
-  spi_bus.Init(spi_bus_config);// 中文注释：已按当前代码逻辑本地化。
-  display.Init(spi_display_config, esp_lcd_new_panel_st7789);// 中文注释：已按当前代码逻辑本地化。
-  i2s_bus.Init(i2s_bus_cfg);// 中文注释：已按当前代码逻辑本地化。
-  i2s_bus.ConfigureTxChannel(i2s_speaker_chan_cfg);// 中文注释：已按当前代码逻辑本地化。
-  i2s_bus.ConfigureRxChannel(i2s_mic_chan_cfg);// 中文注释：已按当前代码逻辑本地化。
+  i2c_bus.Init(i2c_bus_config);   // 初始化总线，供键盘与扩展外设使用
+  spi_bus.Init(spi_bus_config);   // 初始化显示总线
+  display.Init(spi_display_config, esp_lcd_new_panel_st7789); // 初始化屏幕
+  i2s_bus.Init(i2s_bus_cfg);      // 初始化音频总线
+  i2s_bus.ConfigureTxChannel(i2s_speaker_chan_cfg); // 配置扬声器发送通道
+  i2s_bus.ConfigureRxChannel(i2s_mic_chan_cfg);     // 配置麦克风接收通道
 
-  // 中文注释：已按当前代码逻辑本地化。
+  // 初始化矩阵键盘
   KeyboardConfig keyboard_config;
   keyboard_config.input_pins = {13, 15, 3, 4, 5, 6, 7};
   keyboard_config.output_pins = {8, 9, 11};
@@ -154,6 +154,6 @@ bool M5StackCardputer::Init()
   return true;
 }
 
-} // 中文注释：已按当前代码逻辑本地化。
+} // 命名空间结束
 
 #endif

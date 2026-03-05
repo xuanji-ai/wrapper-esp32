@@ -67,7 +67,7 @@ public:
     ~SpiBus();
     Logger& GetLogger();
     spi_host_device_t GetHostId() const;
-    // 中文注释：已按当前代码逻辑本地化。
+    // 总线操作接口
     bool Init(const SpiBusConfig& config);
     bool Deinit();
     bool Reset();
@@ -104,18 +104,18 @@ public:
     SpiDevice(Logger& logger);
     ~SpiDevice();
     Logger& GetLogger();
-    // 中文注释：已按当前代码逻辑本地化。
+    // 设备操作接口
     bool Init(const SpiBus& bus, const SpiDeviceConfig& config);
     bool Deinit();
     
-    // 中文注释：已按当前代码逻辑本地化。
+    // 同时写入并读取
     bool Transfer(const std::vector<uint8_t>& tx_data, std::vector<uint8_t>& rx_data);
     
-    // 中文注释：已按当前代码逻辑本地化。
+    // 仅写入数据
     bool Write(const std::vector<uint8_t>& data);
     
-    // 中文注释：已按当前代码逻辑本地化。
+    // 仅读取数据
     bool Read(size_t len, std::vector<uint8_t>& rx_data);
 };
 
-} // 中文注释：已按当前代码逻辑本地化。
+} // 命名空间结束
