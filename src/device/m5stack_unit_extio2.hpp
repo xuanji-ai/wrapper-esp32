@@ -111,16 +111,16 @@ public:
 
   bool Init(const I2cBus &bus);
 
-  void SetMode(int pin, Mode mode);
+  bool SetMode(int pin, Mode mode);
 
   Mode GetMode(int pin);
 
-  void SetModeAll(Mode mode);
+  bool SetModeAll(Mode mode);
 
   bool SetDigitalOutput(int pin, bool state);
 
   bool SetDigitalOutputs(uint8_t states);
-  bool GetDigitalInput(int pin, bool& state);
+  int GetDigitalInput(int pin);;
 };
 
 } // namespace wrapper
