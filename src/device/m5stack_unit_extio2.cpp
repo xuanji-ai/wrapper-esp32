@@ -3,16 +3,20 @@
 namespace wrapper
 {
 
+  bool UnitExtio2::setPwmDutyCycle(uint8_t pin, uint8_t duty) {
+    uint8_t reg = pin + EXTIO2_PWM_DUTY_CYCLE_REG;
+    return WriteReg8(reg, duty, 1000);
+  }
+
+  bool UnitExtio2::setPwmFrequency(uint8_t pin, uint8_t freq) {
+    uint8_t reg = pin + EXTIO2_PWM_FREQUENCY_REG;
+    return WriteReg8(reg, freq, 1000);
+  }
+
   bool UnitExtio2::Init(const I2cBus &bus)
   {
     I2cDeviceConfig cfg = I2cDeviceConfig(I2C_ADDR_DEFAULT, I2C_SPEED_HZ);
     return I2cDevice::Init(bus, cfg) == true;
-  }
-
-  bool UnitExtio2::SetMode(int pin, Mode mode)
-  {
-    GetLogger().Info("SetMode Pin %d: %d", pin, static_cast<uint8_t>(mode));
-    return WriteReg8(REG_MODE_IO(pin), static_cast<uint8_t>(mode), 1000);
   }
 
   UnitExtio2::Mode UnitExtio2::GetMode(int pin)
@@ -25,6 +29,14 @@ namespace wrapper
     return static_cast<Mode>(0xFF);
   }
 
+  bool UnitExtio2::SetMode(int pin, Mode mode)
+  {
+
+    bool result = WriteReg8(REG_MODE_IO(pin), static_cast<uint8_t>(mode), 1000);
+    GetLogger().Info("SetMode Pin %d: %d. result: %s", pin, static_cast<uint8_t>(mode), result ? "Success" : "Failure");
+    return result;
+  }
+
   bool UnitExtio2::SetModeAll(Mode mode)
   {
     GetLogger().Info("SetMode All: %d", static_cast<uint8_t>(mode));
@@ -32,8 +44,6 @@ namespace wrapper
     for (int pin = 0; pin < 8; pin++)
     {
       success = WriteReg8(REG_MODE_IO(pin), static_cast<uint8_t>(mode), 1000) && success;
-      //success = WriteReg8(REG_DIGITAL_INPUT_IO(pin), static_cast<uint8_t>(mode), 1000) && success;
-      //success = WriteReg8(REG_OUTPUT_CTL_IO(pin), static_cast<uint8_t>(mode), 1000) && success;
     }
     return success;
   }

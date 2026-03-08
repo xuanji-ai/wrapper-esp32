@@ -53,10 +53,13 @@ class UnitExtio2 : public I2cDevice
     SERVO_PULSE_16B = 0x60,
 
     RGB_24B = 0x70,
-
+    EXTIO2_PWM_DUTY_CYCLE_REG = 0x90,
+    EXTIO2_PWM_FREQUENCY_REG = 0xA0,
     FW_VERSION = 0xFE,
     ADDRESS = 0xFF
   };
+
+
 
   constexpr static inline uint8_t REG_MODE_IO(uint8_t pin)
   {
@@ -94,7 +97,8 @@ public:
     DIGITAL_OUTPUT,
     ADC_INPUT,
     SERVO_CTL,
-    RGB_LED
+    RGB_LED,
+    PWM_MODE
   };
 
   enum AnalogReadMode : uint8_t
@@ -120,7 +124,9 @@ public:
   bool SetDigitalOutput(int pin, bool state);
 
   bool SetDigitalOutputs(uint8_t states);
-  int GetDigitalInput(int pin);;
+  int GetDigitalInput(int pin);
+  bool setPwmDutyCycle(uint8_t pin, uint8_t duty);
+  bool setPwmFrequency(uint8_t pin, uint8_t freq);
 };
 
 } // namespace wrapper
